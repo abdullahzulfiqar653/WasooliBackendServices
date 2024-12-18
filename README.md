@@ -1,5 +1,3 @@
-Here’s the improved version of your document with the requested changes and additional context about the software:
-
 ---
 
 # **Wasooli**: A DjangoRestFramework-Based Solution for Monthly Fee Collection
