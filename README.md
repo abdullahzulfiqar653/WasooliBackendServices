@@ -1,62 +1,101 @@
-# BoilerPlateDjango
+Here’s the improved version of your document with the requested changes and additional context about the software:
 
-**clone project using HTTPS or SSH**
+---
 
-**_HTTPS:_**
+# **Wasooli**: A DjangoRestFramework-Based Solution for Monthly Fee Collection
 
-```
+Wasooli is a Django-based application designed to replace manual vouchers traditionally used for monthly fee collection. This project provides a streamlined and efficient way to manage collections using a modern web interface.
+
+---
+
+## **Getting Started**
+
+### **Clone the Project**
+
+You can clone the repository using either HTTPS or SSH:
+
+#### **_HTTPS:_**
+
+```bash
 git clone https://github.com/abdullahzulfiqar653/SimpleBoilerplateDjango.git
 ```
 
-**_SSH:_**
+#### **_SSH:_**
 
-```
+```bash
 git clone git@github.com:abdullahzulfiqar653/SimpleBoilerplateDjango.git
 ```
 
-**Make and activate environment for the project using commands given**
+---
 
-**1: making environment and installing dependencies**
-**_Install python 3.11.7 on local machine https://www.python.org/_**
+## **Setup Instructions**
 
-**i: installing poetry:**
+Follow these steps to set up the project on your local machine.
 
-**_windows:_**
+### **Step 1: Install Python**
 
-```
+Make sure Python 3.11.7 is installed on your local machine. You can download it from the [official Python website](https://www.python.org/).
+
+---
+
+### **Step 2: Install Poetry**
+
+Poetry is used to manage dependencies and the virtual environment for the project. Install it using the appropriate command for your operating system:
+
+#### **Windows:**
+
+```bash
 pip install poetry
 ```
 
-**_macOS/Linux:_**
+#### **macOS/Linux:**
 
-```
+```bash
 pip3 install poetry
 ```
 
-**ii: installing package:\_**
-open the terminal in SimpleBoilerplateDjango and run to make virtualenv and install packages in that
-**_macOS/Linux/Windows:_**
+---
 
-```
-poetry install
-```
+### **Step 3: Set Up the Environment and Install Dependencies**
 
-**ii: activating environment:\_**
-after installation complete and execute the following command
-**_macOS/Linux/Windows:_**
+1. **Install Packages:**
+   Open a terminal in the `SimpleBoilerplateDjango` directory and run the following command to create a virtual environment and install the required dependencies:
 
-```
-poetry shell
-```
+   ```bash
+   poetry install
+   ```
 
-**3: Setup .env to load environment variables**
+2. **Activate the Environment:**
+   After the installation is complete, activate the environment using this command:
 
-add .env file in the main source directory at the same level as manage.py and .env.example and set all variables using the help of .env.example
+   ```bash
+   poetry shell
+   ```
 
-**5: Run the Application and API in the terminal or in vs code terminal**
-Make sure to activate the virtual environment and you are in SimpleBoilerplateDjango directory
-_​use command to run Django-server:_
+---
 
-```
+### **Step 4: Configure Environment Variables**
+
+Create a `.env` file in the main source directory (at the same level as `manage.py` and `.env.example`). Use `.env.example` as a reference to set up all the required environment variables.
+
+---
+
+### **Step 5: Run the Application**
+
+Make sure the virtual environment is activated and that you are in the `SimpleBoilerplateDjango` directory. Start the Django development server using this command:
+
+```bash
 python manage.py runserver
 ```
+
+---
+
+## **Key Features of Wasooli**
+
+- **Automated Voucher Management:** Simplify and digitize the collection of monthly fees.  
+- **Django-Powered API:** Built with Django to provide robust and scalable backend support.  
+- **Streamlined Workflow:** No more manual paperwork—manage collections efficiently through a centralized system.
+
+---
+
+Feel free to reach out for further support or contributions to the Wasooli project.
