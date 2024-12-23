@@ -1,4 +1,5 @@
-from django.db import models, Q
+from django.db import models
+from django.db.models import Q
 from apis.models.abstract.base import BaseModel
 
 

@@ -1,34 +1,35 @@
 from django.db import models
-from django.contrib.auth.models import User
 
 from apis.models.abstract.base import BaseModel
 
 
 class MerchantMembership(BaseModel):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="merchant_memberships"
+    member = models.ForeignKey(
+        "apis.MerchantMember",
+        on_delete=models.CASCADE,
+        related_name="member_memberships",
     )
     merchant = models.ForeignKey(
-        "apis.Merchant", on_delete=models.CASCADE, related_name="memberships"
+        "apis.Merchant", on_delete=models.CASCADE, related_name="merchant_memberships"
     )
     is_active = models.BooleanField(default=True)
     address = models.TextField(null=True)
     area = models.ForeignKey(
         "apis.Lookup",
         on_delete=models.SET_NULL,
-        related_name="merchant_memberships",
+        related_name="area_memberships",
         null=True,
     )
     city = models.ForeignKey(
         "apis.Lookup",
         on_delete=models.SET_NULL,
-        related_name="merchant_memberships",
+        related_name="city_memberships",
         null=True,
     )
     secondary_phone = models.CharField(max_length=10, null=True)
 
     class Meta:
-        unique_together = ["user", "merchant"]
+        unique_together = ["member", "merchant"]
 
     def __str__(self):
         return (

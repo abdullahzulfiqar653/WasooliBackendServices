@@ -68,7 +68,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "core.wsgi.application"
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Scoolarc",
+    "TITLE": "Wasooli.Online",
     "DESCRIPTION": "",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,

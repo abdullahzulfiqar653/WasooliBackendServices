@@ -11,7 +11,7 @@ class RoleChoices(models.TextChoices):
     CUSTOMER = "Customer", "Customer"
 
 
-class Register(BaseModel):
+class MerchantMember(BaseModel):
     user = models.OneToOneField(
         User, on_delete=models.SET_NULL, related_name="profile", null=True
     )
@@ -33,7 +33,7 @@ class Register(BaseModel):
 
     class Meta:
         verbose_name = "MerchantsMembersRegister"
-        unique_together = [["user", "merchant", "role", "cnic", "phone"]]
+        unique_together = [["user", "role", "cnic", "primary_phone"]]
 
     def save(self, *args, **kwargs):
         if not self.code:  # Auto-generate code only on creation
