@@ -1,6 +1,6 @@
 import shortuuid
 from collections import Counter
-from api.common.contants import MODEL_CODES
+from apis.common.contants import MODEL_CODES
 
 
 class UIDMixin:

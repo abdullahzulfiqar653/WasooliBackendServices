@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "scoolarcbackend"
+name = "wasooli.online"
 version = "0.1.0"
-description = "School Management System"
+description = "Wasooli Online"
 authors = ["abdullahzulfiqar653 <abdullahzulfiqar653@gmail.com>"]
 readme = "README.md"
 

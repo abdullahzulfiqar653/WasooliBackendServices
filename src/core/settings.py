@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "rest_framework_simplejwt",
     "rest_framework",
-    "api",
+    "apis",
 ]
 
 MIDDLEWARE = [

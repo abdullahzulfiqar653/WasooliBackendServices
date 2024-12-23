@@ -1,6 +1,6 @@
 from django.db import models
 
-from api.models.mixins.uid import UIDMixin
+from apis.models.mixins.uid import UIDMixin
 
 
 class BaseModel(models.Model, UIDMixin):
