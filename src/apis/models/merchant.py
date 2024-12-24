@@ -11,6 +11,7 @@ class Merchant(BaseModel):
         GYM = "gym", "Gym"
         GARBAGE = "garbage", "Garbage"
 
+    name = models.CharField(max_length=50)
     merchant_type = models.CharField(max_length=50, choices=MerchantType.choices)
     owner = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="merchant"
