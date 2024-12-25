@@ -26,17 +26,10 @@ class MerchantMember(BaseModel):
     primary_phone = models.CharField(
         max_length=10, null=True, verbose_name="Primary Phone", unique=True
     )
-    code = models.PositiveIntegerField(unique=True, editable=False)
-
-    def __str__(self):
-        return f"{self.user.username} - {self.role.name} of {self.merchant.name}."
 
     class Meta:
         verbose_name = "MerchantsMembersRegister"
         unique_together = [["user", "role", "cnic", "primary_phone"]]
 
-    def save(self, *args, **kwargs):
-        if not self.code:  # Auto-generate code only on creation
-            last_code = Merchant.objects.aggregate(models.Max("code"))["code__max"]
-            self.code = (last_code or 999) + 1
-        super().save(*args, **kwargs)
+    def __str__(self):
+        return f"{self.user.username} - {self.role.name} of {self.merchant.name}."
