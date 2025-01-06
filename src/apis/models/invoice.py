@@ -8,26 +8,20 @@ from apis.models.transaction_history import TransactionHistory
 
 class Invoice(BaseModel):
     class STATUS(models.TextChoices):
+        PAID = "paid", "Paid"
         UNPAID = "unpaid", "Unpaid"
-        PAID = "paid", "Paid"
 
-    class TYPES(models.TextChoices):
-        MONTHLY = "monthly", "Monthly"
-        PAID = "paid", "Paid"
-
-    merchant_membership = models.ForeignKey(
-        "apis.MerchantMembership", on_delete=models.CASCADE, related_name="invoices"
-    )
-    type = models.CharField(max_length=50, choices=TYPES.choices, default=TYPES.MONTHLY)
     status = models.CharField(
-        max_length=20, choices=STATUS.choices, default=STATUS.UNPAID
+        max_length=15, choices=STATUS.choices, default=STATUS.UNPAID
     )
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
-    amount_due = models.DecimalField(max_digits=10, decimal_places=2)
+    is_monthly = models.BooleanField(default=True)
+    metadata = models.JSONField(null=True, blank=True)
+    is_user_invoice = models.BooleanField(default=True)
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
+    amount_due = models.DecimalField(max_digits=8, decimal_places=2)
     due_date = models.DateField(default=timezone.now() + timezone.timedelta(days=15))
-    description = models.TextField(null=True, blank=True)
     # New column to store the invoice code, starting from 10000000
-    code = models.CharField(max_length=9, unique=True, editable=False)
+    code = models.CharField(max_length=10, unique=True, editable=False)
 
     def __str__(self):
         return f"Invoice for {self.merchant_membership.member.user.first_name}"

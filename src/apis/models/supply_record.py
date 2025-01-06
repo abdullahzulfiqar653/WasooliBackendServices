@@ -13,7 +13,4 @@ class SupplyRecord(BaseModel):
     taken = models.SmallIntegerField(default=0)
 
     def __str__(self):
-        return f"""Supply on
-        {self.created_at} for
-        {self.merchant_membership.member.user.first_name}
-        ({self.given} given, {self.taken} taken)"""
+        return f"Supply for {self.merchant_membership.member.user.first_name}"

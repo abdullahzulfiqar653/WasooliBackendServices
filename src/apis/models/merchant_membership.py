@@ -29,21 +29,19 @@ class MerchantMembership(BaseModel):
         null=True,
     )
     secondary_phone = models.CharField(max_length=10, null=True)
+    picture = models.ImageField(upload_to="protected/picture", null=True)
     # Financial fields
-    actual_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    discounted_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    credit_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     is_monthly = models.BooleanField(default=True)
     meta_data = models.JSONField(null=True, blank=True)
     account = models.CharField(max_length=6, unique=True, editable=False)
+    actual_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    discounted_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     class Meta:
         unique_together = ["member", "merchant"]
 
     def __str__(self):
-        return (
-            f"{self.user.username} - {self.user.profile.role} of {self.merchant.name}."
-        )
+        return f"{self.user.first_name} - {self.user.profile.role} of {self.merchant.name}."
 
     def save(self, *args, **kwargs):
         if not self.account:
