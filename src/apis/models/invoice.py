@@ -1,4 +1,5 @@
 from django.db import models
+
 from django.db.models import Max
 from django.utils import timezone
 
@@ -22,6 +23,12 @@ class Invoice(BaseModel):
     due_date = models.DateField(default=timezone.now() + timezone.timedelta(days=15))
     # New column to store the invoice code, starting from 10000000
     code = models.CharField(max_length=10, unique=True, editable=False)
+    handled_by = models.ForeignKey(
+        "auth.User",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="handled_invoices",
+    )
 
     def __str__(self):
         return f"Invoice for {self.merchant_membership.member.user.first_name}"

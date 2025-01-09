@@ -2,7 +2,8 @@ from django.db.models import Q
 from rest_framework.permissions import BasePermission
 from rest_framework.exceptions import PermissionDenied
 
-from apis.models.merchant_member import MerchantMember, RoleChoices
+from apis.models.member_role import RoleChoices
+from apis.models.merchant_member import MerchantMember
 
 
 class IsMerchantOrStaff(BasePermission):
@@ -15,17 +16,19 @@ class IsMerchantOrStaff(BasePermission):
 
         if not username:
             raise PermissionDenied("Username is required in the request data.")
-        merchant_member = MerchantMember.objects.filter(
+        member = MerchantMember.objects.filter(
             Q(user__username=username)
             | Q(user__email=username)
             | Q(primary_phone=username)
         )
-        if not merchant_member.exists():
+        if not member.exists():
             raise PermissionDenied("No user found with the provided username.")
 
-        merchant_member = merchant_member.first()
-        if merchant_member.role not in [RoleChoices.MERCHANT, RoleChoices.STAFF]:
+        member = member.first()
+        if not member.roles.filter(
+            role__in=[RoleChoices.MERCHANT, RoleChoices.STAFF]
+        ).exists():
             raise PermissionDenied("You are not allowed to login.")
 
-        request.user = merchant_member.user
+        request.user = member.user
         return True

@@ -20,7 +20,16 @@ class Merchant(BaseModel):
     )
     code = models.CharField(max_length=6, unique=True, editable=False)
     commission_structure = models.JSONField(
-        default=dict,
+        default=lambda: {
+            "cash": [
+                {"max_credit": 1000, "commission": 0.1},
+                {"max_credit": 2000, "commission": 0.2},
+                {"max_credit": 3000, "commission": 0.3},
+                {"max_credit": 4000, "commission": 0.4},
+                {"max_credit": 5000, "commission": 0.5},
+            ],
+            "online": [{"max_credit": 1000, "commission": 0.5}],
+        },
         help_text="""Stores commission tiers for cash and online transactions. Example: 
             {
                 "cash": [

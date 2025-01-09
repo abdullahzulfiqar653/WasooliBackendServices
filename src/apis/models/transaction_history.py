@@ -30,7 +30,7 @@ class TransactionHistory(BaseModel):
         "apis.Invoice",
         null=True,
         on_delete=models.SET_NULL,
-        related_name="member_transactions",
+        related_name="member_invoices",
     )
     metadata = models.JSONField(null=True, blank=True)
     is_commission_paid = models.BooleanField(default=False)

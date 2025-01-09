@@ -41,7 +41,7 @@ class MerchantMembership(BaseModel):
         unique_together = ["member", "merchant"]
 
     def __str__(self):
-        return f"{self.user.first_name} - {self.user.profile.role} of {self.merchant.name}."
+        return f"{self.user.first_name} of {self.merchant.name}."
 
     def save(self, *args, **kwargs):
         if not self.account:
