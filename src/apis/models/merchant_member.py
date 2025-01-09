@@ -4,10 +4,10 @@ from apis.models.abstract.base import BaseModel
 
 
 class MerchantMember(BaseModel):
-    # TODO if a merchant registered with someone as a customer need to handle that situation
     user = models.OneToOneField(
         "auth.User", on_delete=models.CASCADE, related_name="profile"
     )
+    merchant = models.ForeignKey("apis.Merchant", on_delete=models.SET_NULL, null=True)
     memberships = models.ManyToManyField(
         "apis.Merchant", through="MerchantMembership", related_name="users"
     )
