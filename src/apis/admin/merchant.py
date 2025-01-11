@@ -1,5 +1,14 @@
 from django.contrib import admin
+from apis.models.lookup import Lookup
+from apis.models.merchant_member import MerchantMember
+from apis.models.merchant_membership import MerchantMembership
+
+
 from apis.models.merchant import Merchant
+
+admin.site.register(Lookup)
+admin.site.register(MerchantMember)
+admin.site.register(MerchantMembership)
 
 
 @admin.register(Merchant)

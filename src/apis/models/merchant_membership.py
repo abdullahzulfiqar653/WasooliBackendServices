@@ -9,36 +9,29 @@ class MerchantMembership(BaseModel):
     member = models.ForeignKey(
         "apis.MerchantMember",
         on_delete=models.CASCADE,
-        related_name="member_memberships",
+        related_name="memberships",
     )
     merchant = models.ForeignKey(
-        "apis.Merchant", on_delete=models.CASCADE, related_name="merchant_memberships"
+        "apis.Merchant", on_delete=models.CASCADE, related_name="members"
     )
-    is_active = models.BooleanField(default=True)
     address = models.TextField(null=True)
-    area = models.ForeignKey(
-        "apis.Lookup",
-        on_delete=models.SET_NULL,
-        related_name="area_memberships",
-        null=True,
-    )
-    city = models.ForeignKey(
-        "apis.Lookup",
-        on_delete=models.SET_NULL,
-        related_name="city_memberships",
-        null=True,
-    )
-    secondary_phone = models.CharField(max_length=10, null=True)
-    picture = models.ImageField(upload_to="protected/picture", null=True)
+    area = models.CharField(max_length=128)
+    city = models.CharField(max_length=128)
+    is_active = models.BooleanField(default=True)
+    picture = models.CharField(max_length=1000, blank=True, null=True)
+    secondary_phone = models.CharField(max_length=10, null=True, blank=True)
     # Financial fields
     is_monthly = models.BooleanField(default=True)
     meta_data = models.JSONField(null=True, blank=True)
+    actual_price = models.DecimalField(max_digits=10, decimal_places=2)
     account = models.CharField(max_length=6, unique=True, editable=False)
-    actual_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    discounted_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    discounted_price = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         unique_together = ["member", "merchant"]
+        indexes = [
+            models.Index(fields=["member", "merchant", "is_active"]),
+        ]
 
     def __str__(self):
         return f"{self.user.first_name} of {self.merchant.name}."

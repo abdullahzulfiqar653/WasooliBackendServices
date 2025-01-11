@@ -22,9 +22,13 @@ class Merchant(BaseModel):
         GYM = "gym", "Gym"
         MILK = "milk", "Milk"
         WATER = "water", "Water"
+        HOSTEl = "hostel", "Hostel"
+        MADRSA = "madrsa", "Madrsa"
+        ACADEMY = "academy", "Academy"
         GARBAGE = "garbage", "Garbage"
         INTERNET = "internet", "Internet"
-        Installment = "installment", "Installment"
+        LANDLORD = "landlord", "Landlord"
+        INSTALLMENT = "installment", "Installment"
 
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, choices=MerchantType.choices)
@@ -51,7 +55,7 @@ class Merchant(BaseModel):
     )
 
     def __str__(self):
-        return f"{self.name} ({self.code})"
+        return f"{self.name} ({self.code}) with id: {self.id}"
 
     def save(self, *args, **kwargs):
         if not self.code:

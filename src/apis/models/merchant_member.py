@@ -8,15 +8,18 @@ class MerchantMember(BaseModel):
         "auth.User", on_delete=models.CASCADE, related_name="profile"
     )
     merchant = models.ForeignKey("apis.Merchant", on_delete=models.SET_NULL, null=True)
-    memberships = models.ManyToManyField(
-        "apis.Merchant", through="MerchantMembership", related_name="users"
-    )
-    cnic = models.CharField(max_length=13, null=True)
-    picture = models.ImageField(upload_to="protected/picture", null=True)
+
+    cnic = models.CharField(max_length=13, null=True, blank=True)
+    picture = models.CharField(max_length=1000, blank=True, null=True)
     primary_phone = models.CharField(
-        max_length=10, null=True, verbose_name="Primary Phone", unique=True
+        max_length=10, verbose_name="Primary Phone", unique=True
     )
     code = models.CharField(max_length=6, unique=True, editable=False)
+    merchant_memberships = models.ManyToManyField(
+        "apis.Merchant",
+        through="MerchantMembership",
+        related_name="customer_memberships",
+    )
 
     class Meta:
         verbose_name = "MerchantsMembersRegister"

@@ -49,7 +49,7 @@ class IsMerchantOrStaff(permissions.BasePermission):
 
     def get_merchant(self, request, view):
         match request.path:
-            case str(s) if s.startswith("/api/merchant/"):
+            case str(s) if s.startswith("/api/merchants/"):
                 if not hasattr(request, "merchant"):
                     Merchant = apps.get_model("apis", "Merchant")
                     merchant_id = view.kwargs.get("pk") or view.kwargs.get(
