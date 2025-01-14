@@ -34,7 +34,7 @@ jobs:
       - name: Run Deploy
         run: |
           ssh target "\
-            cd /root/wasooli.online/dev/WasooliBackendServices && \
+            cd /root/wasooli.online/dev/WasooliBackendServices/src && \
             git pull && \
             /root/.pyenv/shims/poetry install && \
             /root/.pyenv/shims/poetry run python manage.py migrate && \
