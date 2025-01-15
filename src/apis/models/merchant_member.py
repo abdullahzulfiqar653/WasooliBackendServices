@@ -26,7 +26,7 @@ class MerchantMember(BaseModel):
         unique_together = [["user", "cnic", "primary_phone"]]
 
     def __str__(self):
-        return f"{self.user.first_name}"
+        return f"{self.code}"
 
     def save(self, *args, **kwargs):
         if not self.code:

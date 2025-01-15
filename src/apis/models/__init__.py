@@ -1,3 +1,4 @@
+from apis.models.otp import OTP
 from apis.models.lookup import Lookup
 from apis.models.invoice import Invoice
 from apis.models.merchant import Merchant
@@ -9,6 +10,7 @@ from apis.models.transaction_history import TransactionHistory
 
 
 __all__ = [
+    "OTP",
     "Lookup",
     "Invoice",
     "Merchant",

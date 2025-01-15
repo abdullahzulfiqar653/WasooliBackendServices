@@ -86,9 +86,8 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                 member.merchant = merchant
                 member.save()
         else:
-            user, created = User.objects.create(**user_data, username=primary_phone)
-            if created:
-                user.set_password(secrets.token_hex(7))
+            user = User.objects.create(**user_data, username=primary_phone)
+            user.set_password(secrets.token_hex(7))
             if roles_data["role"] == RoleChoices.STAFF:
                 validated_data["merchant"] = merchant
             member = MerchantMember.objects.create(user=user, **validated_data)

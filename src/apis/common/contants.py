@@ -1,4 +1,5 @@
 MODEL_CODES = {
+    "OTP": "108",
     "Lookup": "100",
     "Invoice": "101",
     "Merchant": "102",

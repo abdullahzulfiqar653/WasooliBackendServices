@@ -51,7 +51,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            BASE_DIR / "api" / "templates",
+            BASE_DIR / "src" / "templates",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -143,3 +143,11 @@ if DEBUG:
     INTERNAL_IPS = [
         "127.0.0.1",
     ]
+
+
+DEFAULT_EMAIL_PORT = 587
+DEFAULT_EMAIL_TLS = True
+DEFAULT_EMAIL_SSL = False
+DEFAULT_EMAIL_HOST = env("DEFAULT_EMAIL_HOST")
+DEFAULT_EMAIL_USER = env("DEFAULT_EMAIL_USER")
+DEFAULT_EMAIL_PASSWORD = env("DEFAULT_EMAIL_PASSWORD")

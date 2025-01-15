@@ -23,5 +23,5 @@ def load_data_from_fixture(sender, **kwargs):
 def create_merchant_member(sender, instance, created, **kwargs):
     if created:
         instance.owner.groups.add(Group.objects.get(name=RoleChoices.MERCHANT))
-        member = MerchantMember.objects.create(user=instance.owner)
+        member = MerchantMember.objects.create(user=instance.owner, merchant=instance)
         MemberRole.objects.create(member=member, role=RoleChoices.MERCHANT)

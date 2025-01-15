@@ -7,8 +7,19 @@ from apis.models.merchant_membership import MerchantMembership
 from apis.models.merchant import Merchant
 
 admin.site.register(Lookup)
-admin.site.register(MerchantMember)
 admin.site.register(MerchantMembership)
+
+
+@admin.register(MerchantMember)
+class MerchantMemberAdmin(admin.ModelAdmin):
+
+    # Optionally, you can customize the fields you want to display in the admin interface
+    list_display = ("id", "code")
+    search_fields = ("name", "id")
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.all()
 
 
 @admin.register(Merchant)

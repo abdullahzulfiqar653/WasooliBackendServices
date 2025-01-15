@@ -90,3 +90,30 @@ class IsMerchantOrStaff(permissions.BasePermission):
         if not merchant:
             return False
         return True
+
+
+class IsMerchantMemberAnonymous(permissions.BasePermission):
+    """
+    Permission to check if the Anonymous user is a member of the merchant,
+    even for anonymous requests where email or phone is provided.
+    """
+
+    def has_permission(self, request, view):
+        username = request.data.get("username")
+
+        if not username:
+            raise exceptions.PermissionDenied(
+                "Username is required in the request data."
+            )
+        member = MerchantMember.objects.filter(
+            Q(user__username=username)
+            | Q(user__email=username)
+            | Q(primary_phone=username)
+        )
+        if not member.exists():
+            raise exceptions.PermissionDenied(
+                "No user found with the provided username."
+            )
+
+        request.member = member.first()
+        return True
