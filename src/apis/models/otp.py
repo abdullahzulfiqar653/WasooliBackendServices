@@ -14,4 +14,4 @@ class OTP(BaseModel):
 
     def is_valid(self) -> bool:
         """Check if the OTP is valid based on time and usage."""
-        return not self.is_used and now() < self.created_at + timedelta(minutes=5)
+        return not self.is_used and now() < self.updated_at + timedelta(minutes=5)

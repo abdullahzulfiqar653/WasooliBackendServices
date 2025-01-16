@@ -104,7 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 USE_TZ = True
 USE_I18N = True
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Karachi"
 LANGUAGE_CODE = "en-us"
 
 
