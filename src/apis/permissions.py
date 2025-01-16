@@ -47,6 +47,15 @@ class IsMerchantOrStaff(permissions.BasePermission):
             raise exceptions.NotFound
         return instance
 
+    def get_request_merchant(self, request):
+        merchant = getattr(request.user, "merchant", None)
+        if not merchant:
+            if request.user.profile.roles.filter(role=RoleChoices.STAFF).exists():
+                merchant = request.user.profile.merchant
+                if not merchant:
+                    raise exceptions.NotFound
+        return merchant
+
     def get_merchant(self, request, view):
         match request.path:
             case str(s) if s.startswith("/api/merchants/"):
@@ -57,6 +66,15 @@ class IsMerchantOrStaff(permissions.BasePermission):
                     )
                     queryset = Merchant.objects.all()
                     request.merchant = self.get_instance(queryset, merchant_id)
+                merchant = request.merchant
+            case str(s) if s.startswith("/api/members/"):
+                if not hasattr(request, "merchant"):
+                    MerchantMembership = apps.get_model("apis", "MerchantMembership")
+                    member_id = view.kwargs.get("pk") or view.kwargs.get("member_id")
+                    merchant = self.get_request_merchant(request)
+                    queryset = MerchantMembership.objects.filter(merchant=merchant)
+                    if self.get_instance(queryset, member_id):
+                        request.merchant = merchant
                 merchant = request.merchant
             case _:
                 merchant = None

@@ -34,7 +34,7 @@ class MerchantMembership(BaseModel):
         ]
 
     def __str__(self):
-        return f"{self.user.first_name} of {self.merchant.name}."
+        return f"{self.member.user.first_name} of {self.merchant.name}."
 
     def save(self, *args, **kwargs):
         if not self.account:

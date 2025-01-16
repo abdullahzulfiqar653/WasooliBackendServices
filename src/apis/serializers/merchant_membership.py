@@ -32,10 +32,10 @@ class MerchantMembershipSerializer(ModelSerializer):
 
     def validate(self, data):
         if "actual_price" in data and "discounted_price" in data:
-            if data["discounted_price"] < data["actual_price"]:
+            if data["discounted_price"] > data["actual_price"]:
                 raise ValidationError(
                     {
-                        "discounted_price": "Discounted price cannot be smaller than the actual price."
+                        "discounted_price": "Discounted price cannot be larger than the actual price."
                     }
                 )
         city = data.get("city", "").strip().lower()

@@ -19,7 +19,6 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
     roles = MemberRoleSerializer(required=True, write_only=True)
     area = serializers.CharField(source="area_name", read_only=True)
     is_active = serializers.BooleanField(source="current_active", read_only=True)
-    merchant_memberships = MerchantMembershipSerializer(required=True, write_only=True)
 
     class Meta:
         model = MerchantMember
@@ -43,6 +42,7 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         read_only_fields = ["picture"]
 
     def __init__(self, *args, **kwargs):
+        membership = "merchant_memberships"
         super(MerchantMemberSerializer, self).__init__(*args, **kwargs)
         # Adjust the 'required' attribute of merchant_memberships based on the role data if present
         request = self.context.get("request")
@@ -50,7 +50,28 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
             role_data = request.data["roles"]
             role = role_data.get("role")
             if role == RoleChoices.STAFF:
-                self.fields["merchant_memberships"].required = False
+                self.fields[membership].required = False
+
+        fake_view = getattr(self.context.get("view"), "swagger_fake_view", False)
+        if fake_view:
+            self.fields[membership] = MerchantMembershipSerializer()
+        else:
+            if request.method == "GET":
+                self.fields[membership] = serializers.SerializerMethodField()
+            if request.method == "POST":
+                self.fields[membership] = MerchantMembershipSerializer(
+                    required=True, write_only=True
+                )
+
+    def get_merchant_memberships(self, obj) -> dict:
+        request = self.context.get("request")
+        membership = MerchantMembership.objects.filter(
+            member=obj, merchant=request.merchant
+        ).first()
+
+        if membership:
+            return MerchantMembershipSerializer(membership).data
+        return {}
 
     def validate_cnic(self, value):
         if value and not re.match(r"^\d{13}$", value):
