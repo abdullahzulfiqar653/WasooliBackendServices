@@ -40,9 +40,9 @@ class IsAllowedToLogin(permissions.BasePermission):
 
 
 class IsMerchantOrStaff(permissions.BasePermission):
-    def get_instance(self, queryset, instance_id):
+    def get_instance(self, queryset, instance_id, lookup_field="id"):
         try:
-            instance = queryset.get(id=instance_id)
+            instance = queryset.get(**{lookup_field: instance_id})
         except queryset.model.DoesNotExist:
             raise exceptions.NotFound
         return instance
@@ -73,7 +73,7 @@ class IsMerchantOrStaff(permissions.BasePermission):
                     member_id = view.kwargs.get("pk") or view.kwargs.get("member_id")
                     merchant = self.get_request_merchant(request)
                     queryset = MerchantMembership.objects.filter(merchant=merchant)
-                    if self.get_instance(queryset, member_id):
+                    if self.get_instance(queryset, member_id, "member_id"):
                         request.merchant = merchant
                 merchant = request.merchant
             case _:
