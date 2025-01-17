@@ -1,15 +1,17 @@
 from apis.views.otp import OTPView
 from apis.views.token import TokenCreateView
 from apis.views.lookup import LookupListAPIView
-from apis.views.merchant_member import (
+from apis.views.merchant_member import MemberRetrieveUpdateDestroyAPIView
+from apis.views.merchant import (
+    MemberRetrieveByPhoneAPIView,
     MerchantMemberListCreateAPIView,
-    MerchantMemberRetrieveUpdateDestroyAPIView,
 )
 
 __all__ = [
     "OTPView",
     "TokenCreateView",
     "LookupListAPIView",
+    "MemberRetrieveByPhoneAPIView",
     "MerchantMemberListCreateAPIView",
-    "MerchantMemberRetrieveUpdateDestroyAPIView",
+    "MemberRetrieveUpdateDestroyAPIView",
 ]

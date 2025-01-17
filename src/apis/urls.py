@@ -2,8 +2,9 @@ from django.urls import path, include
 from apis.views import (
     OTPView,
     LookupListAPIView,
+    MemberRetrieveByPhoneAPIView,
     MerchantMemberListCreateAPIView,
-    MerchantMemberRetrieveUpdateDestroyAPIView,
+    MemberRetrieveUpdateDestroyAPIView,
 )
 
 
@@ -21,12 +22,17 @@ urlpatterns = [
         MerchantMemberListCreateAPIView.as_view(),
         name="merchant-members-list-create",
     ),
+    path(
+        "merchants/<str:merchant_id>/members/<str:phone>/",
+        MemberRetrieveByPhoneAPIView.as_view(),
+        name="merchant-member-retrieve",
+    ),
     # =====================================================
     # MerchantMember
     # =====================================================
     path(
         "members/<str:pk>/",
-        MerchantMemberRetrieveUpdateDestroyAPIView.as_view(),
+        MemberRetrieveUpdateDestroyAPIView.as_view(),
         name="member-retrieve-update-destroy",
     ),
     # =====================================================
