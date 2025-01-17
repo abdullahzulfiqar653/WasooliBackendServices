@@ -13,7 +13,9 @@ class OTPSerializer(serializers.Serializer):
     access = serializers.CharField(read_only=True)
     message = serializers.CharField(read_only=True)
     platform = serializers.CharField(default="email", write_only=True)
-    otp = serializers.CharField(max_length=6, required=False, write_only=True)
+    otp = serializers.CharField(
+        max_length=6, required=False, write_only=True, allow_null=True
+    )
 
     def create(self, validated_data):
         request = self.context.get("request")
