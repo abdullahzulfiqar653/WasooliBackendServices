@@ -7,6 +7,7 @@ from apis.serializers.lookup import LookupSerializer
 class LookupListAPIView(generics.ListAPIView):
     serializer_class = LookupSerializer
     permission_classes = []
+    pagination_class = None
 
     def get_queryset(self):
         flag = self.kwargs["flag"]

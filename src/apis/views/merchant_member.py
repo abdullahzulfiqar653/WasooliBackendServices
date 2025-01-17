@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, filters
 from django.db.models import Subquery, OuterRef
 
 from apis.models.merchant_member import MerchantMember
@@ -11,6 +11,14 @@ from apis.serializers.merchant_member import MerchantMemberSerializer
 class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsMerchantOrStaff]
     serializer_class = MerchantMemberSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = [
+        "cnic",
+        "code",
+        "primary_phone",
+        "user__first_name",
+        "merchant_memberships__secondary_phone",
+    ]
 
     def get_queryset(self):
         merchant = self.request.user.merchant
