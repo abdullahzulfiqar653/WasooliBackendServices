@@ -57,7 +57,7 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         else:
             if request.method == "GET":
                 self.fields[membership] = serializers.SerializerMethodField()
-            if request.method == "POST":
+            if request.method in ["POST", "PUT", "PATCH"]:
                 self.fields[membership] = MerchantMembershipSerializer(
                     required=True, write_only=True
                 )
@@ -152,3 +152,6 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                 membership.save()
 
         return member
+
+    def update(self, instance, validated_data):
+        return instance
