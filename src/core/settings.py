@@ -1,4 +1,5 @@
 import os
+import boto3
 import environ
 from pathlib import Path
 from datetime import timedelta
@@ -14,11 +15,27 @@ env = environ.Env(
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
+PROJECT_NAME = os.getenv("PROJECT_NAME")
+
 DEBUG = env("DEBUG")
 SECRET_KEY = env("SECRET_KEY")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 CORS_ORIGIN_ALLOW_ALL = env("CORS_ORIGIN_ALLOW_ALL")
 CORS_ALLOW_CREDENTIALS = env("CORS_ALLOW_CREDENTIALS")
+
+AWS_S3_REGION_NAME = "nyc3"
+AWS_STORAGE_BUCKET_NAME = "testing-projects"
+OBJECT_STORAGE_URL = os.getenv("OBJECT_STORAGE_URL")
+OBJECT_STORAGE_ACCESS_KEY = os.getenv("OBJECT_STORAGE_ACCESS_KEY")
+OBJECT_STORAGE_SECRET_KEY = os.getenv("OBJECT_STORAGE_SECRET_KEY")
+
+S3_CLIENT = boto3.client(
+    "s3",
+    region_name=AWS_S3_REGION_NAME,
+    endpoint_url=OBJECT_STORAGE_URL,
+    aws_access_key_id=OBJECT_STORAGE_ACCESS_KEY,
+    aws_secret_access_key=OBJECT_STORAGE_SECRET_KEY,
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
