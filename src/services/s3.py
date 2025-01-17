@@ -16,18 +16,35 @@ class S3Service:
         key = parsed_url.path.lstrip("/")
         return bucket, key
 
-    def upload_file(self, file_obj, s3_key):
+    def upload_file(self, file_obj, s3_key, is_public=True):
         """
         Uploads a file directly from an HTTP request to a specific folder in DigitalOcean Spaces.
         :param file_obj: The file object from the HTTP request (e.g., request.FILES['file'])
         :param s3_key: The unique file name in the space
-        :return: The presigned URL for the uploaded file
+        :param is_public: Flag to set the file as public (if True, it will be accessible via a public URL)
+        :return: The URL for the uploaded file (public or private)
         """
         try:
             # Upload the file directly from the request
             self.s3_client.upload_fileobj(file_obj, self.bucket, s3_key)
-            logger.info(f"File uploaded successfully: {s3_key}")
-            return f"s3://{self.bucket}/{s3_key}"
+
+            # If the file is public, set the ACL to public-read
+            if is_public:
+                self.s3_client.put_object_acl(
+                    Bucket=self.bucket, Key=s3_key, ACL="public-read"
+                )
+                logger.info(f"File uploaded and set to public: {s3_key}")
+            else:
+                logger.info(f"File uploaded successfully (private): {s3_key}")
+
+            # Return the URL of the uploaded file
+            if is_public:
+                # Construct the public URL for the uploaded file
+                file_url = f"{settings.OBJECT_STORAGE_URL}/{s3_key}"
+            else:
+                file_url = f"s3://{self.bucket}/{s3_key}"
+
+            return file_url
         except Exception as e:
             logger.error(f"Error uploading file to S3: {e}")
             raise Exception(f"Error uploading file: {e}")

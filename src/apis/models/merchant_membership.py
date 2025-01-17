@@ -18,7 +18,7 @@ class MerchantMembership(BaseModel):
     area = models.CharField(max_length=128)
     city = models.CharField(max_length=128)
     is_active = models.BooleanField(default=True)
-    picture = models.CharField(max_length=1000, blank=True, null=True)
+    picture = models.CharField(max_length=256, blank=True, null=True)
     secondary_phone = models.CharField(max_length=10, null=True, blank=True)
     # Financial fields
     is_monthly = models.BooleanField(default=True)

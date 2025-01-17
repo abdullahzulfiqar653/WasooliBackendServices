@@ -11,6 +11,10 @@ from apis.serializers.user import UserSerializer
 from apis.serializers.member_role import MemberRoleSerializer
 from apis.serializers.merchant_membership import MerchantMembershipSerializer
 
+from services.s3 import S3Service
+
+s3_client = S3Service()
+
 
 class MerchantMemberSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=True)
@@ -46,11 +50,6 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         super(MerchantMemberSerializer, self).__init__(*args, **kwargs)
         # Adjust the 'required' attribute of merchant_memberships based on the role data if present
         request = self.context.get("request")
-        if request and "roles" in request.data:
-            role_data = request.data["roles"]
-            role = role_data.get("role")
-            if role == RoleChoices.STAFF:
-                self.fields[membership].required = False
 
         fake_view = getattr(self.context.get("view"), "swagger_fake_view", False)
         if fake_view:
@@ -62,6 +61,12 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                 self.fields[membership] = MerchantMembershipSerializer(
                     required=True, write_only=True
                 )
+
+        if request and "roles" in request.data:
+            role_data = request.data["roles"]
+            role = role_data.get("role")
+            if role == RoleChoices.STAFF:
+                self.fields[membership].required = False
 
     def get_merchant_memberships(self, obj) -> dict:
         request = self.context.get("request")
@@ -98,8 +103,8 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         user_data = validated_data.pop("user")
         roles_data = validated_data.pop("roles")
         primary_phone = validated_data["primary_phone"]
-        if "merchant_memberships" in validated_data:
-            merchant_memberships_data = validated_data.pop("merchant_memberships")
+        primary_image = validated_data.pop("primary_image", None)
+        merchant_memberships_data = validated_data.pop("merchant_memberships", None)
 
         queryset = MerchantMember.objects.filter(primary_phone=primary_phone)
 
@@ -115,6 +120,13 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                 validated_data["merchant"] = merchant
             member = MerchantMember.objects.create(user=user, **validated_data)
 
+            if primary_image:
+                name = primary_image.name.replace(" ", "_")
+                s3_key = f"profile/primary/{member.id}/{name}"
+                s3_url = s3_client.upload_file(primary_image, s3_key)
+                member.picture = s3_url
+                member.save()
+
         roles = MemberRole.objects.filter(member=member, role=roles_data["role"])
         if not roles.exists():
             # Create MerchantMemberRole object
@@ -124,12 +136,19 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
             # Add the 'member' field to the MerchantMembership data (it references MerchantMember)
             merchant_memberships_data["member"] = member
             merchant_memberships_data["merchant"] = merchant
-
-            # Create the MerchantMembership object
+            secondary_image = merchant_memberships_data.pop("secondary_image", None)
             membership = MerchantMembership.objects.filter(
                 member=member, merchant=merchant
             )
             if not membership.exists():
-                MerchantMembership.objects.create(**merchant_memberships_data)
+                membership = MerchantMembership.objects.create(
+                    **merchant_memberships_data
+                )
+            if secondary_image:
+                name = secondary_image.name.replace(" ", "_")
+                s3_key = f"wasooli/profile/secondary/{member.id}/{name}"
+                s3_url = s3_client.upload_file(secondary_image, s3_key)
+                membership.picture = s3_url
+                membership.save()
 
         return member

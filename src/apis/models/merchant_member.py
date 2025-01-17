@@ -10,7 +10,7 @@ class MerchantMember(BaseModel):
     merchant = models.ForeignKey("apis.Merchant", on_delete=models.SET_NULL, null=True)
 
     cnic = models.CharField(max_length=13, null=True, blank=True)
-    picture = models.CharField(max_length=1000, blank=True, null=True)
+    picture = models.CharField(max_length=256, blank=True, null=True)
     primary_phone = models.CharField(
         max_length=10, verbose_name="Primary Phone", unique=True
     )
