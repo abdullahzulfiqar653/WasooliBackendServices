@@ -1,3 +1,4 @@
+import re
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, ValidationError
 
@@ -46,6 +47,12 @@ class MerchantMembershipSerializer(ModelSerializer):
         if not area:
             raise ValidationError({"area": "Area is required"})
 
+        if city.replace(" ", "").isdigit():
+            raise ValidationError({"city": "City cannot be a number."})
+
+        if area.replace(" ", "").isdigit():
+            raise ValidationError({"area": "Area cannot be a number."})
+
         # 'city' is the type name for cities
         type = Lookup.objects.get(name="city")  # Ensure this exists as a city type
         city_type = None
@@ -69,3 +76,11 @@ class MerchantMembershipSerializer(ModelSerializer):
         if value < 0:
             raise ValidationError("Discounted price cannot be negative.")
         return value
+
+    def validate_secondary_phone(self, value):
+        if not re.match(r"^\d{10}$", value):
+            raise serializers.ValidationError(
+                "Primary phone must be exactly 10 digits long and numeric."
+            )
+        if value.strip().startswith("0"):
+            raise ValidationError("Contact number cannot start with '0'.")

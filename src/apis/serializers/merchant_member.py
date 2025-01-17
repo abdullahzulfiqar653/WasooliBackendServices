@@ -85,6 +85,8 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Primary phone must be exactly 10 digits long and numeric."
             )
+        if value.strip().startswith("0"):
+            raise serializers.ValidationError("Contact number cannot start with '0'.")
         return value
 
     def create(self, validated_data):
