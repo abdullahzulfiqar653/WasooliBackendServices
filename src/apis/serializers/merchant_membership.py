@@ -78,9 +78,10 @@ class MerchantMembershipSerializer(ModelSerializer):
         return value
 
     def validate_secondary_phone(self, value):
-        if not re.match(r"^\d{10}$", value):
-            raise serializers.ValidationError(
-                "Primary phone must be exactly 10 digits long and numeric."
-            )
-        if value.strip().startswith("0"):
-            raise ValidationError("Contact number cannot start with '0'.")
+        if value:
+            if not re.match(r"^\d{10}$", value):
+                raise serializers.ValidationError(
+                    "Primary phone must be exactly 10 digits long and numeric."
+                )
+            if value.strip().startswith("0"):
+                raise ValidationError("Contact number cannot start with '0'.")
