@@ -17,9 +17,9 @@ urlpatterns = [
     # Merchant
     # =====================================================
     path(
-        "merchants/<str:merchant_id>/merchant-member/",
+        "merchants/<str:merchant_id>/members/",
         MerchantMemberListCreateAPIView.as_view(),
-        name="merchant-member-list-create",
+        name="merchant-members-list-create",
     ),
     # =====================================================
     # MerchantMember

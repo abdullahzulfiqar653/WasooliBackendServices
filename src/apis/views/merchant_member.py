@@ -3,6 +3,8 @@ from django.db.models import Subquery, OuterRef
 
 from apis.models.merchant_member import MerchantMember
 from apis.models.merchant_membership import MerchantMembership
+from apis.models.member_role import RoleChoices
+
 
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
@@ -21,6 +23,8 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
     ]
 
     def get_queryset(self):
+        role = self.request.query_params.get("role", RoleChoices.CUSTOMER).lower()
+        role = RoleChoices.STAFF if role == "staff" else RoleChoices.CUSTOMER
         merchant = self.request.user.merchant
         # Ensure that MerchantMember has a related_name `memberships` to the MerchantMembership model
         memberships = MerchantMembership.objects.filter(
@@ -31,7 +35,7 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
 
         # Annotate each member with the active status of their membership with the current merchant
         queryset = MerchantMember.objects.filter(
-            memberships__merchant=merchant
+            memberships__merchant=merchant, roles__role=role
         ).annotate(
             current_active=Subquery(memberships.values("is_active")[:1]),
             area_name=Subquery(memberships.values("area")[:1]),
