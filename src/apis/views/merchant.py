@@ -33,10 +33,20 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
             "-is_active"
         )  # Assuming there might be multiple memberships, prioritize active ones
 
+        queryset = MerchantMember.objects.filter(roles__role=role)
+
+        # Conditionally add the filter based on the role
+        if role == RoleChoices.STAFF:
+            queryset = queryset.filter(
+                merchant=merchant
+            )  # For STAFF, use `merchant=merchant`
+        else:
+            queryset = queryset.filter(
+                memberships__merchant=merchant
+            )  # For CUSTOMER, use `memberships__merchant=merchant`
+
         # Annotate each member with the active status of their membership with the current merchant
-        queryset = MerchantMember.objects.filter(
-            memberships__merchant=merchant, roles__role=role
-        ).annotate(
+        queryset = queryset.annotate(
             current_active=Subquery(memberships.values("is_active")[:1]),
             area_name=Subquery(memberships.values("area")[:1]),
         )

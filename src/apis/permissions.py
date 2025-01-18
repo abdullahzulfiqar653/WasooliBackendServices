@@ -65,12 +65,18 @@ class IsMerchantOrStaff(permissions.BasePermission):
                 merchant = request.merchant
             case str(s) if s.startswith("/api/members/"):
                 if not hasattr(request, "merchant"):
+                    MerchantMember = apps.get_model("apis", "MerchantMember")
                     MerchantMembership = apps.get_model("apis", "MerchantMembership")
                     member_id = view.kwargs.get("pk") or view.kwargs.get("member_id")
                     merchant = self.get_request_merchant(request)
-                    queryset = MerchantMembership.objects.filter(merchant=merchant)
-                    if self.get_instance(queryset, member_id, "member_id"):
-                        request.merchant = merchant
+                    if request.query_params.get("role") == RoleChoices.STAFF:
+                        queryset = MerchantMember.objects.filter(merchant=merchant)
+                        if self.get_instance(queryset, member_id):
+                            request.merchant = merchant
+                    else:
+                        queryset = MerchantMembership.objects.filter(merchant=merchant)
+                        if self.get_instance(queryset, member_id, "member_id"):
+                            request.merchant = merchant
                 merchant = request.merchant
             case _:
                 merchant = None
