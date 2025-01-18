@@ -55,7 +55,7 @@ class Merchant(BaseModel):
     )
 
     def __str__(self):
-        return f"{self.name} ({self.code}) with id: {self.id}"
+        return f"{self.owner.first_name}-{self.name}"
 
     def save(self, *args, **kwargs):
         if not self.code:
