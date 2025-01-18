@@ -168,10 +168,11 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         return member
 
     def update(self, instance, validated_data):
+        request = self.context.get("request")
         validated_data.pop("roles", None)
         user_data = validated_data.pop("user")
         primary_image = validated_data.pop("primary_image", None)
-        merchant_memberships = validated_data.pop("merchant_memberships", None)
+        memberships = validated_data.pop("merchant_memberships", None)
         if user_data:
             if user_data.get("email"):
                 instance.user.email = user_data.email
@@ -186,4 +187,36 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
             s3_url = s3_client.upload_file(primary_image, s3_key)
             validated_data["picture"] = s3_url
 
+        if memberships:
+            queryset = MerchantMembership.objects.filter(
+                member=instance, merchant=request.merchant
+            )
+            if queryset.exists():
+                membership = queryset.first()
+                secondary_image = memberships.pop("secondary_image", None)
+                # Fields to be updated
+                fields_to_update = [
+                    "area",
+                    "city",
+                    "address",
+                    "is_active",
+                    "meta_data",
+                    "is_monthly",
+                    "actual_price",
+                    "secondary_phone",
+                    "discounted_price",
+                ]
+                for field in fields_to_update:
+                    setattr(
+                        membership,
+                        field,
+                        memberships.get(field, getattr(membership, field)),
+                    )
+
+                if secondary_image:
+                    name = secondary_image.name.replace(" ", "_")
+                    s3_key = f"wasooli/profile/secondary/{instance.id}/{name}"
+                    s3_url = s3_client.upload_file(secondary_image, s3_key)
+                    membership.picture = s3_url
+                membership.save()
         return super().update(instance, validated_data)
