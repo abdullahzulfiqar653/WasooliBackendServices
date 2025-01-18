@@ -21,8 +21,6 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
     primary_phone = serializers.CharField(validators=[])
     primary_image = serializers.ImageField(required=False, allow_null=True)
     roles = MemberRoleSerializer(required=True, write_only=True)
-    # area = serializers.CharField(source="area_name", read_only=True)
-    # is_active = serializers.BooleanField(source="current_active", read_only=True)
 
     class Meta:
         model = MerchantMember
@@ -31,10 +29,8 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
             "user",
             "cnic",
             "code",
-            # "area",
             "roles",
             "picture",
-            # "is_active",
             "primary_phone",
             "primary_image",
             "merchant_memberships",
@@ -65,6 +61,9 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                 self.fields["roles"] = MemberRoleSerializer(
                     required=False, write_only=True, allow_null=True
                 )
+                # Pass the member instance in the context so the UserSerializer can access the associated user
+                self.context["member"] = self.instance
+                self.fields["user"] = UserSerializer(required=True)
 
         if request.method == "POST":
             role_data = request.data.get("roles", {})

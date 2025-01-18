@@ -8,6 +8,7 @@ from apis.models.merchant_membership import MerchantMembership
 
 class MerchantMembershipSerializer(ModelSerializer):
     secondary_image = serializers.ImageField(required=False, allow_null=True)
+    meta_data = serializers.JSONField(required=False, allow_null=True)
 
     class Meta:
         model = MerchantMembership
@@ -85,3 +86,4 @@ class MerchantMembershipSerializer(ModelSerializer):
                 )
             if value.strip().startswith("0"):
                 raise ValidationError("Contact number cannot start with '0'.")
+        return value

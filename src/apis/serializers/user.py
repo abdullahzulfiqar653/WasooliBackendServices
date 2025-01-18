@@ -1,3 +1,4 @@
+from rest_framework import exceptions
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
@@ -11,12 +12,13 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["email", "first_name"]
 
     def validate_email(self, value):
-        user = self.context["request"].user
+        member = self.context.get("member")
+        if not member:
+            raise exceptions.NotFound({"detail": "Member not found."})
 
-        if value is None or user.email == value:
+        if value is None or member.user.email == value:
             return
 
-        if User.objects.filter(email=value).exclude(id=user.id).exists():
+        if User.objects.filter(email=value).exclude(id=member.user.id).exists():
             raise serializers.ValidationError("Email already exist.")
-
         return value
