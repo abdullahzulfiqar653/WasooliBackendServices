@@ -26,13 +26,13 @@ class OTPSerializer(serializers.Serializer):
             try:
                 otp_record = request.member.otp
             except OTP.DoesNotExist:
-                raise ValidationError({"otp": "Invalid OTP"})
+                raise ValidationError({"otp": ["Invalid OTP"]})
 
             if otp_record.code != otp_code:
-                raise ValidationError({"otp": "Invalid OTP"})
+                raise ValidationError({"otp": ["Invalid OTP"]})
 
             if not otp_record.is_valid():
-                raise ValidationError({"otp": "OTP expired"})
+                raise ValidationError({"otp": ["OTP expired"]})
 
             refresh = RefreshToken.for_user(request.member.user)
             otp_record.is_used = True
