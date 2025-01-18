@@ -177,7 +177,7 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         memberships = validated_data.pop("merchant_memberships", None)
         if user_data:
             if user_data.get("email"):
-                instance.user.email = user_data.email
+                instance.user.email = user_data.get("email")
             instance.user.first_name = user_data.get(
                 "first_name", instance.user.first_name
             )
