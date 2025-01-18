@@ -13,12 +13,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value):
         member = self.context.get("member")
-        if not member:
-            raise exceptions.NotFound({"detail": "Member not found."})
+        if member:
+            if value is None or member.user.email == value:
+                return
+            if User.objects.filter(email=value).exclude(id=member.user.id).exists():
+                raise serializers.ValidationError("Email already exist.")
 
-        if value is None or member.user.email == value:
-            return
-
-        if User.objects.filter(email=value).exclude(id=member.user.id).exists():
+        if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("Email already exist.")
         return value
