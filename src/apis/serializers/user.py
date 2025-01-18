@@ -9,3 +9,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email", "first_name"]
+
+    def validate_email(self, value):
+        user = self.context["request"].user
+
+        if value is None or user.email == value:
+            return
+
+        if User.objects.filter(email=value).exclude(id=user.id).exists():
+            raise serializers.ValidationError("Email already exist.")
+
+        return value

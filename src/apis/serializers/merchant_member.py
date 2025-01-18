@@ -19,10 +19,10 @@ s3_client = S3Service()
 class MerchantMemberSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=True)
     primary_phone = serializers.CharField(validators=[])
-    primary_image = serializers.ImageField(required=False)
+    primary_image = serializers.ImageField(required=False, allow_null=True)
     roles = MemberRoleSerializer(required=True, write_only=True)
-    area = serializers.CharField(source="area_name", read_only=True)
-    is_active = serializers.BooleanField(source="current_active", read_only=True)
+    # area = serializers.CharField(source="area_name", read_only=True)
+    # is_active = serializers.BooleanField(source="current_active", read_only=True)
 
     class Meta:
         model = MerchantMember
@@ -31,10 +31,10 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
             "user",
             "cnic",
             "code",
-            "area",
+            # "area",
             "roles",
             "picture",
-            "is_active",
+            # "is_active",
             "primary_phone",
             "primary_image",
             "merchant_memberships",
@@ -57,13 +57,17 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         else:
             if request.method == "GET":
                 self.fields[membership] = serializers.SerializerMethodField()
-            if request.method in ["POST", "PUT", "PATCH"]:
+            if request.method in ("POST", "PUT", "PATCH"):
                 self.fields[membership] = MerchantMembershipSerializer(
-                    required=True, write_only=True
+                    required=True, write_only=True, allow_null=True
+                )
+            if request.method in ("PUT", "PATCH"):
+                self.fields["roles"] = MemberRoleSerializer(
+                    required=False, write_only=True, allow_null=True
                 )
 
-        if request and "roles" in request.data:
-            role_data = request.data["roles"]
+        if request.method == "POST":
+            role_data = request.data.get("roles", {})
             role = role_data.get("role")
             if role == RoleChoices.STAFF:
                 self.fields[membership].required = False
@@ -92,6 +96,16 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
             )
         if value.strip().startswith("0"):
             raise serializers.ValidationError("Contact number cannot start with '0'.")
+
+        if self.instance:
+            if value is None or self.instance.primary_phone == value:
+                return self.instance.primary_phone
+
+            queryset = MerchantMember.objects.filter(primary_phone=value)
+            if queryset.exclude(id=self.instance.id).exists():
+                raise serializers.ValidationError(
+                    "This phone number is already in use by another user."
+                )
         return value
 
     def create(self, validated_data):
@@ -154,4 +168,22 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         return member
 
     def update(self, instance, validated_data):
-        return instance
+        validated_data.pop("roles", None)
+        user_data = validated_data.pop("user")
+        primary_image = validated_data.pop("primary_image", None)
+        merchant_memberships = validated_data.pop("merchant_memberships", None)
+        if user_data:
+            if user_data.get("email"):
+                instance.user.email = user_data.email
+            instance.user.first_name = user_data.get(
+                "first_name", instance.user.first_name
+            )
+            instance.user.save()
+
+        if primary_image:
+            name = primary_image.name.replace(" ", "_")
+            s3_key = f"profile/primary/{instance.id}/{name}"
+            s3_url = s3_client.upload_file(primary_image, s3_key)
+            validated_data["picture"] = s3_url
+
+        return super().update(instance, validated_data)

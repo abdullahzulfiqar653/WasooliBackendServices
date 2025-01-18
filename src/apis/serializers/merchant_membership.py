@@ -7,7 +7,7 @@ from apis.models.merchant_membership import MerchantMembership
 
 
 class MerchantMembershipSerializer(ModelSerializer):
-    secondary_image = serializers.ImageField(required=False)
+    secondary_image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = MerchantMembership
