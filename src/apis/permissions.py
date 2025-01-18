@@ -16,24 +16,20 @@ class IsAllowedToLogin(permissions.BasePermission):
         username = request.data.get("username")
 
         if not username:
-            raise exceptions.PermissionDenied(
-                "Username is required in the request data."
-            )
+            raise exceptions.ParseError({"username": ["Username is required"]})
         member = MerchantMember.objects.filter(
             Q(user__username=username)
             | Q(user__email=username)
             | Q(primary_phone=username)
         )
         if not member.exists():
-            raise exceptions.PermissionDenied(
-                "No user found with the provided username."
-            )
+            raise exceptions.NotFound({"username": ["User not found."]})
 
         member = member.first()
         if not member.roles.filter(
             role__in=[RoleChoices.MERCHANT, RoleChoices.STAFF]
         ).exists():
-            raise exceptions.PermissionDenied("You are not allowed to login.")
+            raise exceptions.NotFound({"username": ["User not found."]})
 
         request.user = member.user
         return True
@@ -44,7 +40,7 @@ class IsMerchantOrStaff(permissions.BasePermission):
         try:
             instance = queryset.get(**{lookup_field: instance_id})
         except queryset.model.DoesNotExist:
-            raise exceptions.NotFound
+            raise exceptions.NotFound({"detail": ["Merchant not found."]})
         return instance
 
     def get_request_merchant(self, request):
@@ -53,7 +49,7 @@ class IsMerchantOrStaff(permissions.BasePermission):
             if request.user.profile.roles.filter(role=RoleChoices.STAFF).exists():
                 merchant = request.user.profile.merchant
                 if not merchant:
-                    raise exceptions.NotFound
+                    raise exceptions.NotFound({"detail": ["Merchant not found."]})
         return merchant
 
     def get_merchant(self, request, view):
@@ -120,18 +116,14 @@ class IsMerchantMemberAnonymous(permissions.BasePermission):
         username = request.data.get("username")
 
         if not username:
-            raise exceptions.PermissionDenied(
-                "Username is required in the request data."
-            )
+            raise exceptions.ParseError({"username": ["Username is required"]})
         member = MerchantMember.objects.filter(
             Q(user__username=username)
             | Q(user__email=username)
             | Q(primary_phone=username)
         )
         if not member.exists():
-            raise exceptions.PermissionDenied(
-                "No user found with the provided username."
-            )
+            raise exceptions.NotFound({"username": ["User not found."]})
 
         request.member = member.first()
         return True
