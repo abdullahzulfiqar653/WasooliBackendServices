@@ -128,7 +128,8 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                 member.save()
         else:
             user = User.objects.create(
-                **user_data, username=f"{user_data.first_name}_{secrets.token_hex(10)}"
+                **user_data,
+                username=f"{user_data['first_name']}_{secrets.token_hex(10)}",
             )
             user.set_password(secrets.token_hex(7))
             if roles_data["role"] == RoleChoices.STAFF:
