@@ -6,11 +6,13 @@ from apis.views.merchant import (
     MemberRetrieveByPhoneAPIView,
     MerchantMemberListCreateAPIView,
 )
+from apis.views.refresh_token import RefreshTokenAPIView
 
 __all__ = [
     "OTPView",
     "TokenCreateView",
     "LookupListAPIView",
+    "RefreshTokenAPIView",
     "MemberRetrieveByPhoneAPIView",
     "MerchantMemberListCreateAPIView",
     "MemberRetrieveUpdateDestroyAPIView",

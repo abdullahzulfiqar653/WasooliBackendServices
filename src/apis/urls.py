@@ -2,6 +2,7 @@ from django.urls import path, include
 from apis.views import (
     OTPView,
     LookupListAPIView,
+    RefreshTokenAPIView,
     MemberRetrieveByPhoneAPIView,
     MerchantMemberListCreateAPIView,
     MemberRetrieveUpdateDestroyAPIView,
@@ -14,6 +15,7 @@ urlpatterns = [
     # =====================================================
     path("auth/", include("rest_framework.urls")),
     path("auth/token/", OTPView.as_view(), name="token_obtain_pair"),
+    path("auth/refresh-token/", RefreshTokenAPIView.as_view(), name="refresh_token"),
     # =====================================================
     # Merchant
     # =====================================================
