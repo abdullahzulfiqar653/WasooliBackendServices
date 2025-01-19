@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Prefetch
 from apis.models.merchant_membership import MerchantMembership
 
 
@@ -26,11 +27,12 @@ class MerchantMembershipAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
+        roles_queryset = Prefetch("member__roles", queryset=self.model.objects.none())
         return queryset.select_related(
             "merchant",
-            "member",
+            # "member",
             "member__user",
-        ).prefetch_related("member__roles")
+        ).prefetch_related(roles_queryset)
 
     def member_name(self, obj):
         return f"{obj.member.user.first_name}"
