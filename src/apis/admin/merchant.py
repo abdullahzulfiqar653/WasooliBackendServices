@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Count
 from apis.models.lookup import Lookup
 
 from apis.models.merchant import Merchant
@@ -20,6 +21,12 @@ class MerchantAdmin(admin.ModelAdmin):
     list_filter = ("type", "owner")
     search_fields = ("name", "owner__first_name", "code")
 
+    def get_queryset(self, request):
+        # Annotate the queryset to include the count of related members
+        queryset = super().get_queryset(request)
+        queryset = queryset.annotate(member_count=Count("members"))
+        return queryset
+
     def owner_first_name(self, obj):
         return obj.owner.first_name
 
@@ -27,6 +34,6 @@ class MerchantAdmin(admin.ModelAdmin):
     owner_first_name.short_description = "Owner First Name"
 
     def merchant_count(self, obj):
-        return obj.members.count()
+        return obj.member_count
 
     merchant_count.short_description = "Number of Members"

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.db.models import Count
+from django.db.models import Count, F
 from apis.models.merchant_member import MerchantMember
 
 
@@ -19,12 +19,10 @@ class MerchantMemberAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        # Annotate with merchant_count (count of merchant memberships)
-        queryset = queryset.annotate(merchant_count=Count("merchant_memberships"))
-        return queryset.select_related(
-            "merchant",
-            "user",
+        queryset = queryset.annotate(
+            merchant_count=Count("merchant_memberships"),
         )
+        return queryset.select_related("merchant", "user")
 
     def user_first_name(self, obj):
         return obj.user.first_name
