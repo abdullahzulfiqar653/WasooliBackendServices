@@ -53,7 +53,6 @@ class MerchantMembershipAdmin(admin.ModelAdmin):
     merchant_name.short_description = "Merchant Name"
 
     def role_display(self, obj):
-        # Access roles using the prefetch field
         roles = obj.member.roles.all()  # No additional query, since it's pre-fetched
         if roles.exists():
             return roles.first().role

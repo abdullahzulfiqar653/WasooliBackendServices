@@ -14,13 +14,7 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsMerchantOrStaff]
     serializer_class = MerchantMemberSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = [
-        "cnic",
-        "code",
-        "primary_phone",
-        "user__first_name",
-        "merchant_memberships__secondary_phone",
-    ]
+    search_fields = ["cnic", "code", "primary_phone", "user__first_name"]
 
     def get_queryset(self):
         role = self.request.query_params.get("role", RoleChoices.CUSTOMER).lower()
