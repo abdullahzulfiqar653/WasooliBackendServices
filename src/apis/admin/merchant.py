@@ -18,7 +18,7 @@ class MerchantAdmin(admin.ModelAdmin):
         "owner_first_name",
     )
     ordering = ("name",)
-    list_filter = ("type", "owner")
+    list_filter = ("type",)
     search_fields = ("name", "owner__first_name", "code")
 
     def get_queryset(self, request):

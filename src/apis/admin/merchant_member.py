@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.db.models import Count, F
+from django.db.models import Count
 from apis.models.merchant_member import MerchantMember
 
 
