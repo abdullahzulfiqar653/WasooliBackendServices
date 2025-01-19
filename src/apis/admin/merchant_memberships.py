@@ -34,6 +34,8 @@ class MerchantMembershipAdmin(admin.ModelAdmin):
             "member__user",
         ).prefetch_related(roles_queryset)
 
+    list_per_page = 1000
+
     def member_name(self, obj):
         return f"{obj.member.user.first_name}"
 
@@ -54,7 +56,7 @@ class MerchantMembershipAdmin(admin.ModelAdmin):
         # Access roles using the prefetch field
         roles = obj.member.roles.all()  # No additional query, since it's pre-fetched
         if roles.exists():
-            return roles.first().role  # Return the first role in the pre-fetched list
+            return roles.first().role
         return "No Role"
 
     role_display.admin_order_field = "role"
