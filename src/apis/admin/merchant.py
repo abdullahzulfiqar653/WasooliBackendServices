@@ -1,12 +1,9 @@
 from django.contrib import admin
 from apis.models.lookup import Lookup
-from apis.models.member_role import MemberRole
-
 
 from apis.models.merchant import Merchant
 
 admin.site.register(Lookup)
-admin.site.register(MemberRole)
 
 
 @admin.register(Merchant)

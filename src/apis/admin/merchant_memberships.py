@@ -24,6 +24,14 @@ class MerchantMembershipAdmin(admin.ModelAdmin):
     )
     ordering = ("-account",)
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.select_related(
+            "merchant",
+            "member",
+            "member__user",
+        ).prefetch_related("member__roles")
+
     def member_name(self, obj):
         return f"{obj.member.user.first_name}"
 
