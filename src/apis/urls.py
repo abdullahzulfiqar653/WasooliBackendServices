@@ -3,6 +3,7 @@ from apis.views import (
     OTPView,
     LookupListAPIView,
     RefreshTokenAPIView,
+    ProfileRetrieveAPIView,
     MemberRetrieveByPhoneAPIView,
     MerchantMemberListCreateAPIView,
     MemberRetrieveUpdateDestroyAPIView,
@@ -15,6 +16,7 @@ urlpatterns = [
     # =====================================================
     path("auth/", include("rest_framework.urls")),
     path("auth/token/", OTPView.as_view(), name="token_obtain_pair"),
+    path("auth/profile/", ProfileRetrieveAPIView.as_view(), name="profile_token"),
     path("auth/refresh-token/", RefreshTokenAPIView.as_view(), name="refresh_token"),
     # =====================================================
     # Merchant

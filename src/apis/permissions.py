@@ -63,6 +63,7 @@ class IsMerchantOrStaff(permissions.BasePermission):
                     queryset = Merchant.objects.all()
                     request.merchant = self.get_instance(queryset, merchant_id)
                 merchant = request.merchant
+
             case str(s) if s.startswith("/api/members/"):
                 if not hasattr(request, "merchant"):
                     MerchantMember = apps.get_model("apis", "MerchantMember")
@@ -77,6 +78,11 @@ class IsMerchantOrStaff(permissions.BasePermission):
                         queryset = MerchantMembership.objects.filter(merchant=merchant)
                         if self.get_instance(queryset, member_id, "member_id"):
                             request.merchant = merchant
+                merchant = request.merchant
+
+            case str(s) if s.startswith("/api/auth/"):
+                if not hasattr(request, "merchant"):
+                    request.merchant = self.get_request_merchant(request)
                 merchant = request.merchant
             case _:
                 merchant = None

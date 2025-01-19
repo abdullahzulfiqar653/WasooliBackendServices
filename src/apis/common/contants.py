@@ -20,12 +20,12 @@ MERCHANT_PERMISSIONS = {
         "change_merchantmember",
         "delete_merchantmember",
     ],
-    "merchantmembership": [
-        "add_merchantmembership",
-        "change_merchantmembership",
-        "view_merchantmembership",
-        "delete_merchantmembership",
-    ],
+    # "merchantmembership": [
+    #     "add_merchantmembership",
+    #     "change_merchantmembership",
+    #     "view_merchantmembership",
+    #     "delete_merchantmembership",
+    # ],
     "supplyrecord": [
         "add_supplyrecord",
         "view_supplyrecord",
@@ -42,11 +42,11 @@ STAFF_PERMISSIONS = {
         "view_merchantmember",
         "change_merchantmember",
     ],
-    "merchantmembership": [
-        "add_merchantmembership",
-        "change_merchantmembership",
-        "view_merchantmembership",
-    ],
+    # "merchantmembership": [
+    #     "add_merchantmembership",
+    #     "change_merchantmembership",
+    #     "view_merchantmembership",
+    # ],
     "supplyrecord": [
         "add_supplyrecord",
         "view_supplyrecord",
