@@ -25,5 +25,9 @@ class AccessInfoRetrieveAPIView(generics.RetrieveAPIView):
             grouped_permissions[model] = sorted(set(actions))
 
         return Response(
-            {"permissions": grouped_permissions, "merchant_id": request.merchant.id}
+            {
+                "permissions": grouped_permissions,
+                "merchant_id": request.merchant.id,
+                "member_id": request.user.profile.id,
+            }
         )
