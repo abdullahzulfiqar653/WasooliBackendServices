@@ -37,10 +37,7 @@ class OTPSerializer(serializers.Serializer):
             refresh = RefreshToken.for_user(request.member.user)
             otp_record.is_used = True
             otp_record.save()
-            return {
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
-            }
+            return {"access": str(refresh.access_token)}
 
         else:
             otp_record, _ = OTP.objects.get_or_create(member=request.member)

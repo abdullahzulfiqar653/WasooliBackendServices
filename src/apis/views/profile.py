@@ -4,7 +4,7 @@ from apis.permissions import IsMerchantOrStaff
 from django.contrib.auth.models import Permission
 
 
-class ProfileRetrieveAPIView(generics.RetrieveAPIView):
+class AccessInfoRetrieveAPIView(generics.RetrieveAPIView):
     permission_classes = [IsMerchantOrStaff]
     serializer_class = None
 

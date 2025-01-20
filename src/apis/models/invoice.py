@@ -24,10 +24,16 @@ class Invoice(BaseModel):
     # New column to store the invoice code, starting from 10000000
     code = models.CharField(max_length=10, unique=True, editable=False)
     handled_by = models.ForeignKey(
-        "auth.User",
+        "apis.MerchantMember",
         null=True,
         on_delete=models.SET_NULL,
         related_name="handled_invoices",
+    )
+    member = models.ForeignKey(
+        "apis.MerchantMember",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="invoices",
     )
 
     def __str__(self):

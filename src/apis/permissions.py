@@ -72,11 +72,15 @@ class IsMerchantOrStaff(permissions.BasePermission):
                     merchant = self.get_request_merchant(request)
                     if request.query_params.get("role") == RoleChoices.STAFF:
                         queryset = MerchantMember.objects.filter(merchant=merchant)
-                        if self.get_instance(queryset, member_id):
+                        member = self.get_instance(queryset, member_id)
+                        if member:
+                            request.member = member
                             request.merchant = merchant
                     else:
                         queryset = MerchantMembership.objects.filter(merchant=merchant)
-                        if self.get_instance(queryset, member_id, "member_id"):
+                        membership = self.get_instance(queryset, member_id, "member_id")
+                        if membership:
+                            request.member = membership.member
                             request.merchant = merchant
                 merchant = request.merchant
 
