@@ -24,7 +24,13 @@ class MemberRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
             "-is_active"
         )  # Assuming there might be multiple memberships, prioritize active ones
 
-        queryset = MerchantMember.objects.filter(roles__role=role)
+        queryset = MerchantMember.objects.filter(
+            roles__role__in=[
+                RoleChoices.STAFF,
+                RoleChoices.CUSTOMER,
+                RoleChoices.MERCHANT,
+            ]
+        )
 
         # Conditionally add the filter based on the role
         if role == RoleChoices.STAFF:
