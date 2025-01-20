@@ -38,5 +38,6 @@ jobs:
             git pull && \
             /root/.pyenv/shims/poetry install && \
             /root/.pyenv/shims/poetry run python manage.py migrate && \
+            /root/.pyenv/shims/poetry run python manage.py update_permissions && \
             supervisorctl restart api.dev.wasooli && \
             systemctl reload nginx"
