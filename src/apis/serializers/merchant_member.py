@@ -46,7 +46,8 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         super(MerchantMemberSerializer, self).__init__(*args, **kwargs)
         # Adjust the 'required' attribute of merchant_memberships based on the role data if present
         request = self.context.get("request")
-
+        roles_data = request.data.get("roles", {})
+        role = roles_data.get("role", RoleChoices.CUSTOMER)
         fake_view = getattr(self.context.get("view"), "swagger_fake_view", False)
         if fake_view:
             self.fields[membership] = MerchantMembershipSerializer()
@@ -54,9 +55,14 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
             if request.method == "GET":
                 self.fields[membership] = serializers.SerializerMethodField()
             if request.method in ("POST", "PUT", "PATCH"):
-                self.fields[membership] = MerchantMembershipSerializer(
-                    required=True, write_only=True, allow_null=True
-                )
+                if role == RoleChoices.STAFF:
+                    self.fields[membership] = MerchantMembershipSerializer(
+                        required=True, write_only=True, allow_null=True
+                    )
+                else:
+                    self.fields[membership] = MerchantMembershipSerializer(
+                        required=True, write_only=True
+                    )
             if request.method in ("PUT", "PATCH"):
                 self.fields["roles"] = MemberRoleSerializer(
                     required=False, write_only=True, allow_null=True
@@ -66,8 +72,6 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                 self.fields["user"] = UserSerializer(required=True)
 
         if request.method == "POST":
-            role_data = request.data.get("roles", {})
-            role = role_data.get("role")
             if role == RoleChoices.STAFF:
                 self.fields[membership].required = False
 
