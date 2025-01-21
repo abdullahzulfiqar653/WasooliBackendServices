@@ -77,11 +77,11 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
 
     def get_merchant_memberships(self, obj) -> dict:
         request = self.context.get("request")
-        membership = MerchantMembership.objects.filter(
-            member=obj, merchant=request.merchant
-        ).first()
-
-        if membership:
+        role = request.query_params.get("role", None)
+        if role != RoleChoices.STAFF:
+            membership = MerchantMembership.objects.filter(
+                member=obj, merchant=request.merchant
+            ).first()
             return MerchantMembershipSerializer(membership).data
         return {}
 

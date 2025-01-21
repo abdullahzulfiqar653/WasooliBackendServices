@@ -1,33 +1,40 @@
 from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
-from django.db.models import Subquery, OuterRef
 
 from apis.models.member_role import RoleChoices
 from apis.models.merchant_member import MerchantMember
-from apis.models.merchant_membership import MerchantMembership
 
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
 
 
 class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
+    """
+    This view handles listing and creating merchant members.
+    - `For Staff`:
+    - To list staff members, include the parameter `role=Staff` in the request.
+    - To create a staff member, set `merchant_memberships` to `null`.
+    - `For Customers`:
+    - No additional parameters are required to list them.
+    - The `merchant_memberships` field is required when creating a customer.
+    """
+
     permission_classes = [IsMerchantOrStaff]
     serializer_class = MerchantMemberSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["cnic", "code", "primary_phone", "user__first_name"]
 
     def get_queryset(self):
-        role = self.request.query_params.get("role", RoleChoices.CUSTOMER).lower()
-        role = RoleChoices.STAFF if role == "staff" else RoleChoices.CUSTOMER
+        role = self.request.query_params.get("role", RoleChoices.CUSTOMER)
         merchant = self.request.user.merchant
-        # Ensure that MerchantMember has a related_name `memberships` to the MerchantMembership model
-        memberships = MerchantMembership.objects.filter(
-            merchant=merchant, member_id=OuterRef("pk")
-        ).order_by(
-            "-is_active"
-        )  # Assuming there might be multiple memberships, prioritize active ones
 
-        queryset = MerchantMember.objects.filter(roles__role=role)
+        queryset = MerchantMember.objects.filter(
+            roles__role__in=[
+                RoleChoices.STAFF,
+                RoleChoices.CUSTOMER,
+                RoleChoices.MERCHANT,
+            ]
+        )
 
         # Conditionally add the filter based on the role
         if role == RoleChoices.STAFF:
@@ -39,16 +46,17 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                 memberships__merchant=merchant
             )  # For CUSTOMER, use `memberships__merchant=merchant`
 
-        # Annotate each member with the active status of their membership with the current merchant
-        queryset = queryset.annotate(
-            current_active=Subquery(memberships.values("is_active")[:1]),
-            area_name=Subquery(memberships.values("area")[:1]),
-        )
-
         return queryset
 
 
 class MemberRetrieveByPhoneAPIView(generics.RetrieveAPIView):
+    """
+    - This view retrieves a member based on their primary phone number to assist merchants when
+    creating a new customer or staff.
+    - If the primary phone number already exists, the member's data will be pre-populated in the
+    creation form for convenience.
+    """
+
     permission_classes = [IsMerchantOrStaff]
     serializer_class = MerchantMemberSerializer
 
