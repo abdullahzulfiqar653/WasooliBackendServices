@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.db.models import Sum
 from apis.models.abstract.base import BaseModel
 
 
@@ -47,6 +47,25 @@ class TransactionHistory(BaseModel):
     def __str__(self):
         return f"{self.id}"
 
+    def adjust_balance(self):
+        """
+        Calculate the balance for this membership by summing all previous debits and credits.
+        The balance is calculated by subtracting total debit from total credit.
+        """
+        # Calculate total debit and credit for this merchant_membership
+        totals = self.merchant_membership.membership_transactions.aggregate(
+            total_debit=Sum("debit", default=0), total_credit=Sum("credit", default=0)
+        )
+
+        total_debit = totals.get("total_debit", 0)
+        total_credit = totals.get("total_credit", 0)
+        # Include the current transaction's debit or credit
+        total_debit += self.debit or 0
+        total_credit += self.credit or 0
+
+        # Update the balance
+        self.balance = total_credit - total_debit
+
     def calculate_commission(self):
         """
         Calculate commission based on the merchant's commission structure.
@@ -82,7 +101,7 @@ class TransactionHistory(BaseModel):
         # Only calculate commission if the type is Billing and it's a credit transaction
         if self.type == self.TYPES.BILLING and self.credit > 0:
             self.commission = self.calculate_commission()
-
+        self.adjust_balance()
         super().save(*args, **kwargs)
 
     class Meta:
