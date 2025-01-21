@@ -9,7 +9,7 @@ class RefreshTokenAPIView(generics.RetrieveAPIView):
     serializer_class = None
 
     def retrieve(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get("refresh_token")
+        refresh_token = request.COOKIES.get("wasooli_refresh_token")
         if not refresh_token:
             raise AuthenticationFailed({"detail": "No refresh token found in cookies"})
 

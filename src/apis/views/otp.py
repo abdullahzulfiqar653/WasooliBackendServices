@@ -9,8 +9,8 @@ class OTPView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
-
-        refresh_token = response.data.get("refresh")
-        response.set_cookie("refresh_token", refresh_token, httponly=True, secure=True)
-
+        refresh_token = response.data.pop("refresh", None)
+        response.set_cookie(
+            "wasooli_refresh_token", refresh_token, httponly=True, secure=True
+        )
         return response
