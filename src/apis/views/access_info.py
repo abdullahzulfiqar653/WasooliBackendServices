@@ -5,6 +5,12 @@ from django.contrib.auth.models import Permission
 
 
 class AccessInfoRetrieveAPIView(generics.RetrieveAPIView):
+    """
+    This endpoint provides all the necessary information for accessing other endpoints, including:
+    - The user's merchant ID and member ID.
+    - The permissions assigned to them.
+    """
+
     permission_classes = [IsMerchantOrStaff]
     serializer_class = None
 

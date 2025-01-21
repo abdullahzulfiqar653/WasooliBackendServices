@@ -5,6 +5,16 @@ from apis.serializers.lookup import LookupSerializer
 
 
 class LookupListAPIView(generics.ListAPIView):
+    """
+    This endpoint is used to retrieve lookup information.
+
+    - You need to pass a single parameter, `value`.
+    - Current supported flags are:
+    - `city`: Returns a list of cities along with their associated child areas.
+
+    Based on the provided flag, the response will include the relevant data and its child objects.
+    """
+
     serializer_class = LookupSerializer
     permission_classes = []
     pagination_class = None

@@ -5,8 +5,8 @@ from apis.views.merchant import (
     MemberRetrieveByPhoneAPIView,
     MerchantMemberListCreateAPIView,
 )
-from apis.views.profile import AccessInfoRetrieveAPIView
 from apis.views.refresh_token import RefreshTokenAPIView
+from apis.views.access_info import AccessInfoRetrieveAPIView
 from apis.views.member import MemberInvoiceListCreateAPIView
 
 __all__ = [

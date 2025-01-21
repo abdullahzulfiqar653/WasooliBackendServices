@@ -4,6 +4,16 @@ from apis.permissions import IsMerchantMemberAnonymous
 
 
 class OTPView(CreateAPIView):
+    """
+    This view accepts three body parameters: `username`, `otp`, and `platform`.
+
+    - `platform`: Can be one of `email`, `whatsapp`, or `sms`. Use this to specify the medium for OTP delivery.
+    - `username`: Provide the corresponding value (e.g., email address or phone number) based on the chosen platform.
+    - `otp`: Initially, set this to `null`. When user receives the OTP, resend request including received `otp`.
+
+    If the OTP validation is successful, an access token will be returned. Otherwise, you will receive OTP-related errors.
+    """
+
     serializer_class = OTPSerializer
     permission_classes = [IsMerchantMemberAnonymous]
 

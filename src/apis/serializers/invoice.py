@@ -6,6 +6,11 @@ class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         exclude = ["is_user_invoice"]
+        read_only_fields = [
+            "member",
+            "is_monthly",
+            "handled_by",
+        ]
 
     def create(self, validated_data):
         return super().create(validated_data)

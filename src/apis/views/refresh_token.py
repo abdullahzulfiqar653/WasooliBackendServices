@@ -5,6 +5,12 @@ from rest_framework.exceptions import AuthenticationFailed
 
 
 class RefreshTokenAPIView(generics.RetrieveAPIView):
+    """
+    - If you are logged in successfully, the refresh token is stored in HTTP-only cookies.
+    - To obtain an access token, simply send a GET request to this endpoint from the same origin.
+    - The access token will be returned in the response.
+    """
+
     permission_classes = []
     serializer_class = None
 
