@@ -108,15 +108,6 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                 )
         return value
 
-    def validate_picture(self, value):
-        if value:
-            value = s3_client.make_presigned_file_public(value)
-            if value is None:
-                raise serializers.ValidationError(
-                    "You have passed wrong s3_key in picture attribute."
-                )
-        return value
-
     def create(self, validated_data):
         request = self.context.get("request")
         """
