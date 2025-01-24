@@ -112,7 +112,6 @@ class S3Service:
             return f"{settings.OBJECT_STORAGE_URL}/{self.bucket}/{key}"
         except Exception as e:
             logger.error(f"Error making file public: {e}")
-            raise Exception(f"Error making file public: {e}")
 
     def delete_file(self, s3_url):
         """

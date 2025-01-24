@@ -108,6 +108,15 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                 )
         return value
 
+    def validate_picture(self, value):
+        if value:
+            value = s3_client.make_presigned_file_public(value)
+            if value is None:
+                raise serializers.ValidationError(
+                    "You have passed wrong s3_key in picture attribute."
+                )
+        return value
+
     def create(self, validated_data):
         request = self.context.get("request")
         """
@@ -134,10 +143,6 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
             user.set_password(secrets.token_hex(7))
             if roles_data["role"] == RoleChoices.STAFF:
                 validated_data["merchant"] = merchant
-            if validated_data["picture"]:
-                validated_data["picture"] = s3_client.make_presigned_file_public(
-                    validated_data["picture"]
-                )
             member = MerchantMember.objects.create(user=user, **validated_data)
 
         roles = MemberRole.objects.filter(member=member, role=roles_data["role"])
@@ -153,12 +158,6 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                 member=member, merchant=merchant
             )
             if not membership.exists():
-                if merchant_memberships_data["picture"]:
-                    merchant_memberships_data["picture"] = (
-                        s3_client.make_presigned_file_public(
-                            merchant_memberships_data["picture"]
-                        )
-                    )
                 membership = MerchantMembership.objects.create(
                     **merchant_memberships_data
                 )
@@ -176,11 +175,6 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                 "first_name", instance.user.first_name
             )
             instance.user.save()
-
-        if validated_data["picture"]:
-            validated_data["picture"] = s3_client.make_presigned_file_public(
-                validated_data["picture"]
-            )
 
         if memberships:
             queryset = MerchantMembership.objects.filter(
@@ -205,11 +199,6 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                         membership,
                         field,
                         memberships.get(field, getattr(membership, field)),
-                    )
-
-                if memberships["picture"]:
-                    membership.picture = s3_client.make_presigned_file_public(
-                        memberships["picture"]
                     )
                 membership.save()
         return super().update(instance, validated_data)

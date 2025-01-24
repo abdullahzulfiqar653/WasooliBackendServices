@@ -5,6 +5,10 @@ from rest_framework.serializers import ModelSerializer, ValidationError
 from apis.models.lookup import Lookup
 from apis.models.merchant_membership import MerchantMembership
 
+from services.s3 import S3Service
+
+s3_client = S3Service()
+
 
 class MerchantMembershipSerializer(ModelSerializer):
     meta_data = serializers.JSONField(required=False, allow_null=True)
@@ -74,6 +78,15 @@ class MerchantMembershipSerializer(ModelSerializer):
         """Ensure that the discounted price is not negative."""
         if value < 0:
             raise ValidationError("Discounted price cannot be negative.")
+        return value
+
+    def validate_picture(self, value):
+        if value:
+            value = s3_client.make_presigned_file_public(value)
+            if value is None:
+                raise serializers.ValidationError(
+                    "You have passed wrong s3_key in picture attribute."
+                )
         return value
 
     def validate_secondary_phone(self, value):
