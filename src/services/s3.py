@@ -6,7 +6,10 @@ logger = logging.getLogger(__name__)
 
 
 class S3Service:
-    def __init__(self, bucket="Wasooli"):
+    def __init__(
+        self,
+        bucket="Wasooli",
+    ):
         self.s3_client = settings.S3_CLIENT
         self.bucket = bucket
 
@@ -69,6 +72,47 @@ class S3Service:
         except Exception as e:
             logger.error(f"Error generating presigned URL: {e}")
             raise Exception(f"Error generating presigned URL: {e}")
+
+    def generate_presigned_url_for_upload(self, key, content_type, expiration=3600):
+        """
+        Generates a presigned URL to upload file from the Space.
+        :param key: The object fullpath and name in the space
+        :param expiration: Time in seconds for which the URL is valid
+        :return: Presigned URL
+        """
+        try:
+            url = self.s3_client.generate_presigned_url(
+                "put_object",
+                Params={
+                    "Bucket": self.bucket,
+                    "Key": key,
+                    "ContentType": content_type,
+                },
+                ExpiresIn=expiration,
+            )
+            logger.info("Generated presigned URL for file upload")
+            return url
+        except Exception as e:
+            logger.error(f"Error generating presigned URL: {e}")
+            raise Exception(f"Error generating presigned URL: {e}")
+
+    def make_presigned_file_public(self, key):
+        """
+        Makes a file in the S3 bucket public.
+        :param s3_key: The object name (key) in the bucket to be made public
+        :return: Success message or raises exception
+        """
+        try:
+            self.s3_client.put_object_acl(
+                Bucket=self.bucket,
+                Key=key,
+                ACL="public-read",
+            )
+            logger.info(f"File {key} is now public.")
+            return f"{settings.OBJECT_STORAGE_URL}/{self.bucket}/{key}"
+        except Exception as e:
+            logger.error(f"Error making file public: {e}")
+            raise Exception(f"Error making file public: {e}")
 
     def delete_file(self, s3_url):
         """

@@ -46,7 +46,7 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                 memberships__merchant=merchant
             )  # For CUSTOMER, use `memberships__merchant=merchant`
 
-        return queryset
+        return queryset.order_by("-code")
 
 
 class MemberRetrieveByPhoneAPIView(generics.RetrieveAPIView):

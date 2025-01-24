@@ -10,7 +10,29 @@ MODEL_CODES = {
     "MerchantMembership": "107",
 }
 
-
+ALLOWED_IMAGE_EXTENSIONS = (
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".bmp",
+    ".tiff",
+    ".webp",
+    ".heif",
+    ".raw",
+    ".ico",
+)
+ALLOWED_FILE_TYPES = (
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/bmp",
+    "image/tiff",
+    "image/webp",
+    "image/heif",
+    "image/x-icon",
+    "image/vnd.adobe.photoshop",
+)
 MERCHANT_PERMISSIONS = {
     "transactionhistory": ["view_transactionhistory"],
     "invoice": ["add_invoice", "change_invoice", "view_invoice"],

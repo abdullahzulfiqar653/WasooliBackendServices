@@ -7,7 +7,6 @@ from apis.models.merchant_membership import MerchantMembership
 
 
 class MerchantMembershipSerializer(ModelSerializer):
-    secondary_image = serializers.ImageField(required=False, allow_null=True)
     meta_data = serializers.JSONField(required=False, allow_null=True)
 
     class Meta:
@@ -22,11 +21,10 @@ class MerchantMembershipSerializer(ModelSerializer):
             "meta_data",
             "is_monthly",
             "actual_price",
-            "secondary_image",
             "secondary_phone",
             "discounted_price",
         ]
-        read_only_fields = ["account", "merchant", "picture"]
+        read_only_fields = ["account", "merchant"]
         extra_kwargs = {
             "is_active": {"required": True},
             "is_monthly": {"required": True},

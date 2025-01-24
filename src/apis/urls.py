@@ -4,6 +4,7 @@ from apis.views import (
     LookupListAPIView,
     RefreshTokenAPIView,
     AccessInfoRetrieveAPIView,
+    PreSignedUrlCreateAPIView,
     MemberRetrieveByPhoneAPIView,
     MemberInvoiceListCreateAPIView,
     MerchantMemberListCreateAPIView,
@@ -19,6 +20,9 @@ urlpatterns = [
     path("auth/token/", OTPView.as_view(), name="token_obtain_pair"),
     path(
         "auth/access-info/", AccessInfoRetrieveAPIView.as_view(), name="profile_token"
+    ),
+    path(
+        "auth/presigned-url/", PreSignedUrlCreateAPIView.as_view(), name="presigned-url"
     ),
     path("auth/refresh-token/", RefreshTokenAPIView.as_view(), name="refresh_token"),
     # =====================================================

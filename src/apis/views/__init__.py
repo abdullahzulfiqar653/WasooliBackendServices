@@ -8,12 +8,14 @@ from apis.views.merchant import (
 from apis.views.refresh_token import RefreshTokenAPIView
 from apis.views.access_info import AccessInfoRetrieveAPIView
 from apis.views.member import MemberInvoiceListCreateAPIView
+from apis.views.presigned_url import PreSignedUrlCreateAPIView
 
 __all__ = [
     "OTPView",
     "LookupListAPIView",
     "RefreshTokenAPIView",
     "AccessInfoRetrieveAPIView",
+    "PreSignedUrlCreateAPIView",
     "MemberRetrieveByPhoneAPIView",
     "MemberInvoiceListCreateAPIView",
     "MerchantMemberListCreateAPIView",
