@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from django.db.models import Sum
 from apis.models.abstract.base import BaseModel
@@ -47,7 +48,7 @@ class TransactionHistory(BaseModel):
     def __str__(self):
         return f"{self.id}"
 
-    def adjust_balance(self):
+    def adjust_credit_debit_balance(self):
         """
         Calculate the balance for this membership by summing all previous debits and credits.
         The balance is calculated by subtracting total debit from total credit.
@@ -71,15 +72,19 @@ class TransactionHistory(BaseModel):
         Calculate commission based on the merchant's commission structure.
         Commission can be either for cash or online transactions, determined by the `is_online` flag.
         """
-        commission_rate = 0
+        commission_rate = Decimal(0)
         if self.merchant:
-            commission_rate = self.get_commission_rate(self.merchant, self.is_online)
+            commission_rate = Decimal(
+                self.get_commission_rate(self.merchant, self.is_online)
+            )
         elif self.merchant_membership:
             # If the merchant is not available, fetch via merchant_membership
             merchant = self.merchant_membership.merchant
-            commission_rate = self.get_commission_rate(merchant, self.is_online)
+            commission_rate = Decimal(
+                self.get_commission_rate(merchant, self.is_online)
+            )
 
-        return self.credit * commission_rate / 100
+        return self.credit * commission_rate / Decimal(100)
 
     def get_commission_rate(self, merchant, is_online):
         """
@@ -101,7 +106,7 @@ class TransactionHistory(BaseModel):
         # Only calculate commission if the type is Billing and it's a credit transaction
         if self.type == self.TYPES.BILLING and self.credit > 0:
             self.commission = self.calculate_commission()
-        self.adjust_balance()
+        self.adjust_credit_debit_balance()
         super().save(*args, **kwargs)
 
     class Meta:

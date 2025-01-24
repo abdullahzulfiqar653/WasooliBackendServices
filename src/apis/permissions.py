@@ -40,7 +40,7 @@ class IsMerchantOrStaff(permissions.BasePermission):
         try:
             instance = queryset.get(**{lookup_field: instance_id})
         except queryset.model.DoesNotExist:
-            raise exceptions.NotFound({"detail": ["Merchant not found."]})
+            raise exceptions.NotFound({"detail": ["Matching id not found."]})
         return instance
 
     def get_request_merchant(self, request):
@@ -82,6 +82,24 @@ class IsMerchantOrStaff(permissions.BasePermission):
                         if membership:
                             request.member = membership.member
                             request.merchant = merchant
+                merchant = request.merchant
+
+            case str(s) if s.startswith("/api/invoices/"):
+                if not hasattr(request, "invoice"):
+                    Invoice = apps.get_model("apis", "Invoice")
+                    MerchantMembership = apps.get_model("apis", "MerchantMembership")
+                    invoice_id = view.kwargs.get("pk") or view.kwargs.get("invoice_id")
+                    merchant = self.get_request_merchant(request)
+                    queryset = Invoice.objects.all()
+                    invoice = self.get_instance(queryset, invoice_id)
+                    queryset = MerchantMembership.objects.filter(merchant=merchant)
+                    membership = self.get_instance(
+                        queryset, invoice.member.id, "member_id"
+                    )
+                    if membership:
+                        request.invoice = invoice
+                        request.member = invoice.member
+                        request.merchant = merchant
                 merchant = request.merchant
 
             case str(s) if s.startswith("/api/auth/"):

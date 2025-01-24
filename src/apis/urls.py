@@ -3,9 +3,11 @@ from apis.views import (
     OTPView,
     LookupListAPIView,
     RefreshTokenAPIView,
+    InvoiceMarkPaidAPIView,
     AccessInfoRetrieveAPIView,
     PreSignedUrlCreateAPIView,
     MemberRetrieveByPhoneAPIView,
+    InvoiceRetrieveUpdateAPIView,
     MemberInvoiceListCreateAPIView,
     MerchantMemberListCreateAPIView,
     MemberRetrieveUpdateDestroyAPIView,
@@ -50,6 +52,19 @@ urlpatterns = [
         "members/<str:member_id>/invoices/",
         MemberInvoiceListCreateAPIView.as_view(),
         name="member-invoice-list-create",
+    ),
+    # =====================================================
+    # Invoice
+    # =====================================================
+    path(
+        "invoices/<str:pk>/",
+        InvoiceRetrieveUpdateAPIView.as_view(),
+        name="invoice-retrieve-update",
+    ),
+    path(
+        "invoices/<str:invoice_id>/mark-paid/",
+        InvoiceMarkPaidAPIView.as_view(),
+        name="invoice-mark-paid",
     ),
     # =====================================================
     # Lookups

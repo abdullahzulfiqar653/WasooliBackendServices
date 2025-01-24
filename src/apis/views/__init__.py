@@ -9,13 +9,17 @@ from apis.views.refresh_token import RefreshTokenAPIView
 from apis.views.access_info import AccessInfoRetrieveAPIView
 from apis.views.member import MemberInvoiceListCreateAPIView
 from apis.views.presigned_url import PreSignedUrlCreateAPIView
+from apis.views.invoice.mark_paid import InvoiceMarkPaidAPIView
+from apis.views.invoice.invoice import InvoiceRetrieveUpdateAPIView
 
 __all__ = [
     "OTPView",
     "LookupListAPIView",
     "RefreshTokenAPIView",
+    "InvoiceMarkPaidAPIView",
     "AccessInfoRetrieveAPIView",
     "PreSignedUrlCreateAPIView",
+    "InvoiceRetrieveUpdateAPIView",
     "MemberRetrieveByPhoneAPIView",
     "MemberInvoiceListCreateAPIView",
     "MerchantMemberListCreateAPIView",
