@@ -43,7 +43,7 @@ class S3Service:
             # Return the URL of the uploaded file
             if is_public:
                 # Construct the public URL for the uploaded file
-                file_url = f"{settings.OBJECT_STORAGE_URL}/{s3_key}"
+                file_url = f"{settings.OBJECT_STORAGE_URL}/{self.bucket}/{s3_key}"
             else:
                 file_url = f"s3://{self.bucket}/{s3_key}"
 

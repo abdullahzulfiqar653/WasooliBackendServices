@@ -8,14 +8,8 @@ class PreSignedUrlCreateAPIView(CreateAPIView):
     This view allows generating a pre-signed URL for uploading files directly to S3.
 
     The view accepts two body parameters:
-    - `s3_key`: The key (path) for the file to be uploaded to S3.
-    - `file_type`: The MIME type of the file being uploaded.
-
-    Example request data:
-    `{
-        "s3_key": "profile/primary/{merchant.id}/{image.jpg}",
-        "file_type": "image/jpeg"
-    }`
+    - `file`: file user want to upload.
+    - `public`: file visibility. If set to `true`, the file will be publicly accessible. Default is `true`.
     """
 
     serializer_class = PreSignedUrlSerializer
