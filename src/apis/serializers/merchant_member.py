@@ -11,6 +11,8 @@ from apis.serializers.user import UserSerializer
 from apis.serializers.member_role import MemberRoleSerializer
 from apis.serializers.merchant_membership import MerchantMembershipSerializer
 
+import json
+from django.http import QueryDict
 from services.s3 import S3Service
 
 s3_client = S3Service()
@@ -46,6 +48,44 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         super(MerchantMemberSerializer, self).__init__(*args, **kwargs)
         # Adjust the 'required' attribute of merchant_memberships based on the role data if present
         request = self.context.get("request")
+        if request and isinstance(request.data, QueryDict):
+            data = dict(request.data.copy())  # Create a mutable copy of the QueryDict
+
+            # Transform `user` fields
+            data["user"] = {
+                "email": data.pop("user[email]", None)[0],
+                "first_name": data.pop("user[first_name]", None)[0],
+            }
+
+            # Transform `roles` field
+            data["roles"] = {
+                "role": data.pop("roles[role]", None)[0],
+            }
+
+            # Transform `merchant_memberships` fields
+            membership_keys = [
+                key for key in data if key.startswith("merchant_memberships[")
+            ]
+
+            if membership_keys:
+                membership_data = {}
+                for key in membership_keys:
+                    field = key.split("[")[1][:-1]  # Extract field name
+                    membership_data[field] = data.pop(key, None)[0]
+                data["merchant_memberships"] = membership_data
+
+            # Parse `meta_data` from JSON string
+            if "merchant_memberships.meta_data" in data:
+                membership_data["meta_data"] = json.loads(
+                    data.pop("merchant_memberships.meta_data")[0]
+                )
+
+            data["cnic"] = data.pop("cnic", [None])[0]
+            data["primary_phone"] = data.pop("primary_phone", [None])[0]
+            data["primary_image"] = data.pop("primary_image", [None])[0]
+
+            self.initial_data = data
+
         roles_data = request.data.get("roles", {})
         role = roles_data.get("role", RoleChoices.CUSTOMER)
         fake_view = getattr(self.context.get("view"), "swagger_fake_view", False)

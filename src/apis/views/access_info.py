@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 from apis.permissions import IsMerchantOrStaff
 from django.contrib.auth.models import Permission
+from apis.serializers.access_info import AccessInfoSerializer
 
 
 class AccessInfoRetrieveAPIView(generics.RetrieveAPIView):
@@ -12,16 +13,13 @@ class AccessInfoRetrieveAPIView(generics.RetrieveAPIView):
     """
 
     permission_classes = [IsMerchantOrStaff]
-    serializer_class = None
+    serializer_class = AccessInfoSerializer
 
     def retrieve(self, request, *args, **kwargs):
         direct_permissions = request.user.user_permissions.all()
         group_permissions = Permission.objects.filter(group__user=request.user)
         all_permissions = direct_permissions | group_permissions
-
-        print(all_permissions)
         grouped_permissions = {}
-        print(request.user)
 
         for perm in all_permissions.distinct():
             model_name = perm.content_type.model

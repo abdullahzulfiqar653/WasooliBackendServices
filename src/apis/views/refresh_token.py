@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import AuthenticationFailed
+from apis.serializers.refresh_token import RefreshTokenSerializer
 
 
 class RefreshTokenAPIView(generics.RetrieveAPIView):
@@ -12,7 +13,7 @@ class RefreshTokenAPIView(generics.RetrieveAPIView):
     """
 
     permission_classes = []
-    serializer_class = None
+    serializer_class = RefreshTokenSerializer
 
     def retrieve(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get("wasooli_refresh_token")
