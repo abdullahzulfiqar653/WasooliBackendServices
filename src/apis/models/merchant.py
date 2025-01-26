@@ -62,3 +62,7 @@ class Merchant(BaseModel):
             last_code = Merchant.objects.aggregate(models.Max("code"))["code__max"]
             self.code = str(int(last_code) + 1) if last_code else "1000"
         super().save(*args, **kwargs)
+
+    @property
+    def is_fixed_fee_merchant(self):
+        return self.type in [self.MerchantType.WATER, self.MerchantType.MILK]
