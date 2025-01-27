@@ -97,8 +97,7 @@ class IsMerchantOrStaff(permissions.BasePermission):
                         queryset, invoice.member.id, "member_id"
                     )
                     if membership:
-                        request.invoice = invoice
-                        request.member = invoice.member
+                        request.membership = membership
                         request.merchant = merchant
                 merchant = request.merchant
 

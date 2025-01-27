@@ -13,4 +13,4 @@ class InvoiceRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = InvoiceSerializer
 
     def get_queryset(self):
-        return self.request.member.invoices.all()
+        return self.request.membership.member.invoices.all()
