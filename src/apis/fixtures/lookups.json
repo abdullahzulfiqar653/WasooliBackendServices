@@ -268,5 +268,45 @@
             "created_at": "2024-01-01T00:00:00Z",
             "updated_at": "2024-01-01T00:00:00Z"
         }
+    },
+    {
+        "model": "apis.lookup",
+        "pk": "100abcdefijk100",
+        "fields": {
+            "name": "keys",
+            "type": null,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "apis.lookup",
+        "pk": "100abcdefijk101",
+        "fields": {
+            "name": "device",
+            "type": "100abcdefijk100",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "apis.lookup",
+        "pk": "100abcdefijk102",
+        "fields": {
+            "name": "advance",
+            "type": "100abcdefijk100",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "apis.lookup",
+        "pk": "100abcdefijk103",
+        "fields": {
+            "name": "remarks",
+            "type": "100abcdefijk100",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
     }
 ]

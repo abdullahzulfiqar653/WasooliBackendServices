@@ -11,6 +11,7 @@ class LookupListAPIView(generics.ListAPIView):
     - You need to pass a single parameter, `value`.
     - Current supported flags are:
     - `city`: Returns a list of cities along with their associated child areas.
+    - `keys`: Returns a list of metadata keys so if user adding extra fields then he get suggestions.
 
     Based on the provided flag, the response will include the relevant data and its child objects.
     """
