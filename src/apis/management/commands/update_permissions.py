@@ -9,6 +9,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         staff_group, _ = Group.objects.get_or_create(name="Staff")
         merchant_group, _ = Group.objects.get_or_create(name="Merchant")
+        customer_group, _ = Group.objects.get_or_create(name="Customer")
 
         staff_group.permissions.clear()
         merchant_group.permissions.clear()

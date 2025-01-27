@@ -14,9 +14,7 @@ from apis.models.member_role import RoleChoices, MemberRole
 @receiver(post_migrate, sender=apps.get_app_config("apis"))
 def load_data_from_fixture(sender, **kwargs):
     lookups_data = os.path.join("apis", "fixtures", "lookups.json")
-    groups_data = os.path.join("apis", "fixtures", "groups.json")
     call_command("loaddata", lookups_data, app_label="api")
-    call_command("loaddata", groups_data, app_label="auth")
 
 
 @receiver(post_save, sender=Merchant)

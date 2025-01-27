@@ -1,4 +1,3 @@
-from rest_framework import exceptions
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from apis.models.merchant_member import MerchantMember
