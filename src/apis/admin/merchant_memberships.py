@@ -7,6 +7,7 @@ from apis.models.merchant_membership import MerchantMembership
 class MerchantMembershipAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "is_active",
         "is_monthly",
         "member_name",
         "account_code",
