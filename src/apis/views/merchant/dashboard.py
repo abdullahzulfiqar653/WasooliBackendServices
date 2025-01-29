@@ -8,7 +8,7 @@ from apis.permissions import IsMerchantOrStaff
 from apis.models.transaction_history import TransactionHistory
 
 
-class DashboardRetrieveAPIView(generics.RetrieveAPIView):
+class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
     """
     This endpoint provides all the information for dashboard cards:
     - Example response structure:

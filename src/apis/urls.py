@@ -3,13 +3,13 @@ from apis.views import (
     OTPView,
     LookupListAPIView,
     RefreshTokenAPIView,
-    DashboardRetrieveAPIView,
     AccessInfoRetrieveAPIView,
     PreSignedUrlCreateAPIView,
     MemberRetrieveByPhoneAPIView,
     InvoiceRetrieveUpdateAPIView,
     MemberInvoiceListCreateAPIView,
     MerchantMemberListCreateAPIView,
+    MerchantDashboardRetrieveAPIView,
     MemberRetrieveUpdateDestroyAPIView,
 )
 
@@ -32,7 +32,7 @@ urlpatterns = [
     # =====================================================
     path(
         "merchants/<str:merchant_id>/dashboard/",
-        DashboardRetrieveAPIView.as_view(),
+        MerchantDashboardRetrieveAPIView.as_view(),
         name="merchant-dashboard-retrieve",
     ),
     path(
