@@ -44,5 +44,5 @@ class MemberRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
             queryset = queryset.filter(
                 memberships__merchant=merchant
             )  # For CUSTOMER, use `memberships__merchant=merchant`
-
+        queryset = queryset.distinct()
         return queryset

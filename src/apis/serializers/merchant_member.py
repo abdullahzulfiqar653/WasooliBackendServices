@@ -76,9 +76,7 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         role = request.query_params.get("role", None)
         if role != RoleChoices.STAFF:
-            membership = MerchantMembership.objects.filter(
-                member=obj, merchant=request.merchant
-            ).first()
+            membership = request.merchant.members.filter(member=obj).first()
             return MerchantMembershipSerializer(membership).data
         return {}
 
