@@ -66,18 +66,16 @@ class IsMerchantOrStaff(permissions.BasePermission):
 
             case str(s) if s.startswith("/api/members/"):
                 if not hasattr(request, "merchant"):
-                    MerchantMember = apps.get_model("apis", "MerchantMember")
-                    MerchantMembership = apps.get_model("apis", "MerchantMembership")
                     member_id = view.kwargs.get("pk") or view.kwargs.get("member_id")
                     merchant = self.get_request_merchant(request)
                     if request.query_params.get("role") == RoleChoices.STAFF:
-                        queryset = MerchantMember.objects.filter(merchant=merchant)
+                        queryset = merchant.staff_members.all()
                         member = self.get_instance(queryset, member_id)
                         if member:
                             request.member = member
                             request.merchant = merchant
                     else:
-                        queryset = MerchantMembership.objects.filter(merchant=merchant)
+                        queryset = merchant.members.all()
                         membership = self.get_instance(queryset, member_id, "member_id")
                         if membership:
                             request.member = membership.member
@@ -87,12 +85,11 @@ class IsMerchantOrStaff(permissions.BasePermission):
             case str(s) if s.startswith("/api/invoices/"):
                 if not hasattr(request, "invoice"):
                     Invoice = apps.get_model("apis", "Invoice")
-                    MerchantMembership = apps.get_model("apis", "MerchantMembership")
                     invoice_id = view.kwargs.get("pk") or view.kwargs.get("invoice_id")
                     merchant = self.get_request_merchant(request)
                     queryset = Invoice.objects.all()
                     invoice = self.get_instance(queryset, invoice_id)
-                    queryset = MerchantMembership.objects.filter(merchant=merchant)
+                    queryset = merchant.members.all()
                     membership = self.get_instance(
                         queryset, invoice.member.id, "member_id"
                     )

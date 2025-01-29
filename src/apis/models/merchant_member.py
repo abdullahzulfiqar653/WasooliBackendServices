@@ -7,7 +7,12 @@ class MerchantMember(BaseModel):
     user = models.OneToOneField(
         "auth.User", on_delete=models.CASCADE, related_name="profile"
     )
-    merchant = models.ForeignKey("apis.Merchant", on_delete=models.SET_NULL, null=True)
+    merchant = models.ForeignKey(
+        "apis.Merchant",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="staff_members",
+    )
 
     cnic = models.CharField(max_length=13, null=True, blank=True)
     picture = models.CharField(max_length=256, blank=True, null=True)
