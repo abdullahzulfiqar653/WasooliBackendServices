@@ -26,6 +26,7 @@ class MerchantMembership(BaseModel):
     actual_price = models.DecimalField(max_digits=10, decimal_places=2)
     account = models.CharField(max_length=6, unique=True, editable=False)
     discounted_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_saved = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     class Meta:
         unique_together = ["member", "merchant"]

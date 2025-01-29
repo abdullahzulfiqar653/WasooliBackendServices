@@ -7,6 +7,7 @@ from apis.views import (
     PreSignedUrlCreateAPIView,
     MemberRetrieveByPhoneAPIView,
     InvoiceRetrieveUpdateAPIView,
+    MemberProfileRetrieveAPIView,
     MemberInvoiceListCreateAPIView,
     MerchantMemberListCreateAPIView,
     MerchantDashboardRetrieveAPIView,
@@ -57,6 +58,11 @@ urlpatterns = [
         "members/<str:member_id>/invoices/",
         MemberInvoiceListCreateAPIView.as_view(),
         name="member-invoice-list-create",
+    ),
+    path(
+        "members/<str:member_id>/profile/",
+        MemberProfileRetrieveAPIView.as_view(),
+        name="member-profile-retrieve",
     ),
     # =====================================================
     # Invoice
