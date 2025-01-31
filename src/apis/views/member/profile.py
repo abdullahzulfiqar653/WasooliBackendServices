@@ -61,8 +61,11 @@ class MemberProfileRetrieveAPIView(generics.RetrieveAPIView):
 
         return Response(
             {
-                "total_spend": {"value": total_credit},
-                "total_remaining": {"value": remaining_debit},
-                "total_saved": {"value": membership.total_saved},
+                "total_spend": {"value": total_credit, "name": "Total Spend"},
+                "total_remaining": {
+                    "value": remaining_debit,
+                    "name": "Total Remaining",
+                },
+                "total_saved": {"value": membership.total_saved, "name": "Total Saved"},
             }
         )
