@@ -111,15 +111,37 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
         non_active_customers = membership_aggregates["non_active_customers"] or 0
         return Response(
             {
-                "total_collections_today": {"value": credit_today},
-                "total_collections_this_month": {"value": credit_this_month},
-                "total_remaining_collections_this_month": {
-                    "value": remaining_debit_this_month
+                "total_collections_today": {
+                    "value": credit_today,
+                    "name": "Collection today",
                 },
-                "total_collections": {"value": total_credit},
-                "total_remaining_collections": {"value": total_credit},
-                "total_customers": {"value": total_customers},
-                "active_customers": {"value": active_customers},
-                "non_active_customers": {"value": non_active_customers},
+                "total_collections_this_month": {
+                    "value": credit_this_month,
+                    "name": "Collection this month",
+                },
+                "total_remaining_collections_this_month": {
+                    "value": remaining_debit_this_month,
+                    "name": "Remaining collection this month",
+                },
+                "total_collections": {
+                    "value": total_credit,
+                    "name": "Collection this year",
+                },
+                "total_remaining_collections": {
+                    "value": total_credit,
+                    "name": "Remaining collection this year",
+                },
+                "total_customers": {
+                    "value": total_customers,
+                    "name": "Total Customers",
+                },
+                "active_customers": {
+                    "value": active_customers,
+                    "name": "Active Customers",
+                },
+                "non_active_customers": {
+                    "value": non_active_customers,
+                    "name": "Non Active Customers",
+                },
             }
         )
