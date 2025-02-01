@@ -25,7 +25,7 @@ class MemberRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         role = self.request.query_params.get("role", RoleChoices.CUSTOMER)
-        merchant = self.request.user.merchant
+        merchant = self.request.merchant
 
         queryset = MerchantMember.objects.filter(
             roles__role__in=[
