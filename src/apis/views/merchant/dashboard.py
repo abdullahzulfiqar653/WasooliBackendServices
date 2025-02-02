@@ -6,28 +6,16 @@ from rest_framework.response import Response
 
 from apis.permissions import IsMerchantOrStaff
 from apis.models.transaction_history import TransactionHistory
+from apis.serializers.merchant_dashboard import MerchantDashboardSerializer
 
 
 class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
     """
-    This endpoint provides all the information for dashboard cards:
-    - Example response structure:
-        {
-            "active_users": {"value": 40}
-        }
-
-    - It includes metrics such as:
-        - Total collections today
-        - Total collections this month
-        - Total remaining collections this month
-        - Total customers
-        - Active and non-active customers
-        - Earnings this month
-        - Active users
+    This endpoint provides all the information for dashboard cards.
     """
 
     permission_classes = [IsMerchantOrStaff]
-    serializer_class = None
+    serializer_class = MerchantDashboardSerializer
 
     def retrieve(self, request, *args, **kwargs):
         today = timezone.now().date()

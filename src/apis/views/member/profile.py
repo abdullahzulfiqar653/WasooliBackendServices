@@ -1,33 +1,23 @@
 from decimal import Decimal
+
+from django.db.models import Sum
 from django.utils import timezone
+
 from rest_framework import generics
-from django.db.models import Sum, Q, Count
 from rest_framework.response import Response
 
 from apis.permissions import IsMerchantOrStaff
 from apis.models.transaction_history import TransactionHistory
+from apis.serializers.member_profile import MemberProfileSerializer
 
 
 class MemberProfileRetrieveAPIView(generics.RetrieveAPIView):
     """
-    This endpoint provides all the information for dashboard cards:
-    - Example response structure:
-        {
-            "active_users": {"value": 40}
-        }
-
-    - It includes metrics such as:
-        - Total collections today
-        - Total collections this month
-        - Total remaining collections this month
-        - Total customers
-        - Active and non-active customers
-        - Earnings this month
-        - Active users
+    This endpoint provides all the information for members profile cards.
     """
 
     permission_classes = [IsMerchantOrStaff]
-    serializer_class = None
+    serializer_class = MemberProfileSerializer
 
     def retrieve(self, request, *args, **kwargs):
 

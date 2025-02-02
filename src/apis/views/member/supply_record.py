@@ -2,8 +2,8 @@ from rest_framework import generics
 from django_filters.rest_framework import DjangoFilterBackend
 
 from apis.permissions import IsMerchantOrStaff
+from apis.models.supply_record import SupplyRecord
 from apis.filters.supply_record import SupplyRecordFilter
-
 from apis.serializers.supply_record import SupplyRecordSerializer
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -11,28 +11,12 @@ from drf_spectacular.types import OpenApiTypes
 
 
 class MemberSupplyRecordListCreateAPIView(generics.ListCreateAPIView):
-    """
-    Provides a list and creation interface for supply records associated with a member.
-
-    This API view supports listing all supply records linked to the requesting user's membership
-    and creating new supply records. It features filtering by the year and month of creation,
-    which are required parameters for querying the records.
-
-    - Filters:
-        - `created_at_year (int)`: The year when the supply record was created. This parameter is required.
-        - `created_at_month (int)`: The month when the supply record was created. This parameter is required.
-
-    - Permissions:
-        - `IsMerchantOrStaff`: Ensures that only users associated with the merchant or staff members can access the data.
-
-    No pagination is applied to this view, so it will return all records that match the filter criteria in a single response.
-    """
-
     serializer_class = SupplyRecordSerializer
     permission_classes = [IsMerchantOrStaff]
     filter_backends = (DjangoFilterBackend,)
     pagination_class = None
     filterset_class = SupplyRecordFilter
+    queryset = SupplyRecord.objects.none()
 
     def get_queryset(self):
         return self.request.membership.supply_records.all()

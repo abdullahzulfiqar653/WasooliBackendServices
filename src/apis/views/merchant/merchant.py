@@ -7,18 +7,11 @@ from apis.models.merchant_member import MerchantMember
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
 
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
+
 
 class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
-    """
-    This view handles listing and creating merchant members.
-    - `For Staff`:
-    - To list staff members, include the parameter `role=Staff` in the request.
-    - To create a staff member, set `merchant_memberships` to `null`.
-    - `For Customers`:
-    - No additional parameters are required to list them.
-    - The `merchant_memberships` field is required when creating a customer.
-    """
-
     permission_classes = [IsMerchantOrStaff]
     serializer_class = MerchantMemberSerializer
     filter_backends = [filters.SearchFilter]
@@ -47,6 +40,34 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
             )  # For CUSTOMER, use `memberships__merchant=merchant`
 
         return queryset.order_by("-code")
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="role",
+                description="Filter members by their role",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=[RoleChoices.STAFF],
+            )
+        ],
+        description="""
+        \nThis view handles listing of merchant members.
+            \n- `For Staff`: Include the parameter `role=Staff` to list staff members.
+            \n- `For Customers`: No additional parameters are required to list them.""",
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(
+        description="""
+        \nThis view handles creating merchant members wether Staff or Customer.
+        \n- `For Staff`: Set `merchant_memberships` to `null` to create a staff member.
+        \n- `For Customers`: The `merchant_memberships` field is required when creating a customer.
+        """,
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 
 class MemberRetrieveByPhoneAPIView(generics.RetrieveAPIView):
