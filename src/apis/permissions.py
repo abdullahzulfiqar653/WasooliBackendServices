@@ -78,8 +78,9 @@ class IsMerchantOrStaff(permissions.BasePermission):
                         queryset = merchant.members.all()
                         membership = self.get_instance(queryset, member_id, "member_id")
                         if membership:
-                            request.member = membership.member
                             request.merchant = merchant
+                            request.membership = membership
+                            request.member = membership.member
                 merchant = request.merchant
 
             case str(s) if s.startswith("/api/invoices/"):

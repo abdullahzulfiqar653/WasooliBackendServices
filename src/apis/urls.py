@@ -12,6 +12,7 @@ from apis.views import (
     MerchantMemberListCreateAPIView,
     MerchantDashboardRetrieveAPIView,
     MemberRetrieveUpdateDestroyAPIView,
+    MemberSupplyRecordListCreateAPIView,
 )
 
 
@@ -58,6 +59,11 @@ urlpatterns = [
         "members/<str:member_id>/invoices/",
         MemberInvoiceListCreateAPIView.as_view(),
         name="member-invoice-list-create",
+    ),
+    path(
+        "members/<str:member_id>/supply-record/",
+        MemberSupplyRecordListCreateAPIView.as_view(),
+        name="member-supply-record-list-create",
     ),
     path(
         "members/<str:member_id>/profile/",
