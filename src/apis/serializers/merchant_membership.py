@@ -12,6 +12,7 @@ s3_client = S3Service()
 
 class MerchantMembershipSerializer(ModelSerializer):
     meta_data = serializers.JSONField(required=False, allow_null=True)
+    unit = serializers.SerializerMethodField()
 
     class Meta:
         model = MerchantMembership
@@ -33,6 +34,9 @@ class MerchantMembershipSerializer(ModelSerializer):
             "is_active": {"required": True},
             "is_monthly": {"required": True},
         }
+
+    def get_unit(self, obj):
+        return obj.merchant.unit
 
     def validate(self, data):
         if "actual_price" in data and "discounted_price" in data:

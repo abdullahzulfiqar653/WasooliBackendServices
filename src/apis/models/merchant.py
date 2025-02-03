@@ -66,3 +66,23 @@ class Merchant(BaseModel):
     @property
     def is_fixed_fee_merchant(self):
         return self.type in [self.MerchantType.WATER, self.MerchantType.MILK]
+
+    @property
+    def unit(self):
+        units = {
+            "month": (
+                self.MerchantType.TV,
+                self.MerchantType.GYM,
+                self.MerchantType.HOSTEl,
+                self.MerchantType.MADRSA,
+                self.MerchantType.ACADEMY,
+                self.MerchantType.INTERNET,
+                self.MerchantType.INSTALLMENT,
+            ),
+            "liter": (self.MerchantType.MILK,),
+            "bottle": (self.MerchantType.WATER,),
+        }
+        for unit, types in units.items():
+            if self.type in types:
+                return unit
+        return "month"
