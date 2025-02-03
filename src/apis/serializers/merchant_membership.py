@@ -19,6 +19,7 @@ class MerchantMembershipSerializer(ModelSerializer):
         fields = [
             "area",
             "city",
+            "unit",
             "picture",
             "address",
             "merchant",
