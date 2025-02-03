@@ -21,7 +21,7 @@ class MemberProfileRetrieveAPIView(generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
 
-        membership = request.merchant.members.filter(member=request.member).first()
+        membership = request.membership
         today = timezone.now().date()
         first_of_this_month = today.replace(day=1)
         transaction_summary = membership.membership_transactions.filter(
@@ -47,14 +47,14 @@ class MemberProfileRetrieveAPIView(generics.RetrieveAPIView):
         )
 
         # Calculate the remaining debit amount (total debit - total credit)
-        remaining_debit = total_debit - total_credit
+        balance = total_credit - total_debit
 
         return Response(
             {
                 "total_spend": {"value": total_credit, "name": "Total Spend"},
-                "total_remaining": {
-                    "value": remaining_debit,
-                    "name": "Total Remaining",
+                "balance": {
+                    "value": balance,
+                    "name": "Total Balance",
                 },
                 "total_saved": {"value": membership.total_saved, "name": "Total Saved"},
             }
