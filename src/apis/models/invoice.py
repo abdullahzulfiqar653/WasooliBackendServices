@@ -1,10 +1,8 @@
 from django.db import models
-
 from django.db.models import Max
 from django.utils import timezone
 
 from apis.models.abstract.base import BaseModel
-from apis.models.transaction_history import TransactionHistory
 
 
 class Invoice(BaseModel):
@@ -46,34 +44,3 @@ class Invoice(BaseModel):
         if self._state.adding:
             self.due_amount = self.total_amount
         super().save(*args, **kwargs)
-
-    def apply_payment(merchant_membership, payment_amount):
-        # Get all unpaid invoices, ordered by created at date (oldest first)
-        invoices = merchant_membership.invoices.filter(status="unpaid").order_by(
-            "created_at"
-        )
-        remaining_payment = payment_amount
-        paid_invoices = []
-        for invoice in invoices:
-            if remaining_payment >= invoice.amount_due:
-                remaining_payment -= invoice.amount_due
-                # Fully pay this invoice
-                invoice.amount_due = 0
-                invoice.status = Invoice.STATUS.PAID
-                invoice.save()
-                paid_invoices.append(invoice.code)
-            else:
-                invoice.amount_due -= remaining_payment
-                invoice.status = Invoice.STATUS.UNPAID
-                paid_invoices.append(invoice.code)
-                invoice.save()
-                break
-
-        transaction = TransactionHistory.objects.create(
-            merchant_membership=merchant_membership,
-            transaction_type=TransactionHistory.TYPES.CREDIT,
-            credit=payment_amount,
-            description=f"Payment for Invoice {invoice.id}",
-        )
-        transaction.balance = merchant_membership.total_balance
-        transaction.save()

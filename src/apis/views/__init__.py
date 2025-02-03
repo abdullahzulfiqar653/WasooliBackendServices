@@ -12,6 +12,7 @@ from apis.views.member import (
     MemberInvoiceListCreateAPIView,
     MemberRetrieveUpdateDestroyAPIView,
     MemberSupplyRecordListCreateAPIView,
+    MemberTransactionHistoryListCreateAPIView,
 )
 
 from apis.views.refresh_token import RefreshTokenAPIView
@@ -33,4 +34,5 @@ __all__ = [
     "MerchantDashboardRetrieveAPIView",
     "MemberRetrieveUpdateDestroyAPIView",
     "MemberSupplyRecordListCreateAPIView",
+    "MemberTransactionHistoryListCreateAPIView",
 ]

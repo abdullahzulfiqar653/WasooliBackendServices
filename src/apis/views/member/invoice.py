@@ -21,4 +21,4 @@ class MemberInvoiceListCreateAPIView(generics.ListCreateAPIView):
     filter_backends = [filters.SearchFilter]
 
     def get_queryset(self):
-        return self.request.member.invoices.all()
+        return self.request.member.invoices.all().order_by("-created_at")

@@ -1,6 +1,9 @@
 from decimal import Decimal
+
 from django.db import models
 from django.db.models import Sum
+
+from apis.models.invoice import Invoice
 from apis.models.abstract.base import BaseModel
 
 
@@ -102,11 +105,39 @@ class TransactionHistory(BaseModel):
                 return tier["commission"]
         return 0
 
+    def apply_payment(self, payment_amount):
+        # Get all unpaid invoices, ordered by created at date (oldest first)
+        merchant_membership = self.merchant_membership
+        invoices = merchant_membership.member.invoices.filter(status="unpaid").order_by(
+            "created_at"
+        )
+        remaining_payment = payment_amount
+        paid_invoices = []
+        for invoice in invoices:
+            if remaining_payment >= invoice.due_amount:
+                remaining_payment -= invoice.due_amount
+                # Fully pay this invoice
+                invoice.due_amount = 0
+                invoice.status = Invoice.STATUS.PAID
+                invoice.save()
+                paid_invoices.append(invoice.code)
+            else:
+                invoice.due_amount -= remaining_payment
+                invoice.status = Invoice.STATUS.UNPAID
+                paid_invoices.append(invoice.code)
+                invoice.save()
+                break
+        self.metadata = {"invoices": paid_invoices}
+        self.save()
+
     def save(self, *args, **kwargs):
+        billing = self.type == self.TYPES.BILLING
+        credit = self.transaction_type == self.TRANSACTION_TYPE.CREDIT
         # Only calculate commission if the type is Billing and it's a credit transaction
-        if self.type == self.TYPES.BILLING and self.credit > 0:
-            self.commission = self.calculate_commission()
-        self.adjust_credit_debit_balance()
+        if self._state.adding:
+            if billing and credit:
+                self.commission = self.calculate_commission()
+            self.adjust_credit_debit_balance()
         super().save(*args, **kwargs)
 
     class Meta:

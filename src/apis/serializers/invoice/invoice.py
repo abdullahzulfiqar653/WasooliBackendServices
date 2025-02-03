@@ -84,9 +84,6 @@ class InvoiceSerializer(serializers.ModelSerializer):
             type=TransactionHistory.TYPES.BILLING,
             transaction_type=TransactionHistory.TRANSACTION_TYPE.DEBIT,
         )
-        saved = merchant_membership.actual_price + merchant_membership.discounted_price
-        merchant_membership.total_saved += saved
-        merchant_membership.save()
         return invoice
 
     def update(self, instance, validated_data):
