@@ -50,7 +50,11 @@ class MemberSupplyRecordListCreateAPIView(generics.ListCreateAPIView):
 
     @extend_schema(
         request=SupplyRecordSerializer,
-        description="Creates a new supply record for the customer. Requires the user to be authenticated as merchant staff.",
+        description="""
+        \nCreates a supply record for the customer. Requires the user to be authenticated as merchant staff.
+        \nonly one record can be created per day. if a record already exists for the day, it will be updated with the new values.
+        \n- `For example:` merchant added 1 given and 2 taken, then added 2 given and 1 taken, the record will be updated to 2 given and 1 taken.
+        """,
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
