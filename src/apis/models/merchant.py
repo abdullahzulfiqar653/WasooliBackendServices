@@ -65,7 +65,7 @@ class Merchant(BaseModel):
 
     @property
     def is_fixed_fee_merchant(self):
-        return self.type in [self.MerchantType.WATER, self.MerchantType.MILK]
+        return self.type not in [self.MerchantType.WATER, self.MerchantType.MILK]
 
     @property
     def unit(self):
