@@ -18,6 +18,7 @@ from apis.views.member import (
 from apis.views.refresh_token import RefreshTokenAPIView
 from apis.views.access_info import AccessInfoRetrieveAPIView
 from apis.views.presigned_url import PreSignedUrlCreateAPIView
+from apis.views.public import PublicCustomerProfileRetrieveAPIView
 from apis.views.invoice.invoice import InvoiceRetrieveUpdateAPIView
 
 __all__ = [
@@ -34,5 +35,6 @@ __all__ = [
     "MerchantDashboardRetrieveAPIView",
     "MemberRetrieveUpdateDestroyAPIView",
     "MemberSupplyRecordListCreateAPIView",
+    "PublicCustomerProfileRetrieveAPIView",
     "MemberTransactionHistoryListCreateAPIView",
 ]

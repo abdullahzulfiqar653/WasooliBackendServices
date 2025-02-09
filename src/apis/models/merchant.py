@@ -68,6 +68,10 @@ class Merchant(BaseModel):
         return self.type not in [self.MerchantType.WATER, self.MerchantType.MILK]
 
     @property
+    def is_water_supply(self):
+        return self.type == self.MerchantType.WATER
+
+    @property
     def unit(self):
         units = {
             "month": (

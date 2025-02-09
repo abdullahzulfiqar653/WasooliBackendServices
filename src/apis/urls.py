@@ -13,6 +13,7 @@ from apis.views import (
     MerchantDashboardRetrieveAPIView,
     MemberRetrieveUpdateDestroyAPIView,
     MemberSupplyRecordListCreateAPIView,
+    PublicCustomerProfileRetrieveAPIView,
     MemberTransactionHistoryListCreateAPIView,
 )
 
@@ -83,6 +84,14 @@ urlpatterns = [
         "invoices/<str:pk>/",
         InvoiceRetrieveUpdateAPIView.as_view(),
         name="invoice-retrieve-update",
+    ),
+    # =====================================================
+    # Public
+    # =====================================================
+    path(
+        "public/customer/<str:customer_code>/profile/<str:merchant_id>/",
+        PublicCustomerProfileRetrieveAPIView.as_view(),
+        name="public-customer-profile-retrieve",
     ),
     # =====================================================
     # Lookups
