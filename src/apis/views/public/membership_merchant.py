@@ -11,11 +11,16 @@ class MembershipMerchantsListAPIView(generics.ListAPIView):
     This endpoint retrieves all the merchants for a member based on their customer code.
     """
 
-    pagination_class = None
-    permission_classes = [IsCustomer]
-    serializer_class = MembershipMerchantSerializer
-
     def get_queryset(self):
+        member = self.request.member
+
+        merchant_ids = MerchantMembership.objects.filter(member=member).values_list(
+            "merchant", flat=True
+        )fhnfxhbrxthb
+        return Merchant.objects.filter(id__in=merchant_ids)
+    
+
+        def get_queryset(self):
         member = self.request.member
 
         merchant_ids = MerchantMembership.objects.filter(member=member).values_list(
