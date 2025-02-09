@@ -6,7 +6,7 @@ from apis.models.merchant_membership import MerchantMembership
 from apis.serializers.membership_merchant import MembershipMerchantSerializer
 
 
-class MembershipMerchantsListAPIView(generics.ListAPIView):
+class PublicMembershipMerchantsListAPIView(generics.ListAPIView):
     """
     This endpoint retrieves all the merchants for a member based on their customer code.
     """

@@ -1,7 +1,9 @@
-from .profile import CustomerProfileRetrieveAPIView
-from .membership_merchant import MembershipMerchantsListAPIView
+from .profile import PublicCustomerProfileRetrieveAPIView
+from .membership_merchant import PublicMembershipMerchantsListAPIView
+from .invoice import PublicMemberInvoiceListAPIView
 
 __all__ = [
-    "MembershipMerchantsListAPIView",
-    "CustomerProfileRetrieveAPIView",
+    "PublicMemberInvoiceListAPIView",
+    "PublicMembershipMerchantsListAPIView",
+    "PublicCustomerProfileRetrieveAPIView",
 ]

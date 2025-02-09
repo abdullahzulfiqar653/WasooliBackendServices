@@ -8,7 +8,7 @@ from apis.models.merchant_membership import MerchantMembership
 from apis.serializers.member_profile import MemberProfileSerializer
 
 
-class CustomerProfileRetrieveAPIView(generics.RetrieveAPIView):
+class PublicCustomerProfileRetrieveAPIView(generics.RetrieveAPIView):
     """
     This endpoint provides all the information for members profile cards.
     """

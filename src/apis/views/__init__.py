@@ -18,11 +18,14 @@ from apis.views.member import (
 from apis.views.refresh_token import RefreshTokenAPIView
 from apis.views.access_info import AccessInfoRetrieveAPIView
 from apis.views.presigned_url import PreSignedUrlCreateAPIView
+
+from apis.views.invoice import InvoiceRetrieveUpdateAPIView
+
 from apis.views.public import (
-    MembershipMerchantsListAPIView,
-    CustomerProfileRetrieveAPIView,
+    PublicMemberInvoiceListAPIView,
+    PublicMembershipMerchantsListAPIView,
+    PublicCustomerProfileRetrieveAPIView,
 )
-from apis.views.invoice.invoice import InvoiceRetrieveUpdateAPIView
 
 __all__ = [
     "OTPView",
@@ -33,12 +36,13 @@ __all__ = [
     "MemberProfileRetrieveAPIView",
     "InvoiceRetrieveUpdateAPIView",
     "MemberRetrieveByPhoneAPIView",
-    "MembershipMerchantsListAPIView",
+    "PublicMemberInvoiceListAPIView",
     "MemberInvoiceListCreateAPIView",
-    "CustomerProfileRetrieveAPIView",
     "MerchantMemberListCreateAPIView",
     "MerchantDashboardRetrieveAPIView",
     "MemberRetrieveUpdateDestroyAPIView",
     "MemberSupplyRecordListCreateAPIView",
+    "PublicMembershipMerchantsListAPIView",
+    "PublicCustomerProfileRetrieveAPIView",
     "MemberTransactionHistoryListCreateAPIView",
 ]
