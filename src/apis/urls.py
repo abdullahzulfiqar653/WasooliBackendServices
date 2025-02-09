@@ -8,12 +8,13 @@ from apis.views import (
     MemberRetrieveByPhoneAPIView,
     InvoiceRetrieveUpdateAPIView,
     MemberProfileRetrieveAPIView,
+    MembershipMerchantsListAPIView,
     MemberInvoiceListCreateAPIView,
+    CustomerProfileRetrieveAPIView,
     MerchantMemberListCreateAPIView,
     MerchantDashboardRetrieveAPIView,
     MemberRetrieveUpdateDestroyAPIView,
     MemberSupplyRecordListCreateAPIView,
-    PublicCustomerProfileRetrieveAPIView,
     MemberTransactionHistoryListCreateAPIView,
 )
 
@@ -90,7 +91,12 @@ urlpatterns = [
     # =====================================================
     path(
         "public/customer/<str:customer_code>/profile/<str:merchant_id>/",
-        PublicCustomerProfileRetrieveAPIView.as_view(),
+        CustomerProfileRetrieveAPIView.as_view(),
+        name="public-customer-profile-retrieve",
+    ),
+    path(
+        "public/customer/<str:customer_code>/merchants/",
+        MembershipMerchantsListAPIView.as_view(),
         name="public-customer-profile-retrieve",
     ),
     # =====================================================

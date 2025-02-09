@@ -1,7 +1,7 @@
 from rest_framework import generics
 
 from apis.permissions import IsMerchantOrStaff
-from apis.serializers.invoice.invoice import InvoiceSerializer
+from apis.serializers.invoice import InvoiceSerializer
 
 
 class InvoiceRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):

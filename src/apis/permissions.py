@@ -158,3 +158,25 @@ class IsMerchantMemberAnonymous(permissions.BasePermission):
 
         request.member = member.first()
         return True
+
+
+class IsCustomer(permissions.BasePermission):
+    """
+    Permission to check if the Anonymous user is a member of the merchant,
+    even for anonymous requests where email or phone is provided.
+    """
+
+    def has_permission(self, request, view):
+        customer_code = view.kwargs.get("customer_code")
+
+        # Retrieve the MerchantMember based on the provided customer code
+        member = MerchantMember.objects.filter(code=customer_code).first()
+
+        if not member:
+            raise exceptions.NotFound({"detail": ["Customer not found."]})
+
+        if not member.roles.filter(role=RoleChoices.CUSTOMER).exists():
+            raise exceptions.NotFound({"detail": ["Member is not a Customer."]})
+
+        request.member = member
+        return True
