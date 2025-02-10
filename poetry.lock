@@ -5,7 +5,7 @@ name = "asgiref"
 version = "3.8.1"
 description = "ASGI specs, helper code, and adapters"
 optional = false
-python-versions = "3.12.1"
+python-versions = ">=3.8"
 groups = ["main", "dev"]
 files = [
     {file = "asgiref-3.8.1-py3-none-any.whl", hash = "sha256:3e1e3ecc849832fe52ccf2cb6686b7a55f82bb1d6aee72a58826471390335e47"},
