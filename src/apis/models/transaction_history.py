@@ -111,3 +111,6 @@ class TransactionHistory(BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["-invoice"]),
+        ]

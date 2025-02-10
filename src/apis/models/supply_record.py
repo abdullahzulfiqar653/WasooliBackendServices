@@ -14,3 +14,8 @@ class SupplyRecord(BaseModel):
 
     def __str__(self):
         return f"Supply for {self.merchant_membership.member.user.first_name}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["-created_at"]),
+        ]

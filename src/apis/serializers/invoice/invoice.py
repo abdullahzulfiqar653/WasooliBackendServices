@@ -1,4 +1,5 @@
 from decimal import Decimal
+from django.db import transaction
 from rest_framework import serializers
 from apis.models.invoice import Invoice
 from apis.models.transaction_history import TransactionHistory
@@ -65,7 +66,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             if not isinstance(value, dict):
                 raise serializers.ValidationError("Metadata must be a dictionary.")
         return value
-
+    @transaction.atomic
     def create(self, validated_data):
         _ = validated_data.pop("mark_paid", False)
         request = self.context.get("request")

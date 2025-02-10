@@ -1,5 +1,6 @@
 import re
 import secrets
+from django.db import transaction
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
@@ -105,7 +106,7 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                     "This phone number is already in use by another user."
                 )
         return value
-
+    @transaction.atomic
     def create(self, validated_data):
         request = self.context.get("request")
         """
@@ -151,7 +152,7 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
                     **merchant_memberships_data
                 )
         return member
-
+    @transaction.atomic
     def update(self, instance, validated_data):
         request = self.context.get("request")
         validated_data.pop("roles", None)

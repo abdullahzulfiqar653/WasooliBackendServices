@@ -66,3 +66,8 @@ class Merchant(BaseModel):
     @property
     def is_fixed_fee_merchant(self):
         return self.type in [self.MerchantType.WATER, self.MerchantType.MILK]
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["-created_at"]),
+        ]

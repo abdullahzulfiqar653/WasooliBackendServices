@@ -77,3 +77,7 @@ class Invoice(BaseModel):
         )
         transaction.balance = merchant_membership.total_balance
         transaction.save()
+    class Meta:
+        indexes = [
+            models.Index(fields=["-created_at","-due_date"]),
+        ]
