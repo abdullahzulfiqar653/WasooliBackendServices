@@ -1,14 +1,16 @@
 from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
+from django.db.models import F, Sum, Case, When, Value, Prefetch, DecimalField
 
 from apis.models.member_role import RoleChoices
 from apis.models.merchant_member import MerchantMember
+from apis.models.transaction_history import TransactionHistory
 
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
 
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
@@ -38,7 +40,46 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
             queryset = queryset.filter(
                 memberships__merchant=merchant
             )  # For CUSTOMER, use `memberships__merchant=merchant`
+            # Annotate total_credit, total_debit, and total_adjustment
+            transaction_history_queryset = TransactionHistory.objects.filter(
+                merchant_membership__in=queryset.values("memberships__id"),
+                type=TransactionHistory.TYPES.BILLING,
+            )
+            queryset = queryset.prefetch_related(
+                Prefetch(
+                    "memberships__membership_transactions",
+                    queryset=transaction_history_queryset,
+                )
+            )
 
+            # Annotate total_credit, total_debit, and total_adjustment
+            queryset = queryset.annotate(
+                total_credit=Sum(
+                    Case(
+                        When(
+                            memberships__membership_transactions__transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
+                            then=F("memberships__membership_transactions__credit"),
+                        ),
+                        default=Value(0),
+                        output_field=DecimalField(),
+                    )
+                ),
+                total_debit=Sum(
+                    "memberships__membership_transactions__debit", default=0
+                ),
+                total_adjustment=Sum(
+                    Case(
+                        When(
+                            memberships__membership_transactions__transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
+                            then=F("memberships__membership_transactions__credit"),
+                        ),
+                        default=Value(0),
+                        output_field=DecimalField(),
+                    )
+                ),
+            ).annotate(
+                balance=F("total_credit") - (F("total_debit") - F("total_adjustment"))
+            )
         return queryset.order_by("-code")
 
     @extend_schema(
