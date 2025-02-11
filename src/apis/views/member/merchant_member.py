@@ -48,18 +48,23 @@ class MemberRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
                 memberships__merchant=merchant
             )  # For CUSTOMER, use `memberships__merchant=merchant`
         queryset = queryset.distinct()
+
         return queryset
 
     @extend_schema(
         parameters=[
             OpenApiParameter(
                 name="role",
-                description="role of member",
-                required=True,
+                description="Filter members by their role",
+                required=False,
                 type=OpenApiTypes.STR,
-            ),
+                enum=[RoleChoices.STAFF],
+            )
         ],
-        description="""""",
+        description="""
+        \nThis view handles listing of merchant members.
+            \n- `For Staff`: Include the parameter `role=Staff` to list staff members.
+            \n- `For Customers`: No additional parameters are required to list them.""",
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)

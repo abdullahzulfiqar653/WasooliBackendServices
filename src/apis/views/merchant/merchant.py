@@ -21,6 +21,7 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         role = self.request.query_params.get("role", RoleChoices.CUSTOMER)
+        is_paid = self.request.query_params.get("is_paid", None)
         merchant = self.request.merchant
 
         queryset = MerchantMember.objects.filter(
@@ -80,6 +81,10 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
             ).annotate(
                 balance=F("total_credit") - (F("total_debit") - F("total_adjustment"))
             )
+            if is_paid == "true":
+                queryset = queryset.filter(balance__gte=0)
+            elif is_paid == "false":
+                queryset = queryset.filter(balance__lt=0)
         return queryset.order_by("-code")
 
     @extend_schema(
@@ -90,12 +95,16 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                 required=False,
                 type=OpenApiTypes.STR,
                 enum=[RoleChoices.STAFF],
-            )
+            ),
+            OpenApiParameter(
+                name="is_paid",
+                description="filter customers by their balance",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=["true", "false"],
+            ),
         ],
-        description="""
-        \nThis view handles listing of merchant members.
-            \n- `For Staff`: Include the parameter `role=Staff` to list staff members.
-            \n- `For Customers`: No additional parameters are required to list them.""",
+        description="""""",
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
