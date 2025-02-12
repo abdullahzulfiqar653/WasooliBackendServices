@@ -141,4 +141,24 @@ class TransactionHistory(BaseModel):
         super().save(*args, **kwargs)
 
     class Meta:
+        indexes = [
+            models.Index(
+                fields=[
+                    "type",
+                    "created_at",
+                    "transaction_type",
+                    "merchant_membership",
+                ]
+            ),
+            models.Index(
+                fields=[
+                    "type",
+                    "transaction_type",
+                    "is_commission_paid",
+                    "merchant_membership",
+                ]
+            ),
+            models.Index(fields=["-created_at"]),
+            models.Index(fields=["merchant", "type", "transaction_type"]),
+        ]
         ordering = ["-created_at"]

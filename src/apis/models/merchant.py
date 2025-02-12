@@ -35,6 +35,9 @@ class Merchant(BaseModel):
     owner = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="merchant"
     )
+    area = models.CharField(max_length=50)
+    city = models.CharField(max_length=128, default="rahim yar khan")
+    is_advance_payment = models.BooleanField(default=False)
     code = models.CharField(max_length=6, unique=True, editable=False)
     commission_structure = models.JSONField(
         default=get_default_commission_structure,
@@ -90,3 +93,9 @@ class Merchant(BaseModel):
             if self.type in types:
                 return unit
         return "month"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["-created_at"]),
+        ]
+        ordering = ["-created_at"]

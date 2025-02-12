@@ -31,6 +31,10 @@ class MerchantMembership(BaseModel):
     class Meta:
         unique_together = ["member", "merchant"]
         indexes = [
+            models.Index(fields=["account"]),
+            models.Index(fields=["is_active"]),
+            models.Index(fields=["is_monthly"]),
+            models.Index(fields=["-created_at"]),
             models.Index(fields=["member", "merchant", "is_active"]),
         ]
 

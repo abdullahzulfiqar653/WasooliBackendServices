@@ -10,6 +10,12 @@ class Invoice(BaseModel):
         PAID = "paid", "Paid"
         UNPAID = "unpaid", "Unpaid"
 
+    class Type(models.TextChoices):
+        MONTHLY = "monthly", "Monthly"
+        ONE_TIME = "one_time", "One Time"
+        OTHER = "other", "Other"
+        MISCILLANEOUS = "miscellaneous", "Miscellaneous"
+
     status = models.CharField(
         max_length=15, choices=STATUS.choices, default=STATUS.UNPAID
     )
@@ -33,6 +39,7 @@ class Invoice(BaseModel):
         on_delete=models.SET_NULL,
         related_name="invoices",
     )
+    type = models.CharField(max_length=15, choices=Type.choices, default=Type.MONTHLY)
 
     def __str__(self):
         return f"Invoice for {self.member.user.first_name}"
@@ -44,3 +51,12 @@ class Invoice(BaseModel):
         if self._state.adding:
             self.due_amount = self.total_amount
         super().save(*args, **kwargs)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["-created_at"]),
+            models.Index(fields=["member", "type"]),
+            models.Index(fields=["member", "status"]),
+            models.Index(fields=["member", "created_at"]),
+        ]
+        ordering = ["-created_at"]
