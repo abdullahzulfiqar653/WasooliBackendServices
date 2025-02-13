@@ -20,6 +20,9 @@ def load_data_from_fixture(sender, **kwargs):
 @receiver(post_save, sender=Merchant)
 def create_merchant_member(sender, instance, created, **kwargs):
     if created:
+        primary_phone = getattr(instance, "_primary_phone", None)
+        print(primary_phone,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
         instance.owner.groups.add(Group.objects.get(name=RoleChoices.MERCHANT))
-        member = MerchantMember.objects.create(user=instance.owner, merchant=instance)
+        member = MerchantMember.objects.create(user=instance.owner, merchant=instance,primary_phone=primary_phone,)
         MemberRole.objects.create(member=member, role=RoleChoices.MERCHANT)
+
