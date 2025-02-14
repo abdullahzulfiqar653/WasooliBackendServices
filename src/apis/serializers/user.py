@@ -12,6 +12,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["email", "first_name"]
 
     def validate_email(self, value):
+        if value is None:
+            return ""
         member = self.context.get("member")
         data = self.context.get("request").data
         primary_phone = data.get("primary_phone")
@@ -19,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
             member = MerchantMember.objects.filter(primary_phone=primary_phone).first()
         if member:
             if value is None or member.user.email == value:
-                return
+                return ""
             if User.objects.filter(email=value).exclude(id=member.user.id).exists():
                 raise serializers.ValidationError("Email already exist.")
         if User.objects.filter(email=value).exists():
