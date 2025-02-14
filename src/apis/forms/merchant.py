@@ -18,7 +18,6 @@ class MerchantAdminForm(forms.ModelForm):
     def clean_email(self):
         email = self.cleaned_data.get("email")
 
-        # If email is provided, it should be valid
         if email and User.objects.filter(email=email).exists():
             raise ValidationError("This email is already registered in the system.")
 
@@ -26,17 +25,23 @@ class MerchantAdminForm(forms.ModelForm):
 
     def clean_primary_phone(self):
         primary_phone = self.cleaned_data.get("primary_phone")
-
-        # Check if phone number is 10 digits long
         if len(primary_phone) != 10:
             raise ValidationError("Phone number must be exactly 10 digits long.")
-
-        # Check if phone number starts with '3'
         if not primary_phone.startswith("3"):
             raise ValidationError("Phone number must start with '3'.")
 
-        # Check if phone number already exists in MerchantMember model
-        if MerchantMember.objects.filter(primary_phone=primary_phone).exists():
+        if self.instance.pk:
+            existing_member = (
+                MerchantMember.objects.filter(primary_phone=primary_phone)
+                .exclude(user=self.instance.owner)
+                .exists()
+            )
+        else:
+            existing_member = MerchantMember.objects.filter(
+                primary_phone=primary_phone
+            ).exists()
+
+        if existing_member:
             raise ValidationError("This phone number is already in use.")
 
         return primary_phone
