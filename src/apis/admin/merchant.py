@@ -48,10 +48,9 @@ class MerchantAdmin(admin.ModelAdmin):
         email = form.cleaned_data.get("email", None)
 
         # Create a new user with the primary phone as the username and email
-        user = User.objects.create_user(username=primary_phone, email=email)
-
-        # Set a random password for the new user
-        user.set_password(secrets.token_hex(7))
+        user = User.objects.create_user(
+            username=primary_phone, email=email, password=secrets.token_hex(7)
+        )
 
         # Assign the created user to the merchant as the owner
         obj.owner = user
