@@ -3,7 +3,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apis.models.otp import OTP
-from apis.utils import generate_otp
 from apis.factories import OTPSenderFactory
 
 
@@ -35,8 +34,8 @@ class OTPSerializer(serializers.Serializer):
                 raise ValidationError({"otp": ["OTP expired"]})
 
             refresh = RefreshToken.for_user(request.member.user)
-            otp_record.is_used = True
-            otp_record.save()
+            # otp_record.is_used = True
+            # otp_record.save()
             return {
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
@@ -44,10 +43,8 @@ class OTPSerializer(serializers.Serializer):
 
         else:
             otp_record, _ = OTP.objects.get_or_create(member=request.member)
-            otp_record.code = generate_otp()
-            otp_record.is_used = False
-            otp_record.save()
+            otp = otp_record.generate_otp()
             sender = OTPSenderFactory.get_sender(platform)
-            sender.send_otp(request.member, otp_record.code)
+            sender.send_otp(request.member, otp)
 
             return {"message": "OTP sent successfully!"}
