@@ -31,8 +31,36 @@ class MerchantAdmin(admin.ModelAdmin):
     list_filter = ("type",)
     search_fields = ("name", "owner__first_name", "code")
 
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        Ensure fields are only pre-filled when editing an existing merchant.
+        New merchant creation should have empty fields.
+        """
+        form = super().get_form(request, obj, **kwargs)
+
+        if obj and obj.pk:
+            if obj.owner:
+                form.base_fields["primary_phone"].initial = obj.owner.username or ""
+                form.base_fields["email"].initial = obj.owner.email or ""
+                form.base_fields["first_name"].initial = obj.owner.first_name or ""
+                form.base_fields["last_name"].initial = obj.owner.last_name or ""
+
+            member = MerchantMember.objects.filter(merchant=obj).first()
+            if member:
+                form.base_fields["cnic"].initial = member.cnic or ""
+            if obj.city:
+                form.base_fields["city"].initial = obj.city or ""
+
+        else:
+            form.base_fields["primary_phone"].initial = ""
+            form.base_fields["email"].initial = ""
+            form.base_fields["first_name"].initial = ""
+            form.base_fields["last_name"].initial = ""
+            form.base_fields["cnic"].initial = ""
+
+        return form
+
     def get_queryset(self, request):
-        # Annotate the queryset to include the count of related members
         queryset = super().get_queryset(request)
         queryset = queryset.select_related("owner__profile__otp")
         queryset = queryset.annotate(member_count=Count("members"))
@@ -40,41 +68,53 @@ class MerchantAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """
-        Override the save_model method to create a user, assign them to a merchant,
-        and handle related processes after saving the Merchant object.
+        Override the save_model method to update an existing user
+        or create a new one, and ensure all related records are updated instead of creating duplicates.
         """
-        # Get the primary phone and email from the custom form data
         primary_phone = form.cleaned_data.get("primary_phone")
         email = form.cleaned_data.get("email", None)
+        cnic = form.cleaned_data.get("cnic")
+        first_name = form.cleaned_data.get("first_name")
+        last_name = form.cleaned_data.get("last_name")
 
-        # Create a new user with the primary phone as the username and email
-        user = User.objects.create_user(
-            username=primary_phone, email=email, password=secrets.token_hex(7)
-        )
+        user = obj.owner if hasattr(obj, "owner") else None
 
-        # Assign the created user to the merchant as the owner
+        if user:
+            user.email = email
+            user.first_name = first_name
+            user.last_name = last_name
+            user.save()
+        else:
+            user = User.objects.create_user(
+                username=primary_phone,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                password=secrets.token_hex(7),
+            )
+
         obj.owner = user
-
-        # Save the Merchant object with the new user as owner
         obj.save()
 
-        # Call the parent save_model method to handle standard save operations
         super().save_model(request, obj, form, change)
-
-        # Add the user to the "Merchant" group
-        obj.owner.groups.add(Group.objects.get(name=RoleChoices.MERCHANT))
-
-        # Create a MerchantMember instance linking the user and merchant
-        member = MerchantMember.objects.create(
-            user=user, merchant=obj, primary_phone=primary_phone
-        )
-
-        # Create an OTP record for the member and generate the OTP
+        merchant_group, _ = Group.objects.get_or_create(name=RoleChoices.MERCHANT)
+        user.groups.add(merchant_group)
+        member = MerchantMember.objects.filter(user=user, merchant=obj).first()
+        if member:
+            member.primary_phone = primary_phone
+            member.cnic = cnic
+            member.save()
+        else:
+            member = MerchantMember.objects.create(
+                user=user, merchant=obj, primary_phone=primary_phone, cnic=cnic
+            )
         otp_record, _ = OTP.objects.get_or_create(member=member)
         otp_record.generate_otp()
+        if not MemberRole.objects.filter(
+            member=member, role=RoleChoices.MERCHANT
+        ).exists():
 
-        # Assign the "MERCHANT" role to the newly created member
-        MemberRole.objects.create(member=member, role=RoleChoices.MERCHANT)
+            MemberRole.objects.create(member=member, role=RoleChoices.MERCHANT)
 
     def owner_first_name(self, obj):
         return obj.owner.first_name
