@@ -1,4 +1,5 @@
 from django.urls import path, include
+
 from apis.views import (
     OTPView,
     LookupListAPIView,
@@ -8,11 +9,14 @@ from apis.views import (
     MemberRetrieveByPhoneAPIView,
     InvoiceRetrieveUpdateAPIView,
     MemberProfileRetrieveAPIView,
+    PublicMemberInvoiceListAPIView,
     MemberInvoiceListCreateAPIView,
     MerchantMemberListCreateAPIView,
     MerchantDashboardRetrieveAPIView,
     MemberRetrieveUpdateDestroyAPIView,
     MemberSupplyRecordListCreateAPIView,
+    PublicMembershipMerchantsListAPIView,
+    PublicCustomerProfileRetrieveAPIView,
     MemberTransactionHistoryListCreateAPIView,
 )
 
@@ -83,6 +87,24 @@ urlpatterns = [
         "invoices/<str:pk>/",
         InvoiceRetrieveUpdateAPIView.as_view(),
         name="invoice-retrieve-update",
+    ),
+    # =====================================================
+    # Public
+    # =====================================================
+    path(
+        "public/customer/<str:customer_code>/profile/<str:merchant_id>/",
+        PublicCustomerProfileRetrieveAPIView.as_view(),
+        name="public-customer-profile-retrieve",
+    ),
+    path(
+        "public/customer/<str:customer_code>/merchants/",
+        PublicMembershipMerchantsListAPIView.as_view(),
+        name="public-membership-merchants-list",
+    ),
+    path(
+        "public/customer/<str:customer_code>/invoices/",
+        PublicMemberInvoiceListAPIView.as_view(),
+        name="public-customer-invoice-list",
     ),
     # =====================================================
     # Lookups

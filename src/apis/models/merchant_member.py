@@ -27,8 +27,16 @@ class MerchantMember(BaseModel):
     )
 
     class Meta:
-        verbose_name = "MerchantsMembersRegister"
+        verbose_name = "Members Register"
         unique_together = [["user", "cnic", "primary_phone"]]
+        indexes = [
+            models.Index(fields=["cnic"]),
+            models.Index(fields=["code"]),
+            models.Index(fields=["user"]),
+            models.Index(fields=["merchant"]),
+            models.Index(fields=["-created_at"]),
+            models.Index(fields=["primary_phone"]),
+        ]
 
     def __str__(self):
         return f"{self.code}"

@@ -8,6 +8,7 @@ from apis.serializers.supply_record import SupplyRecordSerializer
 from apis.serializers.member_profile import MemberProfileSerializer
 from apis.serializers.merchant_member import MerchantMemberSerializer
 from apis.serializers.merchant_dashboard import MerchantDashboardSerializer
+from apis.serializers.membership_merchant import MembershipMerchantSerializer
 from apis.serializers.merchant_membership import MerchantMembershipSerializer
 from apis.serializers.transaction_history import TransactionHistorySerializer
 
@@ -23,6 +24,7 @@ __all__ = [
     "MemberProfileSerializer",
     "MerchantMemberSerializer",
     "MerchantDashboardSerializer",
+    "MembershipMerchantSerializer",
     "TransactionHistorySerializer",
     "MerchantMembershipSerializer",
 ]

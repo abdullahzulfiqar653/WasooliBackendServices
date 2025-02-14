@@ -6,6 +6,9 @@ from apis.models.merchant_member import MerchantMember
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
 
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
+
 
 class MemberRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -45,4 +48,23 @@ class MemberRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
                 memberships__merchant=merchant
             )  # For CUSTOMER, use `memberships__merchant=merchant`
         queryset = queryset.distinct()
+
         return queryset
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="role",
+                description="Filter members by their role",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=[RoleChoices.STAFF],
+            )
+        ],
+        description="""
+        \nThis view handles listing of merchant members.
+            \n- `For Staff`: Include the parameter `role=Staff` to list staff members.
+            \n- `For Customers`: No additional parameters are required to list them.""",
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)

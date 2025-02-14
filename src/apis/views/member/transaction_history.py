@@ -17,4 +17,7 @@ class MemberTransactionHistoryListCreateAPIView(generics.ListCreateAPIView):
     queryset = TransactionHistory.objects.none()
 
     def get_queryset(self):
-        return self.request.membership.membership_transactions.all()
+        return self.request.membership.membership_transactions.filter(
+            transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
+            type=TransactionHistory.TYPES.BILLING,
+        )

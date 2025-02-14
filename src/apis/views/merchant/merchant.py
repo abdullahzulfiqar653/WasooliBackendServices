@@ -1,14 +1,16 @@
 from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
+from django.db.models import F, Sum, Case, When, Value, Prefetch, DecimalField
 
 from apis.models.member_role import RoleChoices
 from apis.models.merchant_member import MerchantMember
+from apis.models.transaction_history import TransactionHistory
 
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
 
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
@@ -19,6 +21,7 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         role = self.request.query_params.get("role", RoleChoices.CUSTOMER)
+        is_paid = self.request.query_params.get("is_paid", None)
         merchant = self.request.merchant
 
         queryset = MerchantMember.objects.filter(
@@ -38,7 +41,50 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
             queryset = queryset.filter(
                 memberships__merchant=merchant
             )  # For CUSTOMER, use `memberships__merchant=merchant`
+            # Annotate total_credit, total_debit, and total_adjustment
+            transaction_history_queryset = TransactionHistory.objects.filter(
+                merchant_membership__in=queryset.values("memberships__id"),
+                type=TransactionHistory.TYPES.BILLING,
+            )
+            queryset = queryset.prefetch_related(
+                Prefetch(
+                    "memberships__membership_transactions",
+                    queryset=transaction_history_queryset,
+                )
+            )
 
+            # Annotate total_credit, total_debit, and total_adjustment
+            queryset = queryset.annotate(
+                total_credit=Sum(
+                    Case(
+                        When(
+                            memberships__membership_transactions__transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
+                            then=F("memberships__membership_transactions__credit"),
+                        ),
+                        default=Value(0),
+                        output_field=DecimalField(),
+                    )
+                ),
+                total_debit=Sum(
+                    "memberships__membership_transactions__debit", default=0
+                ),
+                total_adjustment=Sum(
+                    Case(
+                        When(
+                            memberships__membership_transactions__transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
+                            then=F("memberships__membership_transactions__credit"),
+                        ),
+                        default=Value(0),
+                        output_field=DecimalField(),
+                    )
+                ),
+            ).annotate(
+                balance=F("total_credit") - (F("total_debit") - F("total_adjustment"))
+            )
+            if is_paid == "true":
+                queryset = queryset.filter(balance__gte=0)
+            elif is_paid == "false":
+                queryset = queryset.filter(balance__lt=0)
         return queryset.order_by("-code")
 
     @extend_schema(
@@ -49,12 +95,16 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                 required=False,
                 type=OpenApiTypes.STR,
                 enum=[RoleChoices.STAFF],
-            )
+            ),
+            OpenApiParameter(
+                name="is_paid",
+                description="filter customers by their balance",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=["true", "false"],
+            ),
         ],
-        description="""
-        \nThis view handles listing of merchant members.
-            \n- `For Staff`: Include the parameter `role=Staff` to list staff members.
-            \n- `For Customers`: No additional parameters are required to list them.""",
+        description="""""",
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
