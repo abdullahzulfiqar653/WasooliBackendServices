@@ -71,12 +71,11 @@ class MerchantAdmin(admin.ModelAdmin):
         Override the save_model method to update an existing user
         or create a new one, and ensure all related records are updated instead of creating duplicates.
         """
-        primary_phone = form.cleaned_data.get("primary_phone")
-        email = form.cleaned_data.get("email", None)
         cnic = form.cleaned_data.get("cnic")
-        first_name = form.cleaned_data.get("first_name")
+        email = form.cleaned_data.get("email")
         last_name = form.cleaned_data.get("last_name")
-
+        first_name = form.cleaned_data.get("first_name")
+        primary_phone = form.cleaned_data.get("primary_phone")
         user = obj.owner if hasattr(obj, "owner") else None
 
         if user:
@@ -108,13 +107,9 @@ class MerchantAdmin(admin.ModelAdmin):
             member = MerchantMember.objects.create(
                 user=user, merchant=obj, primary_phone=primary_phone, cnic=cnic
             )
+            MemberRole.objects.create(member=member, role=RoleChoices.MERCHANT)
         otp_record, _ = OTP.objects.get_or_create(member=member)
         otp_record.generate_otp()
-        if not MemberRole.objects.filter(
-            member=member, role=RoleChoices.MERCHANT
-        ).exists():
-
-            MemberRole.objects.create(member=member, role=RoleChoices.MERCHANT)
 
     def owner_first_name(self, obj):
         return obj.owner.first_name
