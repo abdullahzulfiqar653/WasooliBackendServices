@@ -1,6 +1,7 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
+from drf_spectacular.utils import extend_schema
 
 from apis.permissions import IsCustomer
 from apis.utils import get_customer_stats
@@ -29,3 +30,40 @@ class PublicCustomerProfileRetrieveAPIView(generics.RetrieveAPIView):
 
         response = get_customer_stats(membership)
         return Response(response)
+
+    @extend_schema(
+        description="""
+### **Retrieve Customer Profile**
+
+This API retrieves the profile details of a customer based on the provided **customer code** and **merchant ID**.
+
+---
+
+#### **Request Parameters**
+| Parameter     | Required | Description |
+|---------------|----------|-------------|
+| `customer_code`| ✅ Yes | The unique customer code identifying the customer. |
+| `merchant_id`  | ✅ Yes | The unique ID of the merchant. |
+
+---
+
+#### **Response Body**
+The response contains the full profile details of the customer including :-
+- `total spend `
+
+- `remaining balance`
+
+- `savings`
+---
+
+### **Status Codes**
+| Code  | Description |
+|-------|-------------|
+| `200 OK` | Successful response with customer profile details. |
+| `403 Forbidden` | Access denied (if the user is not authorized). |
+| `404 Not Found` | If the customer profile or merchant membership is not found. |
+""",
+        responses={200: MemberProfileSerializer},
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)

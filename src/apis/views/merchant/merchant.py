@@ -9,8 +9,7 @@ from apis.models.transaction_history import TransactionHistory
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
 
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema
 
 
 class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
@@ -88,33 +87,51 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
         return queryset.order_by("-code")
 
     @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="role",
-                description="Filter members by their role",
-                required=False,
-                type=OpenApiTypes.STR,
-                enum=[RoleChoices.STAFF],
-            ),
-            OpenApiParameter(
-                name="is_paid",
-                description="filter customers by their balance",
-                required=False,
-                type=OpenApiTypes.STR,
-                enum=["true", "false"],
-            ),
-        ],
-        description="""""",
+        description="""
+### **Retrieve List of Merchant Members**
+
+This API returns a list of merchant members (either Staff or Customers).
+
+---
+
+#### **Request Parameters**
+| Parameter  | Required | Description |
+|------------|----------|-------------|
+| `merchant_id`| ✅ Yes   | The ID of the merchant. |
+
+
+---
+
+### **Status Codes**
+| Code  | Description |
+|-------|-------------|
+| `200 OK` | Successful response with member list. |
+| `403 Forbidden` | Access denied (if the user is not authorized). |
+""",
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     @extend_schema(
         description="""
-        \nThis view handles creating merchant members wether Staff or Customer.
-        \n- `For Staff`: Set `merchant_memberships` to `null` to create a staff member.
-        \n- `For Customers`: The `merchant_memberships` field is required when creating a customer.
-        """,
+### **Create Merchant Member**
+
+This API allows the creation of a new merchant member, either **Staff** or **Customer**.
+
+- **For Staff:** `merchant_memberships` should be set to `null`.\n
+- **For Customers:** `merchant_memberships` is required.
+
+---
+
+### **Permissions**
+- This API is restricted to **merchants and staff** (`IsMerchantOrStaff` permission class).
+
+### **Status Codes**
+| Code  | Description |
+|-------|-------------|
+| `201 Created` | Successfully created a merchant member. |
+| `400 Bad Request` | Validation errors or missing fields. |
+""",
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
@@ -138,3 +155,53 @@ class MemberRetrieveByPhoneAPIView(generics.RetrieveAPIView):
         except MerchantMember.DoesNotExist:
             raise NotFound(detail="Member with this phone number does not exist.")
         return member
+
+    @extend_schema(
+        description="""
+### **🔍 Retrieve Member by Phone Number & Merchant ID**
+
+This API retrieves a **merchant member's details** based on their **primary phone number** and **merchant ID**.
+
+#### **🟢 Request Parameters (Path)**
+| Parameter    | Required | Description |
+|--------------|----------|-------------|
+| `merchant_id`| ✅ Yes   | The ID of the merchant. |
+| `phone`      | ✅ Yes   | The primary phone number of the merchant member
+---
+
+### **📌 Response Headers (Fields Explanation)**
+
+| Field             | Description |
+|-------------------|-------------|
+| `id`              |  Unique identifier of the merchant member. |
+| `user.email`      | Email address of the user. |
+| `user.first_name` | First name of the user. |
+| `cnic`            | National identity card number of the member. |
+| `code`            | Unique membership code. |
+| `picture`         | Profile picture URL of the user. |
+| `balance`         | Wallet balance of the merchant member. |
+| `primary_phone`   | Primary contact number of the merchant member. |
+| `merchant_memberships.area`  | The area where the merchant is located. |
+| `merchant_memberships.city`  | The city of the merchant. |
+| `merchant_memberships.unit`  | Business unit name or identifier. |
+| `merchant_memberships.picture`  | Business logo or profile picture URL. |
+| `merchant_memberships.address`  | Business address of the merchant. |
+| `merchant_memberships.merchant` | Name of the merchant. |
+| `merchant_memberships.is_active`| Indicates if the membership is active. |
+| `merchant_memberships.meta_data`  | Additional metadata related to the merchant membership. |
+| `merchant_memberships.is_monthly` | Indicates if the membership is on a monthly basis. |
+| `merchant_memberships.actual_price` | Original price of the membership. |
+| `merchant_memberships.secondary_phone`  | Secondary phone number of the merchant member. |
+| `merchant_memberships.discounted_price` |  Discounted price after applying offers. |
+
+---
+
+### **Status Codes**
+| Code  | Description |
+|-------|-------------|
+| `200 OK` | Successfully retrieved member details. |
+| `404 Not Found` | If no member exists with the given phone number. |
+""",
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)

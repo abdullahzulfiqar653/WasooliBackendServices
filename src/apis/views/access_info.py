@@ -1,5 +1,6 @@
 from rest_framework import generics
 from rest_framework.response import Response
+
 from apis.permissions import IsMerchantOrStaff
 from django.contrib.auth.models import Permission
 from apis.serializers.access_info import AccessInfoSerializer
@@ -7,9 +8,17 @@ from apis.serializers.access_info import AccessInfoSerializer
 
 class AccessInfoRetrieveAPIView(generics.RetrieveAPIView):
     """
-    This endpoint provides all the necessary information for accessing other endpoints, including:
-    - The user's merchant ID and member ID.
-    - The permissions assigned to them.
+    This endpoint provides all necessary information for accessing other endpoints.
+
+    **Request:**
+    - No parameters need to be passed in the body.
+
+    **Response Includes:**
+    - The user's **merchant ID** and **member ID**.
+
+    - A detailed list of **permissions** assigned to the user.
+
+    - Whether the merchant has a **fixed fee structure**.
     """
 
     permission_classes = [IsMerchantOrStaff]

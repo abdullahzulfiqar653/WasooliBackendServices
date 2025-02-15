@@ -11,7 +11,50 @@ from apis.serializers.merchant_dashboard import MerchantDashboardSerializer
 
 class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
     """
-    This endpoint provides all the information for dashboard cards.
+    **Merchant Dashboard API View**
+
+    ### **Endpoint Description**
+    This API retrieves statistics for the merchant's dashboard, including:
+
+    - **Today's collection**: Total amount collected today.
+    - **Monthly collection**: Total amount collected this month.
+    - **Remaining collection for the month**: Balance collection expected this month.
+    - **Yearly collection**: Total amount collected this year.
+    - **Total customers**: Number of registered customers.
+    - **Active customers**: Number of currently active customers.
+    - **Inactive customers**: Number of customers who are not active.
+
+    ### **Request**
+
+    - **Headers**: `Authorization: <your_token>` (Required)\n
+
+    ### **Response**
+    - **Status Code**: `200 OK`\n
+    - **Response Fields**:\n
+      - `total_collections_today`:\n
+        - `value`: Total amount collected today.\n
+        - `name`:  Description of the field.\n
+      - `total_collections_this_month`:\n
+        - `value`: Total amount collected this month.\n
+        - `name`:  Description of the field.\n
+      - `total_remaining_collections_this_month`:\n
+        - `value`: Remaining collection required for this month.\n
+        - `name` : Description of the field.\n
+      - `total_collections`:\n
+        - `value`: Total amount collected in the current year.\n
+        - `name` : Description of the field.\n
+      - `total_remaining_collections`:\n
+        - `value`: Remaining collection required for the year.\n
+        - `name`:  Description of the field.\n
+      - `total_customers`:\n
+        - `value`: Total number of registered customers.\n
+        - `name`:  Description of the field.\n
+      - `active_customers`:\n
+        - `value`: Number of active customers.\n
+        - `name`:  Description of the field.\n
+      - `non_active_customers`:\n
+        - `value`: Number of inactive customers.\n
+        - `name`:  Description of the field.
     """
 
     permission_classes = [IsMerchantOrStaff]

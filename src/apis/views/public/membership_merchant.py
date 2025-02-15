@@ -1,5 +1,5 @@
 from rest_framework import generics
-
+from drf_spectacular.utils import extend_schema
 from apis.permissions import IsCustomer
 from apis.models.merchant import Merchant
 from apis.models.merchant_membership import MerchantMembership
@@ -7,10 +7,6 @@ from apis.serializers.membership_merchant import MembershipMerchantSerializer
 
 
 class PublicMembershipMerchantsListAPIView(generics.ListAPIView):
-    """
-    This endpoint retrieves all the merchants for a member based on their customer code.
-    """
-
     pagination_class = None
     permission_classes = [IsCustomer]
     serializer_class = MembershipMerchantSerializer
@@ -22,3 +18,42 @@ class PublicMembershipMerchantsListAPIView(generics.ListAPIView):
             "merchant", flat=True
         )
         return Merchant.objects.filter(id__in=merchant_ids)
+
+    @extend_schema(
+        description="""
+### **Retrieve Membership Merchants**
+
+This API retrieves all the merchants associated with a member based on their **customer code**.
+The response provides details about each merchant that the member is linked with.
+
+---
+
+#### **Request Parameters**
+| Parameter       | Required | Description |
+|-----------------|----------|-------------|
+| `customer_code` |  ✅ Yes  | The unique customer code used to fetch associated merchants. |
+
+---
+
+#### **Response Body**
+The response will contain a list of merchants that the member is associated with.
+
+| Field         | Description                        |
+|---------------|----------------------------------- |
+| `id`          | The unique identifier for the merchant. |
+| `name`        | The name of the merchant. |
+
+---
+
+### **Status Codes**
+| Code  | Description |
+|-------|-------------|
+| `200 OK` | Successful response with merchant details. |
+| `403 Forbidden` | Access denied (if the user is not authorized). |
+| `400 Bad Request` | Invalid or missing `customer_code`. |
+
+        """,
+        responses={200: MembershipMerchantSerializer(many=True)},
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
