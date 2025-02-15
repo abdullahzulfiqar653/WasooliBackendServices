@@ -6,6 +6,7 @@ from datetime import timedelta
 
 
 env = environ.Env(
+    ENV=(str, "LOCAL"),
     DEBUG=(bool, False),
     SECRET_KEY=(str, "False"),
     ALLOWED_HOSTS=(list, ["localhost"]),
@@ -17,6 +18,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 PROJECT_NAME = os.getenv("PROJECT_NAME")
 
+ENV = env("ENV")
 DEBUG = env("DEBUG")
 SECRET_KEY = env("SECRET_KEY")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
@@ -149,8 +151,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(weeks=45),
-    "REFRESH_TOKEN_LIFETIME": timedelta(weeks=4),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=2),
+    "REFRESH_TOKEN_LIFETIME": timedelta(weeks=40),
 }
 
 if DEBUG:
