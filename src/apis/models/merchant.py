@@ -58,7 +58,8 @@ class Merchant(BaseModel):
     )
 
     def __str__(self):
-        return f"{self.owner.first_name}-{self.name}"
+        owner = getattr(self, "owner", None)
+        return f"{self.owner.first_name}-{self.name}" if owner else ""
 
     def save(self, *args, **kwargs):
         if not self.code:

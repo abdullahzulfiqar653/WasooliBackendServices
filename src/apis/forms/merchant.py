@@ -18,7 +18,7 @@ class MerchantAdminForm(forms.ModelForm):
     def clean_email(self):
         email = self.cleaned_data.get("email")
         queryset = User.objects.filter(email=email)
-        if self.instance:
+        if self.instance and hasattr(self.instance, "owner"):
             queryset = queryset.exclude(id=self.instance.owner.id)
         if email and queryset.exists():
             raise ValidationError("This email is already registered in the system.")
