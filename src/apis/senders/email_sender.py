@@ -36,7 +36,7 @@ class EmailOTPSender(OTPSender):
         email = EmailMessage(
             subject=subject,
             body=html_message,
-            from_email=f"{merchant.name} <{from_email}>",
+            from_email=f"Wasooli.Online <{from_email}>",
             to=[member.user.email],
             connection=connection,
         )
