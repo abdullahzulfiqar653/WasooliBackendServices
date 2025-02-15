@@ -40,7 +40,7 @@ def get_customer_stats(membership):
         "total_saved": {"value": membership.total_saved, "name": "Total Saved"},
     }
     if not membership.merchant.is_fixed_fee_merchant:
-        if not membership.member.is_monthly:
+        if not membership.is_monthly:
             supply_totals = SupplyRecord.objects.filter(
                 merchant_membership=membership
             ).aggregate(total_given=Sum("given"), total_taken=Sum("taken"))
