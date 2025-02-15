@@ -56,5 +56,5 @@ def get_customer_stats(membership):
                 "name": "Supply Balance",
             }
             if membership.merchant.is_water_supply:
-                response["balance"]["name"] = "Bottles Balance"
+                response["supply_balance"]["name"] = "Bottles Balance"
     return response
