@@ -19,17 +19,46 @@ class MerchantAdmin(admin.ModelAdmin):
     form = MerchantAdminForm
     list_display = (
         "id",
-        "otp",
-        "name",
-        "type",
-        "code",
-        "merchant_count",
         "owner_first_name",
+        "business_name",
+        "type",
+        "merchant_code",
+        "member_code",
+        "customers",
+        "otp",
     )
     exclude = ("owner",)
     ordering = ("name",)
     list_filter = ("type",)
     search_fields = ("name", "owner__first_name", "code")
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related("owner__profile__otp")
+        queryset = queryset.annotate(member_count=Count("members"))
+        return queryset
+
+    def owner_first_name(self, obj):
+        return obj.owner.first_name
+
+    def merchant_code(self, obj):
+        return obj.code
+
+    def member_code(self, obj):
+        return obj.owner.profile.code
+
+    def otp(self, obj):
+        return obj.owner.profile.otp.code
+
+    def business_name(self, obj):
+        return obj.name
+
+    owner_first_name.admin_order_field = "owner__first_name"
+    owner_first_name.short_description = "Owner Name"
+    business_name.short_description = "Business Name"
+
+    def customers(self, obj):
+        return obj.member_count
 
     def get_form(self, request, obj=None, **kwargs):
         """
@@ -59,12 +88,6 @@ class MerchantAdmin(admin.ModelAdmin):
             form.base_fields["cnic"].initial = ""
 
         return form
-
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        queryset = queryset.select_related("owner__profile__otp")
-        queryset = queryset.annotate(member_count=Count("members"))
-        return queryset
 
     def save_model(self, request, obj, form, change):
         """
@@ -110,17 +133,3 @@ class MerchantAdmin(admin.ModelAdmin):
             MemberRole.objects.create(member=member, role=RoleChoices.MERCHANT)
         otp_record, _ = OTP.objects.get_or_create(member=member)
         otp_record.generate_otp()
-
-    def owner_first_name(self, obj):
-        return obj.owner.first_name
-
-    def otp(self, obj):
-        return obj.owner.profile.otp.code
-
-    owner_first_name.admin_order_field = "owner__first_name"
-    owner_first_name.short_description = "Owner First Name"
-
-    def merchant_count(self, obj):
-        return obj.member_count
-
-    merchant_count.short_description = "Number of Members"

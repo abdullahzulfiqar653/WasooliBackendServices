@@ -8,6 +8,9 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+admin.AdminSite.site_title = "Wasooli.Online"
+admin.AdminSite.site_header = "Wasooli.Online"
+admin.AdminSite.index_title = "Wasooli.Online Administration"
 
 urlpatterns = [
     path("admin/", admin.site.urls),
