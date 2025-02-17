@@ -29,9 +29,16 @@ class SupplyRecordSerializer(serializers.ModelSerializer):
         )
 
         if not created:
-            # If found, update the existing record
-            for key, value in validated_data.items():
-                setattr(supply_record, key, value)
-            supply_record.save()
+            # Check if the date of the existing record is different from today
+            if supply_record.created_at.date() != today:
+                # If the date is different, create a new record
+                supply_record = SupplyRecord.objects.create(
+                    merchant_membership=member_ship, **validated_data
+                )
+            else:
+                # If the record is from today, update it
+                for key, value in validated_data.items():
+                    setattr(supply_record, key, value)
+                supply_record.save()
 
         return supply_record
