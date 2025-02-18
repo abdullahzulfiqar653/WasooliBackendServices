@@ -18,14 +18,6 @@ class InvoiceRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 ### **Handles Invoice Retrieval**
 
 This API allows merchants or staff to retrieve  invoice details for `Members`.
-
----
-
-#### **🟢 Request Parameters (Path)**
-| Parameter |Required | Description |
-|-----------|---------|-------------|
-| `id`      | ✅ Yes | The ID of the invoice to retrieve or update. |
-
 ---
 """,
         responses={200: InvoiceSerializer()},
@@ -38,20 +30,18 @@ This API allows merchants or staff to retrieve  invoice details for `Members`.
 ### **Handles Invoice Update**
 
 This API allows merchants or staff to update invoice details for `Members`.
-
 ---
 
 #### **📝 Request Body **
 | Field          | Required   | Description |
 |----------------|------------|-------------|
-| `id`           | ✅ Yes    | The ID of the invoice to retrieve or update. |
-| `mark_paid`    | ✅ Yes    | Flag indicating whether the invoice has been paid (`true` or `false`). |
-| `metadata`     | ✅ Yes    | Additional metadata or notes about the invoice. |
-| `total_amount` | ✅ Yes    | The updated total amount of the invoice. |
-| `due_date`     | ✅ Yes    | The due date of the invoice. |
-| `type`         | ✅ Yes    | The type of invoice (e.g., `monthly`). |
+| `mark_paid`    | ✅ Yes (conditionally) | If only `mark_paid` is sent, it will be set to `true`. |
+| `metadata`     | ✅ Yes (if `total_amount` is sent) | Required  if `total_amount` is also provided. |
+| `total_amount` | ✅ Yes (if `metadata` is sent) | Required only if `metadata` is also provided. |
 
----
+#### **📌 Notes**
+- If only `mark_paid` is provided, the invoice will be marked as **paid** without updating `metadata` or `total_amount`.
+- If `total_amount` is provided, then `metadata` is **also required**.
 """,
         responses={200: InvoiceSerializer()},
     )

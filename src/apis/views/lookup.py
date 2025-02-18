@@ -30,9 +30,7 @@ This API is used to fetch lookup information based on the `flag` parameter.
 **Accepted Flags:**
 - `city` → Returns a list of cities and their sub-areas.\n
 - `keys` → Returns metadata keys for user suggestions.
-```
 
----
 """,
         responses={200: LookupSerializer(many=True)},
     )

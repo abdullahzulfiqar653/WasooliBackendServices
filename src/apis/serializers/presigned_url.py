@@ -13,15 +13,16 @@ class PreSignedUrlSerializer(serializers.Serializer):
     def create(self, validated_data):
         request = self.context.get("request")
         file = validated_data.get("file")
-        public = validated_data.get("public", True)
         file_name = file.name.replace(" ", "_")
+        public = validated_data.get("public", True)
         s3_key = f"profile/{request.merchant.id}/{file_name}"
 
         try:
             presigned_url = s3_client.upload_file(file, s3_key, is_public=public)
             return {"presigned_url": presigned_url}
-
         except NoCredentialsError:
             raise serializers.ValidationError(
                 "AWS credentials are not configured correctly."
             )
+        except Exception as e:
+            raise serializers.ValidationError(f"Error uploading file: {str(e)}")

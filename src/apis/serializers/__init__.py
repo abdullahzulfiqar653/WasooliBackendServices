@@ -5,6 +5,7 @@ from apis.serializers.access_info import AccessInfoSerializer
 from apis.serializers.member_role import MemberRoleSerializer
 from apis.serializers.refresh_token import RefreshTokenSerializer
 from apis.serializers.supply_record import SupplyRecordSerializer
+from apis.serializers.presigned_url import PreSignedUrlSerializer
 from apis.serializers.member_profile import MemberProfileSerializer
 from apis.serializers.merchant_member import MerchantMemberSerializer
 from apis.serializers.merchant_dashboard import MerchantDashboardSerializer
@@ -27,4 +28,5 @@ __all__ = [
     "MembershipMerchantSerializer",
     "TransactionHistorySerializer",
     "MerchantMembershipSerializer",
+    "PreSignedUrlSerializer",
 ]

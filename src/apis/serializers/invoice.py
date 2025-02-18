@@ -13,8 +13,10 @@ class InvoiceSerializer(serializers.ModelSerializer):
         model = Invoice
         exclude = ["is_user_invoice", "member", "updated_at"]
         read_only_fields = [
+            "type",
             "status",
             "member",
+            "due_date",
             "mark_paid",
             "is_monthly",
             "handled_by",
