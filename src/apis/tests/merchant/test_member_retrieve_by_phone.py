@@ -15,15 +15,15 @@ class TestMerchantRetrieve(TestCase):
 
         # Create a test user
         self.user = User.objects.create_user(
-            email="fiza13270@gmail.com", password="testpassword", username="fiza13270"
+            email="test@gmail.com", password="testpassword", username="testuser"
         )
 
         # Create a merchant
         self.merchant = Merchant.objects.create(
-            name="Fiza's Water Business",
+            name="Test's Water Business",
             type="Water",
-            area="Hospital Road RYK",
-            city="Rahim Yar Khan",
+            area="test Area",
+            city="Test City",
             is_advance_payment=True,
             commission_structure={
                 "cash": [{"max_credit": 1000, "commission": 0.1}],
