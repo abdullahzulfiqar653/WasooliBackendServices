@@ -7,20 +7,16 @@ from apis.serializers.refresh_token import RefreshTokenSerializer
 
 class RefreshTokenAPIView(generics.RetrieveAPIView):
     """
-    This endpoint allows users to refresh their **access token** using the **refresh token** stored in HTTP-only cookies.
+    This endpoint allows users to refresh their **access token** using the **refresh token** .
 
     **How It Works:**
     - When a user logs in successfully, the `refresh_token` is stored in the browser’s **HTTP-only cookies**.
 
-    - To get a new **access token**, the client should send a **GET request** to this endpoint.
+    - To get a new **access token**, the client should send a **request** to this endpoint.
 
     - If the request is from the **same origin** and includes the stored **refresh token**, a new access token will be returned.
 
     **Request:**
-    - This is a `GET` request.
-
-    - No body parameters are required.
-
     - Requires a valid `refresh_token` stored in HTTP-only cookies.
 
     **Response:**

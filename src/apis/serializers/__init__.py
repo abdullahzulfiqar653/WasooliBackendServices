@@ -12,7 +12,7 @@ from apis.serializers.merchant_dashboard import MerchantDashboardSerializer
 from apis.serializers.membership_merchant import MembershipMerchantSerializer
 from apis.serializers.merchant_membership import MerchantMembershipSerializer
 from apis.serializers.transaction_history import TransactionHistorySerializer
-
+from apis.serializers.fake_invoice_serializer import FakeInvoiceSerializer
 
 __all__ = [
     "UserSerializer",
@@ -29,4 +29,5 @@ __all__ = [
     "TransactionHistorySerializer",
     "MerchantMembershipSerializer",
     "PreSignedUrlSerializer",
+    "FakeInvoiceSerializer",
 ]

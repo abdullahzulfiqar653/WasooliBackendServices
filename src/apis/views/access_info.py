@@ -10,9 +10,6 @@ class AccessInfoRetrieveAPIView(generics.RetrieveAPIView):
     """
     This endpoint provides all necessary information for accessing other endpoints.
 
-    **Request:**
-    - No parameters need to be passed in the body.
-
     **Response Includes:**
     - The user's **merchant ID** and **member ID**.
 

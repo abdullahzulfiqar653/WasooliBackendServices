@@ -43,7 +43,6 @@ This API retrieves the profile details of a customer based on the provided **cus
 | Parameter     | Required | Description |
 |---------------|----------|-------------|
 | `customer_code`| ✅ Yes | The unique customer code identifying the customer. |
-| `merchant_id`  | ✅ Yes | The unique ID of the merchant. |
 
 ---
 
@@ -54,14 +53,6 @@ The response contains the full profile details of the customer including :-
 - `remaining balance`
 
 - `savings`
----
-
-### **Status Codes**
-| Code  | Description |
-|-------|-------------|
-| `200 OK` | Successful response with customer profile details. |
-| `403 Forbidden` | Access denied (if the user is not authorized). |
-| `404 Not Found` | If the customer profile or merchant membership is not found. |
 """,
         responses={200: MemberProfileSerializer},
     )

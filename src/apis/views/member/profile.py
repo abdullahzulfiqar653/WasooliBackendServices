@@ -10,7 +10,12 @@ from drf_spectacular.utils import extend_schema
 
 class MemberProfileRetrieveAPIView(generics.RetrieveAPIView):
     """
-    This endpoint provides all the information for members profile cards.
+This endpoint provides all the information for members profile cards.
+
+**The response will include the following fields:**
+- total_spend: Total amount spent by the member.
+- total_remaining: Total remaining balance of the member.
+- total_saved: Total amount saved by the member.
     """
 
     permission_classes = [IsMerchantOrStaff]
@@ -23,38 +28,17 @@ class MemberProfileRetrieveAPIView(generics.RetrieveAPIView):
 
     @extend_schema(
         description="""
-        ### Retrieves a member's profile information:
+### Updates a member's financial profile information:
 
-        This view returns the profile information for the member associated with the authenticated merchant or staff user.
-        The response includes detailed profile information, such as customer stats and other related data.
+This endpoint allows updating the financial details of a member.
 
-        **The response will include the following fields:**
-        - `member_id`: Unique identifier for the member.
-        - `name`: The full name of the member.
-        - `email`: The email address of the member.
-        - `phone_number`: The contact number of the member.
-        - `total_orders`: Total number of orders made by the member.
-        - `total_spent`: Total amount spent by the member.
-        - `recent_activity`: Recent activity or interactions by the member.
-        - `membership_status`: Current membership status of the member.
+**Request Body:**
+- `total_spend`: Total amount spent by the member.\n
+- `total_remaining`: Total remaining balance of the member.\n
+- `total_saved`: Total amount saved by the member.
 
-        **Response Example:**
-        ```json
-        {
-            "member_id": "12345",
-            "name": "John Doe",
-            "email": "john.doe@example.com",
-            "phone_number": "+1234567890",
-            "total_orders": 50,
-            "total_spent": 5000.00,
-            "recent_activity": "Placed an order on 2025-02-15.",
-            "membership_status": "Active"
-        }
-        ```
-
-        **Authentication:**
-        This view requires the user to be authenticated as either a merchant or staff member associated with the member whose profile is being requested.
-        """,
+**Response:** Returns the updated financial details of the member
+""",
         responses={
             200: MemberProfileSerializer,
         },

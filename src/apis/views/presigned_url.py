@@ -21,7 +21,6 @@ from drf_spectacular.types import OpenApiTypes
 )
 class PreSignedUrlCreateAPIView(CreateAPIView):
     """
-    This endpoint generates a **pre-signed URL** for securely uploading files directly to **Amazon S3**.
 
     **Request:**
     - Accepts the following **body parameters**:

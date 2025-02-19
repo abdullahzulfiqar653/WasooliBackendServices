@@ -25,16 +25,16 @@ class MemberTransactionHistoryListCreateAPIView(generics.ListCreateAPIView):
         description="""
 ### List all transaction histories for the member:
 This endpoint returns a list of all credit billing transaction histories associated with the member.\n
-**Request Parameters**
-- `member_id`: The ID of the member .\n
-**Response**\n
-The response will include the following fields for each transaction:
+**Response Fields:**
 - `id`: Unique transaction identifier.\n
-- `amount`: The amount of the transaction.\n
-- `transaction_type`: Type of transaction (e.g., CREDIT).\n
-- `type`: The type of transaction (e.g., BILLING).\n
+- `debit`: The amount debited in the transaction.\n
+- `credit`: The amount credited in the transaction.\n
+- `balance`: The balance after the transaction.\n
+- `metadata`: Additional transaction details.\n
+- `is_online`: Indicates if the transaction was done online.\n
 - `created_at`: Timestamp of when the transaction occurred.\n
-- `updated_at`: Timestamp of the last update to the transaction.
+- `updated_at`: Timestamp of the last update to the transaction.\n
+- `transaction_type`: Type of transaction (e.g., "debit" or "credit").
         """,
         responses={
             200: TransactionHistorySerializer(many=True),
@@ -46,13 +46,8 @@ The response will include the following fields for each transaction:
     @extend_schema(
         description="""
 ### Create a new transaction history record:
-- `member_id`: The ID of the member .\n
-- `amount`: Amount of the transaction (e.g., 1500).\n
-- `transaction_type`: Type of transaction (e.g., CREDIT).\n
-- `type`: The type of transaction (e.g., BILLING).\n
-- `metadata`: Optional field containing additional information about the transaction.
+- `amount`: Amount of the transaction (e.g., 1500).
 
-The request body must contain the above fields. The response will return the newly created transaction history record.
         """,
         request=TransactionHistorySerializer,
         responses={

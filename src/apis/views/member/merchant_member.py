@@ -73,12 +73,7 @@ class MemberRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     @extend_schema(
         description="""
 This endpoint deletes a merchant member.
-
 - Only a merchant can delete members.
-
-**Request Parameters**
-- `member_id`: The ID of the member to be deleted.\n
-- You only need to provide the `member_id` of the member you want to delete.
         """
     )
     def delete(self, request, *args, **kwargs):

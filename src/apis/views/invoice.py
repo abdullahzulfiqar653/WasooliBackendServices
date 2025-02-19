@@ -35,13 +35,10 @@ This API allows merchants or staff to update invoice details for `Members`.
 #### **📝 Request Body **
 | Field          | Required   | Description |
 |----------------|------------|-------------|
-| `mark_paid`    | ✅ Yes (conditionally) | If only `mark_paid` is sent, it will be set to `true`. |
-| `metadata`     | ✅ Yes (if `total_amount` is sent) | Required  if `total_amount` is also provided. |
-| `total_amount` | ✅ Yes (if `metadata` is sent) | Required only if `metadata` is also provided. |
+| `mark_paid`    | ✅ Yes     | If `mark_paid` is set to `true`, the invoice will be marked as `paid` and all other fields will be ignored,  |
+| `total_amount` | ✅ Yes                 | To update the total_amount, `mark_paid` must be set to false. .if total_amount is sent then it requires meta data field to be sent as well|
+| `metadata`(`dictionary`)     | ✅ Yes   | The metadata field is mandatory when updating the total_amount. It must include a `remarks` attribute explaining why the amount is being changed. |
 
-#### **📌 Notes**
-- If only `mark_paid` is provided, the invoice will be marked as **paid** without updating `metadata` or `total_amount`.
-- If `total_amount` is provided, then `metadata` is **also required**.
 """,
         responses={200: InvoiceSerializer()},
     )

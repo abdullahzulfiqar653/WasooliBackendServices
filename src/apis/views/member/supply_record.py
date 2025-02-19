@@ -37,16 +37,11 @@ class MemberSupplyRecordListCreateAPIView(generics.ListCreateAPIView):
             ),
         ],
         description="""
-        **Request Parameters**
-        \n- `member_id`: The ID of the member .
-        \nRetrieves a list of supply records associated with the user's membership, filtered by the specified year and month of creation.
-        \nThis view supports the following filters:
-            \n- `created_at_year` : Specifies the year when the supply records were created. This filter is required.
-            \n- `created_at_month` : Specifies the month when the supply records were created. This filter is required.
-        \nThe response will include all matching supply records based on the filtering criteria provided in the request.
-        \nNo pagination is applied to this view, so it will return all records for the given month.
-        \n**Example:**
-        \nTo filter for supply records created in February 2025, use `created_at_year=2025` and `created_at_month=2`.
+\nRetrieves a list of supply records associated with the user's membership, filtered by the specified year and month of creation.
+\nThis view supports the following filters:
+    \n- `created_at_year` : Specifies the year when the supply records were created. This filter is required.
+    \n- `created_at_month` : Specifies the month when the supply records were created. This filter is required.
+\nThe response will include all matching supply records based on the filtering criteria provided in the request.
         """,
         responses={
             200: SupplyRecordSerializer(many=True),

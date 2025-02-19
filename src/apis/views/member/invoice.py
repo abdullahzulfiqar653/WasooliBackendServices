@@ -2,6 +2,7 @@ from rest_framework import generics, filters
 
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.invoice import InvoiceSerializer
+from apis.serializers.fake_invoice_serializer import FakeInvoiceSerializer
 
 from drf_spectacular.utils import extend_schema
 
@@ -17,15 +18,12 @@ class MemberInvoiceListCreateAPIView(generics.ListCreateAPIView):
     @extend_schema(
         description="""
 ### Create a new invoice:
-- `mark_paid`: a flag that indicates paid or unpaid invoices.\n
-- `member_id`(required): The ID of the member .\n
-- `metadata`: A dictionary representing additional information with key:value pairs (e.g., {"order_id": "1234"}).\n
 - `amount`: Total invoice amount (e.g., 1500).\n
-- `due_date`: Due date for the invoice (e.g., "2025-01-21"). Default is today's date if not provided.
+- `metadata`: A dictionary representing additional information with key:value pairs (e.g., {"order_id": "1234"}).\n
 
-The request body should include all these fields. The response will return the newly created invoice with a unique `id`.
+The request body should include these fields. The response will return the newly created invoice with a unique `id`.
         """,
-        request=InvoiceSerializer,
+        request=FakeInvoiceSerializer,
         responses={
             201: InvoiceSerializer,
         },
@@ -37,15 +35,19 @@ The request body should include all these fields. The response will return the n
         description="""
 ### List all invoices for the member:
 
-**Request Parameters**
-- `member_id`: The ID of the member .\n
 **Response**\n
-This endpoint returns a list of all invoices associated with the member, including:
+This endpoint returns a list of all invoices associated with the member, including following detail:
 - `id`: The unique identifier for the invoice.\n
-- `amount`: The total invoice amount.\n
-- `due_date`: The due date of the invoice.\n
-- `metadata`: The additional metadata associated with the invoice (if any).\n
 - `created_at`: The timestamp when the invoice was created.\n
+- `status`: The current payment status of the invoice (e.g., paid, unpaid).\n
+- `is_monthly`: A boolean value indicating whether the invoice is a recurring monthly invoice.\n
+- `metadata`: The additional metadata associated with the invoice (if any).\n
+- `total_amount`: The total invoice amount.\n
+- `due_amount`: The remaining amount to be paid.
+- `due_date`: The due date of the invoice.\n
+- `code`: A unique reference code for the invoice.\n
+- `type`: Specifies the type of invoice (e.g., monthly, one-time).\n
+- `handled_by`: The unique identifier of the staff member handling the invoice.
 
         """,
         responses={

@@ -91,22 +91,6 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
 ### **Retrieve List of Merchant Members**
 
 This API returns a list of merchant members (either Staff or Customers).
-
----
-
-#### **Request Parameters**
-| Parameter  | Required | Description |
-|------------|----------|-------------|
-| `merchant_id`| ✅ Yes   | The ID of the merchant. |
-
-
----
-
-### **Status Codes**
-| Code  | Description |
-|-------|-------------|
-| `200 OK` | Successful response with member list. |
-| `403 Forbidden` | Access denied (if the user is not authorized). |
 """,
     )
     def get(self, request, *args, **kwargs):
@@ -126,11 +110,6 @@ This API allows the creation of a new merchant member, either **Staff** or **Cus
 ### **Permissions**
 - This API is restricted to **merchants and staff** (`IsMerchantOrStaff` permission class).
 
-### **Status Codes**
-| Code  | Description |
-|-------|-------------|
-| `201 Created` | Successfully created a merchant member. |
-| `400 Bad Request` | Validation errors or missing fields. |
 """,
     )
     def post(self, request, *args, **kwargs):
@@ -165,11 +144,10 @@ This API retrieves a **merchant member's details** based on their **primary phon
 #### **🟢 Request Parameters (Path)**
 | Parameter    | Required | Description |
 |--------------|----------|-------------|
-| `merchant_id`| ✅ Yes   | The ID of the merchant. |
 | `phone`      | ✅ Yes   | The primary phone number of the merchant member
 ---
 
-### **📌 Response Headers (Fields Explanation)**
+### **📌 Response (Fields Explanation)**
 
 | Field             | Description |
 |-------------------|-------------|
@@ -194,13 +172,6 @@ This API retrieves a **merchant member's details** based on their **primary phon
 | `merchant_memberships.secondary_phone`  | Secondary phone number of the merchant member. |
 | `merchant_memberships.discounted_price` |  Discounted price after applying offers. |
 
----
-
-### **Status Codes**
-| Code  | Description |
-|-------|-------------|
-| `200 OK` | Successfully retrieved member details. |
-| `404 Not Found` | If no member exists with the given phone number. |
 """,
     )
     def get(self, request, *args, **kwargs):

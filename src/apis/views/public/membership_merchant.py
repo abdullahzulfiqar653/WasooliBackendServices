@@ -43,15 +43,6 @@ The response will contain a list of merchants that the member is associated with
 | `id`          | The unique identifier for the merchant. |
 | `name`        | The name of the merchant. |
 
----
-
-### **Status Codes**
-| Code  | Description |
-|-------|-------------|
-| `200 OK` | Successful response with merchant details. |
-| `403 Forbidden` | Access denied (if the user is not authorized). |
-| `400 Bad Request` | Invalid or missing `customer_code`. |
-
         """,
         responses={200: MembershipMerchantSerializer(many=True)},
     )
