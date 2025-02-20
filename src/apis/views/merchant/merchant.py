@@ -135,6 +135,10 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
 ### **Retrieve List of Merchant Members**
 
 This API returns a list of merchant members (either Staff or Customers).
+
+- `For Staff`: Include the parameter `role=Staff` to retrieve staff members. Staff members will be returned with no membership data.\n
+- `For Customers`: No additional parameters are required to retrieve customer details. Customer members will be returned with their membership details
+
 """,
     )
     def get(self, request, *args, **kwargs):
@@ -178,7 +182,10 @@ class MemberRetrieveByPhoneAPIView(generics.RetrieveAPIView):
         description="""
 ### **🔍 Retrieve Member by Phone Number & Merchant ID**
 
-This API retrieves a **merchant member's details** based on their **primary phone number** and **merchant ID**.
+- This view retrieves a member based on their primary phone number to assist merchants when
+    creating a new customer or staff.
+- If the primary phone number already exists, the member's data will be pre-populated in the
+    creation form for convenience.
 
 #### **🟢 Request Parameters (Path)**
 | Parameter    | Required | Description |
