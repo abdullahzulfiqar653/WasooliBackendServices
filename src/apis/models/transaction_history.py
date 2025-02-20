@@ -105,7 +105,7 @@ class TransactionHistory(BaseModel):
                 return tier["commission"]
         return 0
 
-    def apply_payment(self, payment_amount):
+    def apply_payment(self, payment_amount, created_by):
         # Get all unpaid invoices, ordered by created at date (oldest first)
         merchant_membership = self.merchant_membership
         invoices = merchant_membership.member.invoices.filter(status="unpaid").order_by(
@@ -145,7 +145,7 @@ class TransactionHistory(BaseModel):
                     }
                 )
                 break
-        self.metadata = {"invoices": paid_invoices}
+        self.metadata = {"invoices": paid_invoices, "created_by": created_by}
         self.save()
 
     def save(self, *args, **kwargs):

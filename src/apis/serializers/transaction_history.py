@@ -46,5 +46,5 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
         validated_data["type"] = TransactionHistory.TYPES.BILLING
         validated_data["transaction_type"] = TransactionHistory.TRANSACTION_TYPE.CREDIT
         transaction = super().create(validated_data)
-        transaction.apply_payment(amount)
+        transaction.apply_payment(amount, request.user.first_name)
         return transaction
