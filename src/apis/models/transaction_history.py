@@ -120,12 +120,30 @@ class TransactionHistory(BaseModel):
                 invoice.due_amount = 0
                 invoice.status = Invoice.STATUS.PAID
                 invoice.save()
-                paid_invoices.append(invoice.code)
+                paid_invoices.append(
+                    {
+                        "code": invoice.code,
+                        "status": invoice.status,
+                        "due_amount": str(invoice.due_amount),
+                        "total_amount": str(invoice.total_amount),
+                        "created_at": invoice.created_at.isoformat(),
+                        "updated_at": invoice.updated_at.isoformat(),
+                    }
+                )
             else:
                 invoice.due_amount -= remaining_payment
                 invoice.status = Invoice.STATUS.UNPAID
-                paid_invoices.append(invoice.code)
                 invoice.save()
+                paid_invoices.append(
+                    {
+                        "code": invoice.code,
+                        "status": invoice.status,
+                        "due_amount": str(invoice.due_amount),
+                        "total_amount": str(invoice.total_amount),
+                        "created_at": invoice.created_at.isoformat(),
+                        "updated_at": invoice.updated_at.isoformat(),
+                    }
+                )
                 break
         self.metadata = {"invoices": paid_invoices}
         self.save()
