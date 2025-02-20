@@ -1,9 +1,9 @@
-from apis.serializers.presigned_url import PreSignedUrlSerializer
 from rest_framework.generics import CreateAPIView
-from apis.permissions import IsMerchantOrStaff
 
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from drf_spectacular.types import OpenApiTypes
+from apis.permissions import IsMerchantOrStaff
+from apis.serializers.presigned_url import PreSignedUrlSerializer
+
+from drf_spectacular.utils import extend_schema
 
 
 @extend_schema(

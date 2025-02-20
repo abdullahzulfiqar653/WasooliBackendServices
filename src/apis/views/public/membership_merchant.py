@@ -1,9 +1,11 @@
 from rest_framework import generics
-from drf_spectacular.utils import extend_schema
+
 from apis.permissions import IsCustomer
 from apis.models.merchant import Merchant
 from apis.models.merchant_membership import MerchantMembership
 from apis.serializers.membership_merchant import MembershipMerchantSerializer
+
+from drf_spectacular.utils import extend_schema
 
 
 class PublicMembershipMerchantsListAPIView(generics.ListAPIView):

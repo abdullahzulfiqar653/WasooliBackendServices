@@ -1,12 +1,13 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
-from drf_spectacular.utils import extend_schema
 
 from apis.permissions import IsCustomer
 from apis.utils import get_customer_stats
 from apis.models.merchant_membership import MerchantMembership
 from apis.serializers.member_profile import MemberProfileSerializer
+
+from drf_spectacular.utils import extend_schema
 
 
 class PublicCustomerProfileRetrieveAPIView(generics.RetrieveAPIView):

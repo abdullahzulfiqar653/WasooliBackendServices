@@ -31,30 +31,9 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
     ### **Response**
     - **Status Code**: `200 OK`\n
     - **Response Fields**:\n
-      - `total_collections_today`:\n
-        - `value`: Total amount collected today.\n
-        - `name`:  Description of the field.\n
-      - `total_collections_this_month`:\n
-        - `value`: Total amount collected this month.\n
-        - `name`:  Description of the field.\n
-      - `total_remaining_collections_this_month`:\n
-        - `value`: Remaining collection required for this month.\n
-        - `name` : Description of the field.\n
-      - `total_collections`:\n
-        - `value`: Total amount collected in the current year.\n
-        - `name` : Description of the field.\n
-      - `total_remaining_collections`:\n
-        - `value`: Remaining collection required for the year.\n
-        - `name`:  Description of the field.\n
-      - `total_customers`:\n
-        - `value`: Total number of registered customers.\n
-        - `name`:  Description of the field.\n
-      - `active_customers`:\n
-        - `value`: Number of active customers.\n
-        - `name`:  Description of the field.\n
-      - `non_active_customers`:\n
-        - `value`: Number of inactive customers.\n
-        - `name`:  Description of the field.
+      - `key_of_the_card`:\n
+        - `value`: integer value for that card.\n
+        - `name`:  Name to Display for that card.\n
     """
 
     permission_classes = [IsMerchantOrStaff]

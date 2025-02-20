@@ -105,11 +105,6 @@ This API allows the creation of a new merchant member, either **Staff** or **Cus
 - **For Staff:** `merchant_memberships` should be set to `null`.\n
 - **For Customers:** `merchant_memberships` is required.
 
----
-
-### **Permissions**
-- This API is restricted to **merchants and staff** (`IsMerchantOrStaff` permission class).
-
 """,
     )
     def post(self, request, *args, **kwargs):
@@ -144,33 +139,9 @@ This API retrieves a **merchant member's details** based on their **primary phon
 #### **🟢 Request Parameters (Path)**
 | Parameter    | Required | Description |
 |--------------|----------|-------------|
-| `phone`      | ✅ Yes   | The primary phone number of the merchant member
+| `merchant_id`      | ✅ Yes   | The merchant_id of the merchant
+| `phone`      | ✅ Yes   | The primary phone number of the member
 ---
-
-### **📌 Response (Fields Explanation)**
-
-| Field             | Description |
-|-------------------|-------------|
-| `id`              |  Unique identifier of the merchant member. |
-| `user.email`      | Email address of the user. |
-| `user.first_name` | First name of the user. |
-| `cnic`            | National identity card number of the member. |
-| `code`            | Unique membership code. |
-| `picture`         | Profile picture URL of the user. |
-| `balance`         | Wallet balance of the merchant member. |
-| `primary_phone`   | Primary contact number of the merchant member. |
-| `merchant_memberships.area`  | The area where the merchant is located. |
-| `merchant_memberships.city`  | The city of the merchant. |
-| `merchant_memberships.unit`  | Business unit name or identifier. |
-| `merchant_memberships.picture`  | Business logo or profile picture URL. |
-| `merchant_memberships.address`  | Business address of the merchant. |
-| `merchant_memberships.merchant` | Name of the merchant. |
-| `merchant_memberships.is_active`| Indicates if the membership is active. |
-| `merchant_memberships.meta_data`  | Additional metadata related to the merchant membership. |
-| `merchant_memberships.is_monthly` | Indicates if the membership is on a monthly basis. |
-| `merchant_memberships.actual_price` | Original price of the membership. |
-| `merchant_memberships.secondary_phone`  | Secondary phone number of the merchant member. |
-| `merchant_memberships.discounted_price` |  Discounted price after applying offers. |
 
 """,
     )

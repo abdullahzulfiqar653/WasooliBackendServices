@@ -19,7 +19,7 @@ class MemberInvoiceListCreateAPIView(generics.ListCreateAPIView):
         description="""
 ### Create a new invoice:
 - `amount`: Total invoice amount (e.g., 1500).\n
-- `metadata`: A dictionary representing additional information with key:value pairs (e.g., {"order_id": "1234"}).\n
+- `metadata`: A dictionary representing additional information with key:value pairs (e.g., {"remarks": "payment for extra service"}).\n
 
 The request body should include these fields. The response will return the newly created invoice with a unique `id`.
         """,

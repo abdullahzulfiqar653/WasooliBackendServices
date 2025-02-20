@@ -6,8 +6,8 @@ from apis.models.supply_record import SupplyRecord
 from apis.filters.supply_record import SupplyRecordFilter
 from apis.serializers.supply_record import SupplyRecordSerializer
 
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class MemberSupplyRecordListCreateAPIView(generics.ListCreateAPIView):
