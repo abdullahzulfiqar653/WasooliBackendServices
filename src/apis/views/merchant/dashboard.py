@@ -11,7 +11,29 @@ from apis.serializers.merchant_dashboard import MerchantDashboardSerializer
 
 class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
     """
-    This endpoint provides all the information for dashboard cards.
+    **Merchant Dashboard API View**
+
+    ### **Endpoint Description**
+    This API retrieves statistics for the merchant's dashboard, including:
+
+    - **Today's collection**: Total amount collected today.
+    - **Monthly collection**: Total amount collected this month.
+    - **Remaining collection for the month**: Balance collection expected this month.
+    - **Yearly collection**: Total amount collected this year.
+    - **Total customers**: Number of registered customers.
+    - **Active customers**: Number of currently active customers.
+    - **Inactive customers**: Number of customers who are not active.
+
+    ### **Request**
+
+    - **Headers**: `Authorization: <your_token>` (Required)\n
+
+    ### **Response**
+    - **Status Code**: `200 OK`\n
+    - **Response Fields**:\n
+      - `key_of_the_card`:\n
+        - `value`: integer value for that card.\n
+        - `name`:  Name to Display for that card.\n
     """
 
     permission_classes = [IsMerchantOrStaff]

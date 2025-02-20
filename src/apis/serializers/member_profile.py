@@ -12,3 +12,4 @@ class MemberProfileSerializer(serializers.Serializer):
     total_spend = MemberProfileMetricSerializer()
     total_remaining = MemberProfileMetricSerializer()
     total_saved = MemberProfileMetricSerializer()
+    supply_balance = MemberProfileMetricSerializer()

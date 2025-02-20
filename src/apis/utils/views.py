@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db.models import Sum
 from django.utils import timezone
 
+from django.db.models.functions import Coalesce
 from apis.models.supply_record import SupplyRecord
 from apis.models.transaction_history import TransactionHistory
 
@@ -43,7 +44,10 @@ def get_customer_stats(membership):
         if not membership.is_monthly:
             supply_totals = SupplyRecord.objects.filter(
                 merchant_membership=membership
-            ).aggregate(total_given=Sum("given"), total_taken=Sum("taken"))
+            ).aggregate(
+                total_given=Coalesce(Sum("given"), 0),
+                total_taken=Coalesce(Sum("taken"), 0),
+            )
 
             # If no supply records exist, set defaults to 0
             total_given = supply_totals.get("total_given", 0)
