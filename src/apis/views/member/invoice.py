@@ -1,16 +1,21 @@
+from datetime import datetime
 from rest_framework import generics, filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 from apis.permissions import IsMerchantOrStaff
+from apis.filters.invoice import InvoiceFilter
 from apis.serializers.invoice import InvoiceSerializer
 from apis.serializers.fake_invoice_serializer import FakeInvoiceSerializer
 
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class MemberInvoiceListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = InvoiceSerializer
     permission_classes = [IsMerchantOrStaff]
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filterset_class = InvoiceFilter
 
     def get_queryset(self):
         return self.request.member.invoices.all().order_by("-created_at")
@@ -32,6 +37,30 @@ The request body should include these fields. The response will return the newly
         return super().post(request, *args, **kwargs)
 
     @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="created_at_year",
+                description="Year of creation for filtering invoice",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=["2024", "2025", "2026", "2027", "2028", "2029", "2030"],
+                default=str(datetime.now().year),
+            ),
+            OpenApiParameter(
+                name="type",
+                description="type of the invoice.",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=["monthly", "miscellaneous"],
+            ),
+            OpenApiParameter(
+                name="status",
+                description="status of the invoice.",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=["paid", "unpaid"],
+            ),
+        ],
         description="""
 ### List all invoices for the member:
 

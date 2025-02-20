@@ -1,20 +1,50 @@
+from datetime import datetime
 from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
 
 from apis.permissions import IsCustomer
+from apis.filters.invoice import InvoiceFilter
 from apis.serializers.invoice import InvoiceSerializer
 
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class PublicMemberInvoiceListAPIView(generics.ListAPIView):
     pagination_class = None
     permission_classes = [IsCustomer]
     serializer_class = InvoiceSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = InvoiceFilter
 
     def get_queryset(self):
         return self.request.member.invoices.order_by("-created_at").all()
 
     @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="created_at_year",
+                description="Year of creation for filtering invoice",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=["2024", "2025", "2026", "2027", "2028", "2029", "2030"],
+                default=str(datetime.now().year),
+            ),
+            OpenApiParameter(
+                name="type",
+                description="type of the invoice.",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=["monthly", "miscellaneous"],
+            ),
+            OpenApiParameter(
+                name="status",
+                description="status of the invoice.",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=["paid", "unpaid"],
+            ),
+        ],
         description="""
 ### **Retrieve Member Invoices**
 

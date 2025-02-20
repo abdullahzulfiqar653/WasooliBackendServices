@@ -70,9 +70,11 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         _ = validated_data.pop("mark_paid", False)
+        _ = validated_data.pop("due_date", None)
         request = self.context.get("request")
         validated_data["member"] = request.member
         validated_data["is_monthly"] = False
+        validated_data["type"] = Invoice.Type.MISCILLANEOUS
         invoice = super().create(validated_data)
         merchant_membership = request.merchant.members.filter(
             member=request.member
