@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
 from django.db.models import F, Sum, Case, When, Value, Prefetch, DecimalField
@@ -9,7 +10,8 @@ from apis.models.transaction_history import TransactionHistory
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
 
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
@@ -21,9 +23,10 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
     def get_queryset(self):
         role = self.request.query_params.get("role", RoleChoices.CUSTOMER)
         is_paid = self.request.query_params.get("is_paid", None)
+        is_paid_today = self.request.query_params.get("is_paid_today", None)
         merchant = self.request.merchant
 
-        queryset = MerchantMember.objects.filter(
+        merchant_member_queryset = MerchantMember.objects.filter(
             roles__role__in=[
                 RoleChoices.STAFF,
                 RoleChoices.CUSTOMER,
@@ -33,27 +36,36 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
 
         # Conditionally add the filter based on the role
         if role == RoleChoices.STAFF:
-            queryset = merchant.staff_members.exclude(
+            merchant_member_queryset = merchant.staff_members.exclude(
                 user=self.request.user
             )  # For STAFF, use `merchant=merchant`
         else:
-            queryset = queryset.filter(
+            merchant_member_queryset = merchant_member_queryset.filter(
                 memberships__merchant=merchant
             )  # For CUSTOMER, use `memberships__merchant=merchant`
             # Annotate total_credit, total_debit, and total_adjustment
             transaction_history_queryset = TransactionHistory.objects.filter(
-                merchant_membership__in=queryset.values("memberships__id"),
+                merchant_membership__in=merchant_member_queryset.values(
+                    "memberships__id"
+                ),
                 type=TransactionHistory.TYPES.BILLING,
             )
-            queryset = queryset.prefetch_related(
+
+            merchant_member_queryset = merchant_member_queryset.prefetch_related(
                 Prefetch(
                     "memberships__membership_transactions",
                     queryset=transaction_history_queryset,
                 )
             )
 
+            today = timezone.now().date()
+            transaction_history_queryset_today = transaction_history_queryset.filter(
+                created_at__date=today,
+                transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
+            )
+
             # Annotate total_credit, total_debit, and total_adjustment
-            queryset = queryset.annotate(
+            merchant_member_queryset = merchant_member_queryset.annotate(
                 total_credit=Sum(
                     Case(
                         When(
@@ -81,12 +93,44 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                 balance=F("total_credit") - (F("total_debit") - F("total_adjustment"))
             )
             if is_paid == "true":
-                queryset = queryset.filter(balance__gte=0)
-            elif is_paid == "false":
-                queryset = queryset.filter(balance__lt=0)
-        return queryset.order_by("-code")
+                merchant_member_queryset = merchant_member_queryset.filter(
+                    balance__gte=0
+                )
+            if is_paid == "false":
+                merchant_member_queryset = merchant_member_queryset.filter(
+                    balance__lt=0
+                )
+            if is_paid_today == "true":
+                merchant_member_queryset = merchant_member_queryset.filter(
+                    memberships__membership_transactions__in=transaction_history_queryset_today
+                )
+
+        return merchant_member_queryset.order_by("-code")
 
     @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="role",
+                description="Filter members by their role",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=[RoleChoices.STAFF],
+            ),
+            OpenApiParameter(
+                name="is_paid",
+                description="Filter members by their paid or unpaid status",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=["true", "false"],
+            ),
+            OpenApiParameter(
+                name="is_paid_today",
+                description="Filter members who paid today",
+                required=False,
+                type=OpenApiTypes.STR,
+                enum=["true"],
+            ),
+        ],
         description="""
 ### **Retrieve List of Merchant Members**
 
