@@ -24,7 +24,10 @@ class Invoice(BaseModel):
     is_user_invoice = models.BooleanField(default=True)
     total_amount = models.DecimalField(max_digits=8, decimal_places=2)
     due_amount = models.DecimalField(max_digits=8, decimal_places=2)
-    due_date = models.DateField(default=timezone.now() + timezone.timedelta(days=15))
+    due_date = models.DateField(
+        default=(timezone.now() + timezone.timedelta(days=15)).date()
+    )
+
     # New column to store the invoice code, starting from 10000000
     code = models.CharField(max_length=10, unique=True, editable=False)
     handled_by = models.ForeignKey(

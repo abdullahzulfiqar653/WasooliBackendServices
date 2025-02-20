@@ -7,6 +7,8 @@ from apis.utils import get_customer_stats
 from apis.models.merchant_membership import MerchantMembership
 from apis.serializers.member_profile import MemberProfileSerializer
 
+from drf_spectacular.utils import extend_schema
+
 
 class PublicCustomerProfileRetrieveAPIView(generics.RetrieveAPIView):
     """
@@ -29,3 +31,31 @@ class PublicCustomerProfileRetrieveAPIView(generics.RetrieveAPIView):
 
         response = get_customer_stats(membership)
         return Response(response)
+
+    @extend_schema(
+        description="""
+### **Retrieve Customer Profile**
+
+This API retrieves the profile details of a customer based on the provided **customer code** and **merchant ID**.
+
+---
+
+#### **Request Parameters**
+| Parameter     | Required | Description |
+|---------------|----------|-------------|
+| `customer_code`| ✅ Yes | The unique customer code identifying the customer. |
+
+---
+
+#### **Response Body**
+The response contains the full profile details of the customer including :-
+- `total spend `
+
+- `remaining balance`
+
+- `savings`
+""",
+        responses={200: MemberProfileSerializer},
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)

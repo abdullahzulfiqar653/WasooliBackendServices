@@ -9,8 +9,7 @@ from apis.models.transaction_history import TransactionHistory
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
 
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema
 
 
 class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
@@ -34,8 +33,8 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
 
         # Conditionally add the filter based on the role
         if role == RoleChoices.STAFF:
-            queryset = queryset.filter(
-                merchant=merchant
+            queryset = merchant.staff_members.exclude(
+                user=self.request.user
             )  # For STAFF, use `merchant=merchant`
         else:
             queryset = queryset.filter(
@@ -88,33 +87,25 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
         return queryset.order_by("-code")
 
     @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="role",
-                description="Filter members by their role",
-                required=False,
-                type=OpenApiTypes.STR,
-                enum=[RoleChoices.STAFF],
-            ),
-            OpenApiParameter(
-                name="is_paid",
-                description="filter customers by their balance",
-                required=False,
-                type=OpenApiTypes.STR,
-                enum=["true", "false"],
-            ),
-        ],
-        description="""""",
+        description="""
+### **Retrieve List of Merchant Members**
+
+This API returns a list of merchant members (either Staff or Customers).
+""",
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     @extend_schema(
         description="""
-        \nThis view handles creating merchant members wether Staff or Customer.
-        \n- `For Staff`: Set `merchant_memberships` to `null` to create a staff member.
-        \n- `For Customers`: The `merchant_memberships` field is required when creating a customer.
-        """,
+### **Create Merchant Member**
+
+This API allows the creation of a new merchant member, either **Staff** or **Customer**.
+
+- **For Staff:** `merchant_memberships` should be set to `null`.\n
+- **For Customers:** `merchant_memberships` is required.
+
+""",
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
@@ -138,3 +129,21 @@ class MemberRetrieveByPhoneAPIView(generics.RetrieveAPIView):
         except MerchantMember.DoesNotExist:
             raise NotFound(detail="Member with this phone number does not exist.")
         return member
+
+    @extend_schema(
+        description="""
+### **🔍 Retrieve Member by Phone Number & Merchant ID**
+
+This API retrieves a **merchant member's details** based on their **primary phone number** and **merchant ID**.
+
+#### **🟢 Request Parameters (Path)**
+| Parameter    | Required | Description |
+|--------------|----------|-------------|
+| `merchant_id`      | ✅ Yes   | The merchant_id of the merchant
+| `phone`      | ✅ Yes   | The primary phone number of the member
+---
+
+""",
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)

@@ -6,23 +6,11 @@ from apis.models.merchant_member import MerchantMember
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
 
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class MemberRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    This view to retrive, update and delete merchant members wether `Staff` or `Customers`.
-    - `For Staff`:
-    - To retrieve staff member, include the parameter `role=Staff` in the request.
-    - To update a staff member, set `merchant_memberships` to `null`.
-    - `For Customers`:
-    - No additional parameters are required to retrieve customer.
-    - The `merchant_memberships` field is required when updating a customer.
-
-    - `To Delete`: Only `merchant` can delete members and just `member_id` is needed.
-    """
-
     permission_classes = [IsMerchantOrStaff]
     serializer_class = MerchantMemberSerializer
 
@@ -62,9 +50,31 @@ class MemberRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
             )
         ],
         description="""
-        \nThis view handles listing of merchant members.
-            \n- `For Staff`: Include the parameter `role=Staff` to list staff members.
-            \n- `For Customers`: No additional parameters are required to list them.""",
+    This endpoint retrieves details of a merchant member.
+    
+- `For Staff`: Include the parameter `role=Staff` to retrieve staff members.\n
+- `For Customers`: No additional parameters are required to retrieve customer details.
+        """,
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
+    @extend_schema(
+        description="""
+    This endpoint updates details of a merchant member.
+    
+- `For Staff`: To update staff members, set `merchant_memberships` to `null`.\n
+- `For Customers`: You must include the `merchant_memberships` field when updating customer details.
+        """
+    )
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
+
+    @extend_schema(
+        description="""
+This endpoint deletes a merchant member.
+- Only a merchant can delete members.
+        """
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)

@@ -1,3 +1,4 @@
+from auditlog.registry import auditlog
 from apis.models.otp import OTP
 from apis.models.lookup import Lookup
 from apis.models.invoice import Invoice
@@ -20,3 +21,13 @@ __all__ = [
     "MerchantMembership",
     "TransactionHistory",
 ]
+
+auditlog.register(OTP)
+auditlog.register(Lookup)
+auditlog.register(Invoice)
+auditlog.register(Merchant)
+auditlog.register(MemberRole)
+auditlog.register(SupplyRecord)
+auditlog.register(MerchantMember)
+auditlog.register(MerchantMembership)
+auditlog.register(TransactionHistory)

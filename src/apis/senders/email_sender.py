@@ -29,7 +29,7 @@ class EmailOTPSender(OTPSender):
             {
                 "merchant_name": merchant.name,
                 "otp": otp,
-                "recipient_name": member.user.get_full_name(),
+                "recipient_name": member.user.first_name,
             },
         )
 

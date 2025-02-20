@@ -2,20 +2,10 @@ from rest_framework import generics
 
 from apis.models.lookup import Lookup
 from apis.serializers.lookup import LookupSerializer
+from drf_spectacular.utils import extend_schema
 
 
 class LookupListAPIView(generics.ListAPIView):
-    """
-    This endpoint is used to retrieve lookup information.
-
-    - You need to pass a single parameter, `value`.
-    - Current supported flags are:
-    - `city`: Returns a list of cities along with their associated child areas.
-    - `keys`: Returns a list of metadata keys so if user adding extra fields then he get suggestions.
-
-    Based on the provided flag, the response will include the relevant data and its child objects.
-    """
-
     serializer_class = LookupSerializer
     permission_classes = []
     pagination_class = None
@@ -23,3 +13,26 @@ class LookupListAPIView(generics.ListAPIView):
     def get_queryset(self):
         flag = self.kwargs["flag"]
         return Lookup.objects.filter(type__name=flag).prefetch_related("sub_types")
+
+    @extend_schema(
+        description="""
+### **Handles Lookup Information Retrieval**
+
+This API is used to fetch lookup information based on the `flag` parameter.
+
+---
+
+#### **🟢 Request Parameters (Path)**
+| Parameter |  Required | Description |
+|-----------|-----------|-------------|
+| `flag`    | ✅ Yes   | The lookup type (e.g., `city`, `keys`) |
+
+**Accepted Flags:**
+- `city` → Returns a list of cities and their sub-areas.\n
+- `keys` → Returns metadata keys for user suggestions.
+
+""",
+        responses={200: LookupSerializer(many=True)},
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
