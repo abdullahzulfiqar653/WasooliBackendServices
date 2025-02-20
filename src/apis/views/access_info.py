@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from apis.permissions import IsMerchantOrStaff
 from django.contrib.auth.models import Permission
 from apis.serializers.access_info import AccessInfoSerializer
+from apis.models.member_role import RoleChoices
 
 
 class AccessInfoRetrieveAPIView(generics.RetrieveAPIView):
@@ -34,8 +35,16 @@ class AccessInfoRetrieveAPIView(generics.RetrieveAPIView):
         for model, actions in grouped_permissions.items():
             grouped_permissions[model] = sorted(set(actions))
 
+        # Using prefetch_related for optimizing the roles query
+        is_merchant = (
+            request.user.profile.roles.filter(role=RoleChoices.MERCHANT)
+            .prefetch_related("roles")
+            .exists()
+        )
+
         return Response(
             {
+                "is_merchant": is_merchant,
                 "permissions": grouped_permissions,
                 "merchant_id": request.merchant.id,
                 "member_id": request.user.profile.id,
