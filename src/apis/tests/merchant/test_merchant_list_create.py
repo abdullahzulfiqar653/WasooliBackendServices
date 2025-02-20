@@ -40,7 +40,6 @@ class TestMerchantListCreate(TestCase):
             code="1001",
         )
 
-        # ✅ Now assign the membership properly
         self.merchant.membership = self.merchant_membership
         self.merchant.save()
 
@@ -246,7 +245,6 @@ class TestMerchantListCreate(TestCase):
         }
 
         response = unauthorized_client.post(url, data, format="json")
-     
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -377,8 +375,6 @@ class TestMerchantListCreate(TestCase):
         )  # Check email error inside 'user'
         self.assertEqual(response2.data["user"]["email"][0], "Email already exist.")
 
-
-
     def test_create_merchant_member_missing_user_details(self):
         """Test creating a merchant member without a user object"""
         url = f"/api/merchants/{self.merchant.id}/members/"
@@ -401,7 +397,7 @@ class TestMerchantListCreate(TestCase):
         }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    
+
     def test_create_merchant_member_missing_merchant_memberships(self):
         """Test creating a merchant member without the merchant_memberships section"""
         url = f"/api/merchants/{self.merchant.id}/members/"
@@ -413,7 +409,6 @@ class TestMerchantListCreate(TestCase):
         }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
 
     def test_create_merchant_member_with_nonexistent_merchant(self):
         """Test creating a merchant member with a non-existent merchant ID"""
@@ -444,8 +439,6 @@ class TestMerchantListCreate(TestCase):
         }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-
 
     def test_create_merchant_member_invalid_email(self):
         url = f"/api/merchants/{self.merchant.id}/members/"
@@ -485,15 +478,12 @@ class TestMerchantListCreate(TestCase):
         )
 
     def test_create_merchant_member_unauthorized(self):
-       
+
         self.client.logout()
         url = f"/api/merchants/{self.merchant.id}/members/"
         data = {
-            "user": {
-                "email": "newuser@example.com",
-                "password": "password123"
-            },
-           "merchant_memberships": {
+            "user": {"email": "newuser@example.com", "password": "password123"},
+            "merchant_memberships": {
                 "area": "test-area",
                 "city": "test_city",
                 "picture": "string",
@@ -506,23 +496,24 @@ class TestMerchantListCreate(TestCase):
                 "discounted_price": "245.70",
             },
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, 401)  # Unauthorized
-    
+
     def test_create_merchant_member_empty_merchant_memberships(self):
         url = f"/api/merchants/{self.merchant.id}/members/"
 
         data = {
-            "user": {
-                "email": "newuser@example.com",
-                "password": "password123"
-            },
+            "user": {"email": "newuser@example.com", "password": "password123"},
             "merchant_memberships": [],  # Empty list
             "roles": {"role": "Staff"},
         }
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 400)  # Bad Request if memberships cannot be empty
-        self.assertIn("merchant_memberships", response.data)  # Ensure error mentions merchant_memberships
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(
+            response.status_code, 400
+        )  # Bad Request if memberships cannot be empty
+        self.assertIn(
+            "merchant_memberships", response.data
+        )  # Ensure error mentions merchant_memberships
 
     def test_create_staff(self):
         url = f"/api/merchants/{self.merchant.id}/members/"
@@ -557,7 +548,6 @@ class TestMerchantListCreate(TestCase):
             "primary_phone": "1234567891",
             "merchant": self.merchant.id,  # Staff should have merchant, NOT memberships
         }
-
 
         response1 = self.client.post(url, staff_data1, format="json")
 
@@ -631,7 +621,7 @@ class TestMerchantListCreate(TestCase):
         # Staff should NOT be present
         self.assertNotIn("testuser2@example.com", emails)
 
-    #---------------------------------------Filterning------------------------------
+    # ---------------------------------------Filterning------------------------------
     def test_filter_merchant_members_by_role(self):
         """Test filtering merchant members by role"""
         url = f"/api/merchants/{self.merchant.id}/members/"
@@ -673,7 +663,7 @@ class TestMerchantListCreate(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        print('respinse of customer',response.data)
+        print("respinse of customer", response.data)
 
         emails = {user["user"]["email"] for user in response.data["results"]}
         self.assertIn("customer@example.com", emails)
@@ -681,12 +671,13 @@ class TestMerchantListCreate(TestCase):
 
         # Filter members by role 'Staff'
         response = self.client.get(f"{url}?role=Staff", format="json")
-        print('respinse of staff',response.data)
+        print("respinse of staff", response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data["results"]), 1)
         emails = {user["user"]["email"] for user in response.data["results"]}
         self.assertIn("staff@example.com", emails)
         self.assertNotIn("customer@example.com", emails)
+
     def test_filter_merchant_members_by_first_name(self):
         """Test filtering merchant members by first name"""
         url = f"/api/merchants/{self.merchant.id}/members/"
@@ -715,11 +706,10 @@ class TestMerchantListCreate(TestCase):
 
         # Filter members by first name
         response = self.client.get(f"{url}?user__first_name=SearchUser", format="json")
-        print('ressssssssssssssssssssss', response.data)
-        
+       
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        
+
         first_names = {user["user"]["first_name"] for user in response.data["results"]}
         self.assertIn("SearchUser", first_names)
 
@@ -753,5 +743,7 @@ class TestMerchantListCreate(TestCase):
         response = self.client.get(f"{url}?city=Lahore", format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        cities = {user["merchant_memberships"]["city"] for user in response.data["results"]}
+        cities = {
+            user["merchant_memberships"]["city"] for user in response.data["results"]
+        }
         self.assertIn("Lahore", cities)

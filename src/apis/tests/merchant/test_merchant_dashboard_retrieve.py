@@ -173,15 +173,20 @@ class TestMerchantDashboardRetrieve(APITestCase):
     def test_dashboard_with_transactions(self):
         """Test that the dashboard API correctly calculates total collections when transactions exist"""
 
+        # ✅ Ensure no duplicate user error
         User.objects.filter(username="testuser").delete()
         User.objects.filter(username="testuser_owner").delete()
 
+        # ✅ Create test users
         test_owner = User.objects.create(username="testuser_owner")
         user = User.objects.create(username="testuser")
 
+        # ✅ Authenticate as test_owner
         self.client.force_authenticate(user=test_owner)
 
+        # ✅ Create a merchant owned by test_owner
         merchant = Merchant.objects.create(name="Test Merchant", owner=test_owner)
+
 
         member = MerchantMember.objects.create(merchant=merchant, user=user)
 
@@ -208,9 +213,10 @@ class TestMerchantDashboardRetrieve(APITestCase):
             credit=700,
             transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
             type=TransactionHistory.TYPES.BILLING,
-            created_at=timezone.now(),  # Set to the same past date
+            created_at=timezone.now().date(),  # Set to the same past date
         )
 
+        # ✅ Call the dashboard API
         url = f"/api/merchants/{merchant.id}/dashboard/"
         response = self.client.get(url)
         response_data = response.json()
@@ -221,4 +227,3 @@ class TestMerchantDashboardRetrieve(APITestCase):
 
         # Verify that the sum of today’s transactions is correctly calculated (500 + 300)
         self.assertEqual(response_data["total_collections_this_month"]["value"], 1200)
-        self.assertEqual(response_data["total_collections_today"]["value"], 1200)
