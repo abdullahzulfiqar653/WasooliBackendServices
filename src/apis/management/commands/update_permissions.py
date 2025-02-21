@@ -14,8 +14,6 @@ class Command(BaseCommand):
         staff_group.permissions.clear()
         merchant_group.permissions.clear()
 
-        MERCHANT_PERMISSIONS
-
         # Assign permissions based on the rules to Merchant
         for model_name, allowed_perms in MERCHANT_PERMISSIONS.items():
             permissions = Permission.objects.filter(content_type__model=model_name)
