@@ -1,7 +1,17 @@
 from django.utils import timezone
 from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
-from django.db.models import F, Sum, Case, When, Value, Prefetch, DecimalField
+from django.db.models import (
+    F,
+    Sum,
+    Case,
+    When,
+    Value,
+    Prefetch,
+    DecimalField,
+    Subquery,
+    OuterRef,
+)
 
 from apis.models.member_role import RoleChoices
 from apis.models.merchant_member import MerchantMember
@@ -40,22 +50,15 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                 user=self.request.user
             )  # For STAFF, use `merchant=merchant`
         else:
+            # For CUSTOMER, use memberships filtering
             merchant_member_queryset = merchant_member_queryset.filter(
                 memberships__merchant=merchant
-            )  # For CUSTOMER, use `memberships__merchant=merchant`
-            # Annotate total_credit, total_debit, and total_adjustment
-            transaction_history_queryset = TransactionHistory.objects.filter(
-                merchant_membership__in=merchant_member_queryset.values(
-                    "memberships__id"
-                ),
-                type=TransactionHistory.TYPES.BILLING,
-            )
+            ).distinct()
 
-            merchant_member_queryset = merchant_member_queryset.prefetch_related(
-                Prefetch(
-                    "memberships__membership_transactions",
-                    queryset=transaction_history_queryset,
-                )
+            # Annotate total_credit, total_debit, and total_adjustment for memberships
+            transaction_history_queryset = TransactionHistory.objects.filter(
+                merchant_membership__merchant=merchant,
+                type=TransactionHistory.TYPES.BILLING,
             )
 
             today = timezone.now().date()
@@ -64,42 +67,60 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
             )
 
-            # Annotate total_credit, total_debit, and total_adjustment
-            merchant_member_queryset = merchant_member_queryset.annotate(
-                total_credit=Sum(
-                    Case(
-                        When(
-                            memberships__membership_transactions__transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
-                            then=F("memberships__membership_transactions__credit"),
-                        ),
-                        default=Value(0),
-                        output_field=DecimalField(),
-                    )
-                ),
-                total_debit=Sum(
-                    "memberships__membership_transactions__debit", default=0
-                ),
-                total_adjustment=Sum(
-                    Case(
-                        When(
-                            memberships__membership_transactions__transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
-                            then=F("memberships__membership_transactions__credit"),
-                        ),
-                        default=Value(0),
-                        output_field=DecimalField(),
-                    )
-                ),
-            ).annotate(
-                balance=F("total_credit") - (F("total_debit") - F("total_adjustment"))
+            # Now annotate balances directly on the membership
+            # For each membership, calculate balance by summing debits, credits, and adjustments
+            membership_balance_subquery = (
+                TransactionHistory.objects.filter(
+                    merchant_membership=OuterRef("memberships__id"),
+                    type=TransactionHistory.TYPES.BILLING,
+                )
+                .values("merchant_membership")
+                .annotate(
+                    total_credit=Sum(
+                        Case(
+                            When(
+                                transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
+                                then=F("credit"),
+                            ),
+                            default=Value(0),
+                            output_field=DecimalField(),
+                        )
+                    ),
+                    total_debit=Sum("debit", default=0),
+                    total_adjustment=Sum(
+                        Case(
+                            When(
+                                transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
+                                then=F("credit"),
+                            ),
+                            default=Value(0),
+                            output_field=DecimalField(),
+                        )
+                    ),
+                )
+                .annotate(
+                    balance=F("total_credit")
+                    - (F("total_debit") - F("total_adjustment"))
+                )
+                .values("balance")
             )
+
+            merchant_member_queryset = merchant_member_queryset.annotate(
+                balance=Subquery(
+                    membership_balance_subquery, output_field=DecimalField()
+                )
+            )
+
+            # Filter by paid/unpaid balances
             if is_paid == "true":
                 merchant_member_queryset = merchant_member_queryset.filter(
                     balance__gte=0
                 )
-            if is_paid == "false":
+            elif is_paid == "false":
                 merchant_member_queryset = merchant_member_queryset.filter(
                     balance__lt=0
                 )
+
             if is_paid_today == "true":
                 merchant_member_queryset = merchant_member_queryset.filter(
                     memberships__membership_transactions__in=transaction_history_queryset_today
