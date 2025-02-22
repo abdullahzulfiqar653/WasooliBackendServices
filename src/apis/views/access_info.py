@@ -48,6 +48,7 @@ class AccessInfoRetrieveAPIView(generics.RetrieveAPIView):
                 "permissions": grouped_permissions,
                 "merchant_id": request.merchant.id,
                 "member_id": request.user.profile.id,
+                "merchant_name": request.merchant.name,
                 "is_fixed_fee_merchant": request.merchant.is_fixed_fee_merchant,
             }
         )
