@@ -72,13 +72,44 @@ class InvoiceSerializer(serializers.ModelSerializer):
         _ = validated_data.pop("mark_paid", False)
         _ = validated_data.pop("due_date", None)
         request = self.context.get("request")
+        merchant_membership = request.merchant.members.filter(
+            member=request.member
+        ).first()
+        latest_transaction = merchant_membership.membership_transactions.latest()
+
+        if latest_transaction.balance > 0:
+            if validated_data.get("total_amount") <= latest_transaction.balance:
+                validated_data["status"] = Invoice.STATUS.PAID
+                validated_data["due_amount"] = 0
+            else:
+                validated_data["due_amount"] = (
+                    validated_data.get("total_amount") - latest_transaction.balance
+                )
+
         validated_data["member"] = request.member
         validated_data["is_monthly"] = False
         validated_data["type"] = Invoice.Type.MISCILLANEOUS
         invoice = super().create(validated_data)
-        merchant_membership = request.merchant.members.filter(
-            member=request.member
-        ).first()
+        latest_credit_transaction = merchant_membership.membership_transactions.filter(
+            transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT
+        ).latest()
+        # Get and append the new invoice to the metadata without overwriting it
+        metadata = latest_credit_transaction.metadata or {"invoices": []}
+        metadata["invoices"].append(
+            {
+                "code": invoice.code,
+                "status": invoice.status,
+                "due_amount": str(invoice.due_amount),
+                "total_amount": str(invoice.total_amount),
+                "created_at": invoice.created_at.isoformat(),
+                "updated_at": invoice.updated_at.isoformat(),
+            }
+        )
+
+        # Update and save the latest credit transaction with the updated metadata
+        latest_credit_transaction.metadata = metadata
+        latest_credit_transaction.save()
+
         TransactionHistory.objects.create(
             invoice=invoice,
             metadata={"invoices": [invoice.code]},

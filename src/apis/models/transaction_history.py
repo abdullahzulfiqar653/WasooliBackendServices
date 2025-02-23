@@ -159,6 +159,7 @@ class TransactionHistory(BaseModel):
         super().save(*args, **kwargs)
 
     class Meta:
+        get_latest_by = "created_at"
         indexes = [
             models.Index(
                 fields=[

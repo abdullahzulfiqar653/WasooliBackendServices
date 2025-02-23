@@ -7,10 +7,9 @@ from django.db.models import (
     Case,
     When,
     Value,
-    Prefetch,
-    DecimalField,
     Subquery,
     OuterRef,
+    DecimalField,
 )
 
 from apis.models.member_role import RoleChoices
