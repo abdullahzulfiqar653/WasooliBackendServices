@@ -51,11 +51,11 @@ class TestMerchantRetrieve(TestCase):
         # Create a MerchantMember with a primary phone number
 
         data = {
-            "user": {"email": "test@gmail.com", "first_name": "testuser"},
+            "user": {"email": "test4321@gmail.com", "first_name": "testuser"},
             "cnic": "3130325676738",  # Correct CNIC
             "roles": {"role": "Customer"},  # Ensure 'member' is a valid choice
             "picture": "string",
-            "primary_phone": "2378478342",  # Correct phone number
+            "primary_phone": "3098765455",  # Correct phone number
             "merchant_memberships": {
                 "area": "test-area",
                 "city": "test_city",
@@ -65,14 +65,13 @@ class TestMerchantRetrieve(TestCase):
                 "meta_data": "string",
                 "is_monthly": True,
                 "actual_price": "276",  # Corrected to a positive value
-                "secondary_phone": "2318478342",  # Correct phone number
+                "secondary_phone": "3098767877",  # Correct phone number
                 "discounted_price": "245.70",  # Corrected to a positive value
             },
         }
         url = f"/api/merchants/{self.merchant.id}/members/"
 
         response = self.client.post(url, data, format="json")
-        print("hdfjksdbfkjdsfk", response.data)
 
         primary_phone = response.data.get("primary_phone")
 
@@ -84,11 +83,11 @@ class TestMerchantRetrieve(TestCase):
 
         # Check if the response status is OK
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Check if the response contains the correct phone number
-        self.assertEqual(response.data["primary_phone"], "2378478342")
+
+        self.assertEqual(response.data["primary_phone"], "3098765455")
 
     def test_member_retrieve_by_phone_invalid(self):
-        # Trying to retrieve a member with a non-existent phone number
+
         url = f"/api/merchants/{self.merchant.id}/members/9999999999/"
         response = self.client.get(url)
 

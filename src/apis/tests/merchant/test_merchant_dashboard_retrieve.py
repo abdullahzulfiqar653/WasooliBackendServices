@@ -38,7 +38,7 @@ class TestMerchantDashboardRetrieve(APITestCase):
             owner=self.user,
         )
 
-        # ✅ Create MerchantMembership and link to Merchant
+        # Create MerchantMembership and link to Merchant
         self.merchant_membership = MerchantMember.objects.create(
             user=self.user,
             merchant=self.merchant,
@@ -46,7 +46,7 @@ class TestMerchantDashboardRetrieve(APITestCase):
             code="1001",
         )
 
-        # ✅ Now assign the membership properly
+        #  Now assign the membership properly
         self.merchant.membership = self.merchant_membership
         self.merchant.save()
 
@@ -65,7 +65,6 @@ class TestMerchantDashboardRetrieve(APITestCase):
 
     def test_dashboard_access_unauthorized_user(self):
         """Test that a user cannot access another merchant's dashboard"""
-        # Create another unauthorized user
         other_user = User.objects.create_user(
             email="unauthorized@gmail.com",
             password="testpassword",
@@ -128,14 +127,14 @@ class TestMerchantDashboardRetrieve(APITestCase):
     def test_dashboard_access_unauthenticated_user(self):
         """Test that an unauthenticated user cannot access the merchant dashboard"""
 
-        # ✅ Ensure no user is authenticated
+        #  Ensure no user is authenticated
         self.client.logout()
 
         # Attempt to access the merchant's dashboard
         url = f"/api/merchants/{self.merchant.id}/dashboard/"
         response = self.client.get(url)
 
-        # ✅ Assertions
+        #  Assertions
         self.assertEqual(
             response.status_code, status.HTTP_401_UNAUTHORIZED
         )  # Must return 401 Unauthorized
@@ -173,20 +172,19 @@ class TestMerchantDashboardRetrieve(APITestCase):
     def test_dashboard_with_transactions(self):
         """Test that the dashboard API correctly calculates total collections when transactions exist"""
 
-        # ✅ Ensure no duplicate user error
+        # Ensure no duplicate user error
         User.objects.filter(username="testuser").delete()
         User.objects.filter(username="testuser_owner").delete()
 
-        # ✅ Create test users
+        #  Create test users
         test_owner = User.objects.create(username="testuser_owner")
         user = User.objects.create(username="testuser")
 
-        # ✅ Authenticate as test_owner
+        # Authenticate as test_owner
         self.client.force_authenticate(user=test_owner)
 
-        # ✅ Create a merchant owned by test_owner
+        # Create a merchant owned by test_owner
         merchant = Merchant.objects.create(name="Test Merchant", owner=test_owner)
-
 
         member = MerchantMember.objects.create(merchant=merchant, user=user)
 
@@ -213,10 +211,11 @@ class TestMerchantDashboardRetrieve(APITestCase):
             credit=700,
             transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
             type=TransactionHistory.TYPES.BILLING,
-            created_at=timezone.now().date(),  # Set to the same past date
+            created_at=timezone.now(),
         )
 
         # ✅ Call the dashboard API
+
         url = f"/api/merchants/{merchant.id}/dashboard/"
         response = self.client.get(url)
         response_data = response.json()

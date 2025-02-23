@@ -15,7 +15,7 @@ class TestMerchantListCreate(TestCase):
 
         # Create a test user
         self.user = User.objects.create_user(
-            email="fiza13270@gmail.com", password="testpassword", username="fiza13270"
+            email="test5432@gmail.com", password="testpassword", username="test5432"
         )
 
         # Create a merchant
@@ -36,7 +36,7 @@ class TestMerchantListCreate(TestCase):
         self.merchant_membership = MerchantMember.objects.create(
             user=self.user,
             merchant=self.merchant,
-            primary_phone="3186531138",
+            primary_phone="3567654432",
             code="1001",
         )
 
@@ -663,7 +663,6 @@ class TestMerchantListCreate(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data["results"]), 1)
-        print("respinse of customer", response.data)
 
         emails = {user["user"]["email"] for user in response.data["results"]}
         self.assertIn("customer@example.com", emails)
@@ -671,7 +670,6 @@ class TestMerchantListCreate(TestCase):
 
         # Filter members by role 'Staff'
         response = self.client.get(f"{url}?role=Staff", format="json")
-        print("respinse of staff", response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data["results"]), 1)
         emails = {user["user"]["email"] for user in response.data["results"]}
@@ -706,7 +704,7 @@ class TestMerchantListCreate(TestCase):
 
         # Filter members by first name
         response = self.client.get(f"{url}?user__first_name=SearchUser", format="json")
-       
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data["results"]), 1)
 
