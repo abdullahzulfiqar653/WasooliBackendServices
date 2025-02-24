@@ -41,19 +41,23 @@ This API retrieves the profile details of a customer based on the provided **cus
 ---
 
 #### **Request Parameters**
-| Parameter     | Required | Description |
-|---------------|----------|-------------|
-| `customer_code`| ✅ Yes | The unique customer code identifying the customer. |
+| Parameter      | Required | Description |
+|----------------|----------|-------------|
+| `customer_code`| ✅ Yes   | The unique customer code identifying the customer. |
+| `merchant ID`  | ✅ Yes   | The unique identifier for the each merchant. |
 
 ---
-
 #### **Response Body**
-The response contains the full profile details of the customer including :-
-- `total spend `
+The response contains a dictionary where each key represents a different card type.
 
-- `remaining balance`
+- **total_spend**: Total amount spent by the customer.
+- **total_remaining**: Remaining balance available.
+- **total_saved**: Total amount saved by the customer.
+- **supply_balance**: The supply balance.
 
-- `savings`
+Each of these fields contains a dictionary with following key, value pairs:
+- **value**: integer value for that card.
+- **name**:  Name to Display for that card.
 """,
         responses={200: MemberProfileSerializer},
     )
