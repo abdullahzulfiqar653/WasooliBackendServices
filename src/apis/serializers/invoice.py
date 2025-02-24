@@ -122,7 +122,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             previous_invoice_state = metadata.get("previous_invoice_state", [])
             previous_invoice_state.append(
                 {
-                    "invoice_id": invoice.id,
+                    "id": invoice.id,
                     "status": Invoice.STATUS.UNPAID,
                     "due_amount": str(invoice.total_amount),
                 }
