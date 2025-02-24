@@ -113,6 +113,17 @@ class TransactionHistory(BaseModel):
         )
         remaining_payment = payment_amount
         paid_invoices = []
+        previous_invoice_state = []
+        # Save the previous state of the invoices
+        for invoice in invoices:
+            previous_invoice_state.append(
+                {
+                    "id": invoice.id,
+                    "status": invoice.status,
+                    "due_amount": str(invoice.due_amount),
+                }
+            )
+
         for invoice in invoices:
             if remaining_payment >= invoice.due_amount:
                 remaining_payment -= invoice.due_amount
@@ -145,8 +156,38 @@ class TransactionHistory(BaseModel):
                     }
                 )
                 break
-        self.metadata = {"invoices": paid_invoices, "created_by": created_by}
+        self.metadata = {
+            "created_by": created_by,
+            "invoices": paid_invoices,
+            "previous_invoice_state": previous_invoice_state,
+        }
         self.save()
+
+    def revert_transaction(self):
+        # Retrieve the previous state from metadata
+        previous_invoice_state = self.metadata.get("previous_invoice_state", [])
+
+        # Prepare a list to hold the invoices that need to be updated
+        invoices_to_update = []
+
+        # Collect the invoices based on their ids
+        invoice_ids = [invoice["id"] for invoice in previous_invoice_state]
+        invoices = Invoice.objects.filter(id__in=invoice_ids).order_by("created_at")
+
+        # Iterate through the invoices and update the status and due_amount
+        for invoice, invoice_data in zip(invoices, previous_invoice_state):
+            invoice.status = invoice_data["status"]
+            invoice.due_amount = invoice_data["due_amount"]
+            invoices_to_update.append(invoice)
+
+        # Perform a bulk update on the invoices
+        if invoices_to_update:
+            Invoice.objects.bulk_update(
+                invoices_to_update, fields=["status", "due_amount"]
+            )
+
+        # Delete the current transaction object
+        self.delete()  # This will delete the current transaction history record
 
     def save(self, *args, **kwargs):
         billing = self.type == self.TYPES.BILLING

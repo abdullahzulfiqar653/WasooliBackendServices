@@ -27,6 +27,8 @@ from apis.views.public import (
     PublicCustomerProfileRetrieveAPIView,
 )
 
+from apis.views.transaction_history import TransactionHistoryUpdateAPIView
+
 __all__ = [
     "OTPView",
     "LookupListAPIView",
@@ -39,6 +41,7 @@ __all__ = [
     "PublicMemberInvoiceListAPIView",
     "MemberInvoiceListCreateAPIView",
     "MerchantMemberListCreateAPIView",
+    "TransactionHistoryUpdateAPIView",
     "MerchantDashboardRetrieveAPIView",
     "MemberRetrieveUpdateDestroyAPIView",
     "MemberSupplyRecordListCreateAPIView",

@@ -48,3 +48,7 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
         transaction = super().create(validated_data)
         transaction.apply_payment(amount, request.user.first_name)
         return transaction
+
+    def update(self, instance, validated_data):
+        instance.revert_transaction()  # This deletes the instance as well
+        return self.create(validated_data)

@@ -11,6 +11,7 @@ from apis.views import (
     MemberProfileRetrieveAPIView,
     PublicMemberInvoiceListAPIView,
     MemberInvoiceListCreateAPIView,
+    TransactionHistoryUpdateAPIView,
     MerchantMemberListCreateAPIView,
     MerchantDashboardRetrieveAPIView,
     MemberRetrieveUpdateDestroyAPIView,
@@ -87,6 +88,14 @@ urlpatterns = [
         "invoices/<str:pk>/",
         InvoiceRetrieveUpdateAPIView.as_view(),
         name="invoice-retrieve-update",
+    ),
+    # =====================================================
+    # Transaction-History
+    # =====================================================
+    path(
+        "transaction-history/<str:pk>/",
+        TransactionHistoryUpdateAPIView.as_view(),
+        name="transaction-history-update",
     ),
     # =====================================================
     # Public
