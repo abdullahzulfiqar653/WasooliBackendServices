@@ -15,13 +15,13 @@ You can clone the repository using either HTTPS or SSH:
 #### **_HTTPS:_**
 
 ```bash
-git clone https://github.com/abdullahzulfiqar653/SimpleBoilerplateDjango.git
+git clone https://github.com/abdullahzulfiqar653/WasooliBackendServices.git
 ```
 
 #### **_SSH:_**
 
 ```bash
-git clone git@github.com:abdullahzulfiqar653/SimpleBoilerplateDjango.git
+git clone git@github.com:abdullahzulfiqar653/WasooliBackendServices.git
 ```
 
 ---
@@ -57,7 +57,7 @@ pip3 install poetry
 ### **Step 3: Set Up the Environment and Install Dependencies**
 
 1. **Install Packages:**
-   Open a terminal in the `SimpleBoilerplateDjango` directory and run the following command to create a virtual environment and install the required dependencies:
+   Open a terminal in the `WasooliBackendServices` directory and run the following command to create a virtual environment and install the required dependencies:
 
    ```bash
    poetry install
@@ -74,13 +74,13 @@ pip3 install poetry
 
 ### **Step 4: Configure Environment Variables**
 
-Create a `.env` file in the main source directory (at the same level as `manage.py` and `.env.example`). Use `.env.example` as a reference to set up all the required environment variables.
+Create a `.env` file in the main source directory (at the same level as `.env.example`). Use `.env.example` as a reference to set up all the required environment variables.
 
 ---
 
 ### **Step 5: Run the Application**
 
-Make sure the virtual environment is activated and that you are in the `SimpleBoilerplateDjango` directory. Start the Django development server using this command:
+Make sure the virtual environment is activated and that you are in the `WasooliBackendServices` directory. Start the Django development server using this command:
 
 ```bash
 python manage.py runserver
