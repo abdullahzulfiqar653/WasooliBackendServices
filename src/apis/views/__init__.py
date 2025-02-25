@@ -19,8 +19,8 @@ from apis.views.refresh_token import RefreshTokenAPIView
 from apis.views.access_info import AccessInfoRetrieveAPIView
 from apis.views.presigned_url import PreSignedUrlCreateAPIView
 
+from apis.views.Push_notifications import UpdatePushNotificationID
 from apis.views.invoice import InvoiceRetrieveUpdateAPIView
-
 from apis.views.public import (
     PublicMemberInvoiceListAPIView,
     PublicMembershipMerchantsListAPIView,
@@ -31,6 +31,7 @@ __all__ = [
     "OTPView",
     "LookupListAPIView",
     "RefreshTokenAPIView",
+    "UpdatePushNotificationID",
     "AccessInfoRetrieveAPIView",
     "PreSignedUrlCreateAPIView",
     "MemberProfileRetrieveAPIView",

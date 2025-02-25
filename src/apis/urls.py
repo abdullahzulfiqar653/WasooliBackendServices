@@ -18,6 +18,7 @@ from apis.views import (
     PublicMembershipMerchantsListAPIView,
     PublicCustomerProfileRetrieveAPIView,
     MemberTransactionHistoryListCreateAPIView,
+    UpdatePushNotificationID
 )
 
 
@@ -110,4 +111,9 @@ urlpatterns = [
     # Lookups
     # =====================================================
     path("lookup/<str:flag>/", LookupListAPIView.as_view(), name="lookup-list"),
+
+    #==========================================
+    #push notifications
+    #==========================================
+    path("update-push-id/", UpdatePushNotificationID.as_view(), name="update-push-id"),
 ]
