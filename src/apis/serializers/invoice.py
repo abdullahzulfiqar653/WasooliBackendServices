@@ -8,7 +8,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
     mark_paid = serializers.BooleanField(
         write_only=True, required=False, allow_null=True
     )
-    settlement = serializers.BooleanField(
+    is_cancel = serializers.BooleanField(
         write_only=True, required=False, allow_null=True
     )
 
@@ -21,7 +21,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             "member",
             "due_date",
             "mark_paid",
-            "settlement",
+            "is_cancel",
             "is_monthly",
             "handled_by",
             "due_amount",
@@ -155,7 +155,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         request = self.context.get("request")
         mark_paid = validated_data.pop("mark_paid", False)
-        settlement = validated_data.pop("settlement", False)
+        is_cancel = validated_data.pop("is_cancel", False)
         new_amount = validated_data.get("total_amount")
 
         if instance.status == Invoice.STATUS.PAID:
@@ -177,7 +177,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             instance.save()
             return instance
 
-        if settlement and instance.due_amount > 0:
+        if is_cancel and instance.due_amount > 0:
             TransactionHistory.objects.create(
                 invoice=instance,
                 metadata={"invoices": [instance.code]},
@@ -187,7 +187,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
                 type=TransactionHistory.TYPES.BILLING,
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
             )
-            instance.status = Invoice.STATUS.SETTLLED
+            instance.status = Invoice.STATUS.CANCELLED
             instance.due_amount = Decimal(0)
             instance.save()
             return instance
