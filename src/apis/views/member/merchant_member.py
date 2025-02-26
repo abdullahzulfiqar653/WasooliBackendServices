@@ -83,8 +83,19 @@ This endpoint deletes a merchant member.
 
 
 class MembershipStatusUpdateApiView(generics.UpdateAPIView):
+    """
+    This endpoint mark the user as active or  inactive.
+
+    **The payload will include the following fields:**
+    - is_active: you can pass true or false to make member active or inactive.
+
+    """
+
     serializer_class = MembershipStatusChangeSerializer
     permission_classes = [IsMerchantOrStaff]
 
     def get_object(self):
         return self.request.membership
+
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
