@@ -6,7 +6,7 @@ from apis.models.merchant_member import MerchantMember
 from apis.permissions import IsMerchantOrStaff
 
 from apis.serializers.merchant_member import MerchantMemberSerializer
-from apis.serializers.membership_toggle import MembershipToggleSerializer
+from apis.serializers.membership_status_change import MembershipStatusChangeSerializer
 
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -82,8 +82,8 @@ This endpoint deletes a merchant member.
         return super().delete(request, *args, **kwargs)
 
 
-class MembershipToggleUpdateApiView(generics.UpdateAPIView):
-    serializer_class = MembershipToggleSerializer
+class MembershipStatusUpdateApiView(generics.UpdateAPIView):
+    serializer_class = MembershipStatusChangeSerializer
     permission_classes = [IsMerchantOrStaff]
 
     def get_object(self):

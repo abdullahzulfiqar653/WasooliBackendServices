@@ -8,8 +8,8 @@ from apis.views.merchant import (
 )
 
 from apis.views.member import (
-    MembershipToggleUpdateApiView,
     MemberProfileRetrieveAPIView,
+    MembershipStatusUpdateApiView,
     MemberInvoiceListCreateAPIView,
     MemberRetrieveUpdateDestroyAPIView,
     MemberSupplyRecordListCreateAPIView,
@@ -37,10 +37,10 @@ __all__ = [
     "AccessInfoRetrieveAPIView",
     "PreSignedUrlCreateAPIView",
     "MemberProfileRetrieveAPIView",
-    "MembershipToggleUpdateApiView"
     "InvoiceRetrieveUpdateAPIView",
     "MemberRetrieveByPhoneAPIView",
     "PublicMemberInvoiceListAPIView",
+    "MembershipStatusUpdateApiView",
     "MemberInvoiceListCreateAPIView",
     "MerchantMemberListCreateAPIView",
     "TransactionHistoryUpdateAPIView",
