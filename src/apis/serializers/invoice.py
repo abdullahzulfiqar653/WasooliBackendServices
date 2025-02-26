@@ -8,6 +8,9 @@ class InvoiceSerializer(serializers.ModelSerializer):
     mark_paid = serializers.BooleanField(
         write_only=True, required=False, allow_null=True
     )
+    settlement = serializers.BooleanField(
+        write_only=True, required=False, allow_null=True
+    )
 
     class Meta:
         model = Invoice
@@ -18,6 +21,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             "member",
             "due_date",
             "mark_paid",
+            "settlement",
             "is_monthly",
             "handled_by",
             "due_amount",
@@ -34,7 +38,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
     def validate_total_amount(self, value):
         if value:
             if value <= 0:
-                raise serializers.ValidationError("Amount cannot be 0 or less then 0.")
+                raise serializers.ValidationError("Amount must be greater than zero.")
         return value
 
     def validate_mark_paid(self, value):
@@ -151,7 +155,12 @@ class InvoiceSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         request = self.context.get("request")
         mark_paid = validated_data.pop("mark_paid", False)
+        settlement = validated_data.pop("settlement", False)
         new_amount = validated_data.get("total_amount")
+
+        if instance.status == Invoice.STATUS.PAID:
+            raise serializers.ValidationError({"detail": "Invoice is already paid."})
+
         if mark_paid:
             TransactionHistory.objects.create(
                 invoice=instance,
@@ -167,8 +176,22 @@ class InvoiceSerializer(serializers.ModelSerializer):
             instance.handled_by = request.membership.member
             instance.save()
             return instance
-        if instance.status == Invoice.STATUS.PAID:
-            raise serializers.ValidationError({"detail": "Invoice is already paid."})
+
+        if settlement and instance.due_amount > 0:
+            TransactionHistory.objects.create(
+                invoice=instance,
+                metadata={"invoices": [instance.code]},
+                merchant_membership=request.membership,
+                is_online=False,
+                credit=instance.due_amount,
+                type=TransactionHistory.TYPES.BILLING,
+                transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
+            )
+            instance.status = Invoice.STATUS.SETTLLED
+            instance.due_amount = Decimal(0)
+            instance.save()
+            return instance
+
         if new_amount and not instance.total_amount == new_amount:
             metadata = validated_data.get("metadata", {})
             if self.instance.total_amount > new_amount:
