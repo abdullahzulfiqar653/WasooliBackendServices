@@ -26,6 +26,7 @@ from apis.views.public import (
     PublicMembershipMerchantsListAPIView,
     PublicCustomerProfileRetrieveAPIView,
 )
+from apis.views.member.member_status import MembershipstatusAPIView
 
 __all__ = [
     "OTPView",
@@ -46,4 +47,5 @@ __all__ = [
     "PublicMembershipMerchantsListAPIView",
     "PublicCustomerProfileRetrieveAPIView",
     "MemberTransactionHistoryListCreateAPIView",
+    "MembershipstatusAPIView",
 ]

@@ -4,6 +4,8 @@ from apis.views import (
     OTPView,
     LookupListAPIView,
     RefreshTokenAPIView,
+    MembershipstatusAPIView,
+    UpdatePushNotificationID,
     AccessInfoRetrieveAPIView,
     PreSignedUrlCreateAPIView,
     MemberRetrieveByPhoneAPIView,
@@ -18,7 +20,6 @@ from apis.views import (
     PublicMembershipMerchantsListAPIView,
     PublicCustomerProfileRetrieveAPIView,
     MemberTransactionHistoryListCreateAPIView,
-    UpdatePushNotificationID
 )
 
 
@@ -81,6 +82,7 @@ urlpatterns = [
         MemberProfileRetrieveAPIView.as_view(),
         name="member-profile-retrieve",
     ),
+     path("members/<str:member_id>/activate/", MembershipstatusAPIView.as_view(), name="membership-activate"),
     # =====================================================
     # Invoice
     # =====================================================
@@ -116,4 +118,5 @@ urlpatterns = [
     #push notifications
     #==========================================
     path("update-push-id/", UpdatePushNotificationID.as_view(), name="update-push-id"),
+    
 ]
