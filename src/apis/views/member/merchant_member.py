@@ -2,10 +2,13 @@ from rest_framework import generics
 
 from apis.models.member_role import RoleChoices
 from apis.models.merchant_member import MerchantMember
+from apis.models.merchant_membership import MerchantMembership
 
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
+from apis.serializers.mark_member_active_serializer import MerchantMembershipSerializer
 
+from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
@@ -78,3 +81,12 @@ This endpoint deletes a merchant member.
     )
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
+
+
+class MermberStatusUpdateView(generics.UpdateAPIView):
+    serializer_class = MerchantMembershipSerializer
+    permission_classes = [IsMerchantOrStaff]
+
+    def get_object(self):
+        member_id = self.kwargs.get("member_id")
+        return get_object_or_404(MerchantMembership, member_id=member_id)

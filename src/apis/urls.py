@@ -1,4 +1,5 @@
 from django.urls import path, include
+from apis.views.member.merchant_member import MermberStatusUpdateView
 
 from apis.views import (
     OTPView,
@@ -8,6 +9,7 @@ from apis.views import (
     PreSignedUrlCreateAPIView,
     MemberRetrieveByPhoneAPIView,
     InvoiceRetrieveUpdateAPIView,
+    MermberStatusUpdateView,
     MemberProfileRetrieveAPIView,
     PublicMemberInvoiceListAPIView,
     MemberInvoiceListCreateAPIView,
@@ -80,6 +82,11 @@ urlpatterns = [
         "members/<str:member_id>/profile/",
         MemberProfileRetrieveAPIView.as_view(),
         name="member-profile-retrieve",
+    ),
+    path(
+        "members/<str:member_id>/mark-active/",
+        MermberStatusUpdateView.as_view(),
+        name="mark-member-active",
     ),
     # =====================================================
     # Invoice
