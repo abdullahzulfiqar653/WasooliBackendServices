@@ -7,6 +7,7 @@ from apis.models.abstract.base import BaseModel
 
 class Invoice(BaseModel):
     class STATUS(models.TextChoices):
+        SETTLLED = "setl", "Setl"
         PAID = "paid", "Paid"
         UNPAID = "unpaid", "Unpaid"
 
