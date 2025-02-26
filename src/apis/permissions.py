@@ -99,6 +99,23 @@ class IsMerchantOrStaff(permissions.BasePermission):
                         request.merchant = merchant
                 merchant = request.merchant
 
+            case str(s) if s.startswith("/api/transaction-history/"):
+                if not hasattr(request, "transaction-history"):
+                    TransactionHistory = apps.get_model("apis", "TransactionHistory")
+                    transaction_id = view.kwargs.get("pk") or view.kwargs.get(
+                        "transaction_id"
+                    )
+                    merchant = self.get_request_merchant(request)
+                    queryset = TransactionHistory.objects.all()
+                    transaction = self.get_instance(queryset, transaction_id)
+                    member_id = transaction.merchant_membership.member.id
+                    queryset = merchant.members.all()
+                    membership = self.get_instance(queryset, member_id, "member_id")
+                    if membership:
+                        request.membership = membership
+                        request.merchant = merchant
+                merchant = request.merchant
+
             case str(s) if s.startswith("/api/auth/"):
                 if not hasattr(request, "merchant"):
                     request.merchant = self.get_request_merchant(request)

@@ -52,7 +52,8 @@ class Invoice(BaseModel):
             last_code = Invoice.objects.aggregate(Max("code"))["code__max"]
             self.code = str(int(last_code) + 1) if last_code else "10000000"
         if self._state.adding:
-            self.due_amount = self.total_amount
+            if not (self.status == "paid" or self.due_amount):
+                self.due_amount = self.total_amount
         super().save(*args, **kwargs)
 
     class Meta:

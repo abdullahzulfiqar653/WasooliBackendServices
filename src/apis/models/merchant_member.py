@@ -16,6 +16,7 @@ class MerchantMember(BaseModel):
 
     cnic = models.CharField(max_length=13, null=True, blank=True)
     picture = models.CharField(max_length=256, blank=True, null=True)
+    push_notification_id = models.CharField(max_length=56, blank=True, null=True)
     primary_phone = models.CharField(
         max_length=10, verbose_name="Primary Phone", unique=True
     )
@@ -36,6 +37,21 @@ class MerchantMember(BaseModel):
             models.Index(fields=["merchant"]),
             models.Index(fields=["-created_at"]),
             models.Index(fields=["primary_phone"]),
+        ]
+        permissions = [
+            # Staff permissions
+            ("add_staff", "Can add staff"),
+            ("view_staff", "Can view staff"),
+            ("change_staff", "Can change staff"),
+            # Customer permissions
+            ("add_customers", "Can add customers"),
+            ("view_customers", "Can view customers"),
+            ("change_customers", "Can change customers"),
+            # Excel Download permissions
+            ("view_pdf", "Can download PDF"),
+            ("view_excel", "Can download Excel"),
+            # Dashboard
+            ("view_dashboard", "Can view dashboard"),
         ]
 
     def __str__(self):

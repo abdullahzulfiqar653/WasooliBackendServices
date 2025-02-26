@@ -52,9 +52,11 @@ This API retrieves all invoices associated with a member based on their customer
 It returns a list of invoices sorted by the creation date.
 
 ---
+#### **Request Parameter**
 
-#### **Request Body**
-The `customer code` is required as a query parameter to retrieve the invoices for the member.
+| Parameter       | Description |
+|-----------------|-------------|
+| `customer code` | A query parameter used to retrieve the invoices for a specific member. It serves as a unique identifier for each customer, allowing the system to fetch their invoices efficiently. |
 
 ---
 

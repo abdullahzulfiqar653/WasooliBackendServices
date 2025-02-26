@@ -16,6 +16,7 @@ class MemberInvoiceListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsMerchantOrStaff]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     filterset_class = InvoiceFilter
+    pagination_class = None
 
     def get_queryset(self):
         return self.request.member.invoices.all().order_by("-created_at")

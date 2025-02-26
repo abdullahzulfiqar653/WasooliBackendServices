@@ -90,7 +90,10 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Wasooli.Online",
-    "DESCRIPTION": "",
+    "DESCRIPTION": """ 
+- All secure endpoints, except public ones, can only be accessed by staff and merchants.  
+- Customers do not have access to these endpoints.  
+    """,
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": "/api/",
