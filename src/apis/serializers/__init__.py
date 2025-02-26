@@ -13,6 +13,9 @@ from apis.serializers.membership_merchant import MembershipMerchantSerializer
 from apis.serializers.merchant_membership import MerchantMembershipSerializer
 from apis.serializers.transaction_history import TransactionHistorySerializer
 from apis.serializers.fake_invoice_serializer import FakeInvoiceSerializer
+from apis.serializers.push_notifications import (
+    MerchantMemberPushNotifcationIDSerializer,
+)
 
 __all__ = [
     "UserSerializer",
@@ -30,4 +33,5 @@ __all__ = [
     "MerchantMembershipSerializer",
     "PreSignedUrlSerializer",
     "FakeInvoiceSerializer",
+    "MerchantMemberPushNotifcationIDSerializer",
 ]
