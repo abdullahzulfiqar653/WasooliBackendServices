@@ -38,7 +38,7 @@ This API allows merchants or staff to update invoice details for `Members`.
 | `mark_paid`    | ✅ Yes     | If `mark_paid` is set to `true`, the invoice will be marked as `paid` and all other fields will be ignored,  |
 | `total_amount` | ✅ Yes                 | To update the total_amount, `mark_paid` must be set to false. .if total_amount is sent then it requires meta data field to be sent as well|
 | `metadata`(`dictionary`)     | ✅ Yes   | The metadata field is mandatory when updating the total_amount. It must include a `remarks` attribute explaining why the amount is being changed. |
-| `settlement` | ✅ Yes | If `settlement` is set to `true`, the invoice will be marked as `settled`, and any remaining due amount will be cleared. |
+| `is_cancel` | ✅ Yes | If `is_cancel` is set to `true`, the invoice will be marked as `cancelled`, and any remaining due amount will be cleared. |
 
 """,
         responses={200: InvoiceSerializer()},
