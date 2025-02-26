@@ -3,6 +3,7 @@ from apis.serializers.lookup import LookupSerializer
 from apis.serializers.invoice import InvoiceSerializer
 from apis.serializers.access_info import AccessInfoSerializer
 from apis.serializers.member_role import MemberRoleSerializer
+from apis.serializers.csv_file_upload import CSVUploadSerializer
 from apis.serializers.refresh_token import RefreshTokenSerializer
 from apis.serializers.supply_record import SupplyRecordSerializer
 from apis.serializers.presigned_url import PreSignedUrlSerializer
@@ -13,11 +14,11 @@ from apis.serializers.membership_merchant import MembershipMerchantSerializer
 from apis.serializers.merchant_membership import MerchantMembershipSerializer
 from apis.serializers.transaction_history import TransactionHistorySerializer
 from apis.serializers.fake_invoice_serializer import FakeInvoiceSerializer
-
 __all__ = [
     "UserSerializer",
     "LookupSerializer",
     "InvoiceSerializer",
+    "CSVUploadSerializer",
     "AccessInfoSerializer",
     "MemberRoleSerializer",
     "SupplyRecordSerializer",

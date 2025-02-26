@@ -19,10 +19,12 @@ from apis.views import (
     PublicMembershipMerchantsListAPIView,
     PublicCustomerProfileRetrieveAPIView,
     MemberTransactionHistoryListCreateAPIView,
+    MerchantMemberCSVUploadView,
 )
 
 
 urlpatterns = [
+    path("merchants/<str:merchant_id>/upload-csv/", MerchantMemberCSVUploadView.as_view(), name="upload-csv"),
     # =====================================================
     # Auth
     # =====================================================

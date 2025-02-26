@@ -6,7 +6,6 @@ from apis.views.merchant import (
     MerchantMemberListCreateAPIView,
     MerchantDashboardRetrieveAPIView,
 )
-
 from apis.views.member import (
     MemberProfileRetrieveAPIView,
     MemberInvoiceListCreateAPIView,
@@ -17,10 +16,11 @@ from apis.views.member import (
 
 from apis.views.refresh_token import RefreshTokenAPIView
 from apis.views.access_info import AccessInfoRetrieveAPIView
-from apis.views.presigned_url import PreSignedUrlCreateAPIView
+from apis.views.import_user import MerchantMemberCSVUploadView
 
 from apis.views.invoice import InvoiceRetrieveUpdateAPIView
 
+from apis.views.presigned_url import PreSignedUrlCreateAPIView
 from apis.views.public import (
     PublicMemberInvoiceListAPIView,
     PublicMembershipMerchantsListAPIView,
@@ -48,4 +48,5 @@ __all__ = [
     "PublicMembershipMerchantsListAPIView",
     "PublicCustomerProfileRetrieveAPIView",
     "MemberTransactionHistoryListCreateAPIView",
+    "MerchantMemberCSVUploadView",
 ]
