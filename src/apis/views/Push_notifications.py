@@ -1,33 +1,14 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.generics import UpdateAPIView
 from apis.models.merchant_member import MerchantMember
-from apis.serializers import MerchantMemberpsuhSerializer
+from apis.serializers.push_notifications import (
+    MerchantMemberPushNotifcationIDSerializer,
+)
 
-class UpdatePushNotificationID(APIView):
-    serializer_class=MerchantMemberpsuhSerializer
-    def post(self, request):
-        user = request.user
-        push_notification_id = request.data.get("push_notification_id")
 
-        if not push_notification_id:
-            return Response(
-                {"error": "Push notification ID is required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+class UpdatePushNotificationID(UpdateAPIView):
+    serializer_class = MerchantMemberPushNotifcationIDSerializer
 
-        try:
-            merchant_member = MerchantMember.objects.get(user=user)
-            merchant_member.push_notification_id = push_notification_id
-            merchant_member.save()
+    def get_object(self):
+        merchant_member = MerchantMember.objects.get(user=self.request.user)
+        return merchant_member
 
-            return Response(
-                {"message": "Push notification ID updated successfully"},
-                status=status.HTTP_200_OK
-            )
-
-        except MerchantMember.DoesNotExist:
-            return Response(
-                {"error": "MerchantMember not found"},
-                status=status.HTTP_404_NOT_FOUND
-            )
