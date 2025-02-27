@@ -4,7 +4,9 @@ from apis.models.member_role import RoleChoices
 from apis.models.merchant_member import MerchantMember
 
 from apis.permissions import IsMerchantOrStaff
+
 from apis.serializers.merchant_member import MerchantMemberSerializer
+from apis.serializers.membership_status_change import MembershipStatusChangeSerializer
 
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -78,3 +80,19 @@ This endpoint deletes a merchant member.
     )
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
+
+
+class MembershipStatusUpdateApiView(generics.UpdateAPIView):
+    """
+    This endpoint mark the user as active or  inactive.
+
+    **The payload will include the following fields:**
+    - is_active: you can pass true or false to make member active or inactive.
+
+    """
+
+    serializer_class = MembershipStatusChangeSerializer
+    permission_classes = [IsMerchantOrStaff]
+
+    def get_object(self):
+        return self.request.membership
