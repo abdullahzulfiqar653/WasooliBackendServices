@@ -9,6 +9,7 @@ from apis.views import (
     MemberRetrieveByPhoneAPIView,
     InvoiceRetrieveUpdateAPIView,
     MemberProfileRetrieveAPIView,
+    MembershipStatusUpdateApiView,
     PublicMemberInvoiceListAPIView,
     MemberInvoiceListCreateAPIView,
     TransactionHistoryUpdateAPIView,
@@ -80,6 +81,11 @@ urlpatterns = [
         "members/<str:member_id>/profile/",
         MemberProfileRetrieveAPIView.as_view(),
         name="member-profile-retrieve",
+    ),
+    path(
+        "members/<str:member_id>/status/",
+        MembershipStatusUpdateApiView.as_view(),
+        name="membership-status-update",
     ),
     # =====================================================
     # Invoice
