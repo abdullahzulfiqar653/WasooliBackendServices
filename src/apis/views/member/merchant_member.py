@@ -96,6 +96,3 @@ class MembershipStatusUpdateApiView(generics.UpdateAPIView):
 
     def get_object(self):
         return self.request.membership
-
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
