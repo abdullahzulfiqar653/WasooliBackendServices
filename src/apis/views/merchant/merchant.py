@@ -241,11 +241,13 @@ class MerchantFooterRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
                 "content": {
                     "application/json": {
                         "example": {
-                            "metadata": [
-                                {"key": "phone", "value": "3103987654"},
-                                {"key": "address", "value": "ghulshan usman"},
-                                {"key": "note", "value": "We are open 24/7"},
-                            ]
+                            "metadata": {
+                                "footer": {
+                                    "phone": "3103987654",
+                                    "address": "Gulshan Usman",
+                                    "note": "We are open 24/7",
+                                }
+                            }
                         }
                     }
                 },
@@ -256,15 +258,17 @@ class MerchantFooterRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         return super().get(request, *args, **kwargs)
 
     @extend_schema(
-        description="Update the footer metadata of the merchant with multiple key-value pairs.",
+        description="Update the footer metadata of the merchant with key-value pairs.",
         request={
             "application/json": {
                 "example": {
-                    "metadata": [
-                        {"key": "phone", "value": "3103987654"},
-                        {"key": "address", "value": "ghulshan usman"},
-                        {"key": "note", "value": "We are open 24/7"},
-                    ]
+                    "metadata": {
+                        "footer": {
+                            "phone": "3103987654",
+                            "address": "Gulshan Usman",
+                            "note": "We are open 24/7",
+                        }
+                    }
                 }
             }
         },
@@ -274,11 +278,13 @@ class MerchantFooterRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
                 "content": {
                     "application/json": {
                         "example": {
-                            "metadata": [
-                                {"key": "phone", "value": "3103987654"},
-                                {"key": "address", "value": "ghulshan usman"},
-                                {"key": "note", "value": "We are open 24/7"},
-                            ]
+                            "metadata": {
+                                "footer": {
+                                    "phone": "3103987654",
+                                    "address": "Gulshan Usman",
+                                    "note": "We are open 24/7",
+                                }
+                            }
                         }
                     }
                 },
