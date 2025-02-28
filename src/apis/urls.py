@@ -20,6 +20,7 @@ from apis.views import (
     PublicMembershipMerchantsListAPIView,
     PublicCustomerProfileRetrieveAPIView,
     MemberTransactionHistoryListCreateAPIView,
+    MerchantFooterRetrieveUpdateAPIView,
 )
 
 
@@ -53,6 +54,11 @@ urlpatterns = [
         "merchants/<str:merchant_id>/members/<str:phone>/",
         MemberRetrieveByPhoneAPIView.as_view(),
         name="merchant-member-retrieve",
+    ),
+    path(
+        "merchants/<str:merchant_id>/footer/",
+        MerchantFooterRetrieveUpdateAPIView.as_view(),
+        name="merchant-footer-update",
     ),
     # =====================================================
     # MerchantMember

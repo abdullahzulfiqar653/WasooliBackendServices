@@ -39,6 +39,7 @@ class Merchant(BaseModel):
     city = models.CharField(max_length=128, default="rahim yar khan")
     is_advance_payment = models.BooleanField(default=False)
     code = models.CharField(max_length=6, unique=True, editable=False)
+    metadata = models.JSONField(null=True, blank=True)
     commission_structure = models.JSONField(
         default=get_default_commission_structure,
         help_text="""Stores commission tiers for cash and online transactions. Example: 

@@ -18,6 +18,7 @@ from apis.models.transaction_history import TransactionHistory
 
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
+from apis.serializers.merchant_footer import MerchantFooterSerializer
 
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -218,3 +219,71 @@ class MemberRetrieveByPhoneAPIView(generics.RetrieveAPIView):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
+
+class MerchantFooterRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    """
+    This API allows merchants to retrieve and update their footer metadata.
+    The metadata is stored as a JSON field containing a list of key-value pairs.
+    """
+
+    permission_classes = [IsMerchantOrStaff]
+    serializer_class = MerchantFooterSerializer
+
+    def get_object(self):
+        return self.request.merchant
+
+    @extend_schema(
+        description="Retrieve the footer metadata of the merchant.",
+        responses={
+            200: {
+                "description": "Successful response",
+                "content": {
+                    "application/json": {
+                        "example": {
+                            "metadata": [
+                                {"key": "phone", "value": "3103987654"},
+                                {"key": "address", "value": "ghulshan usman"},
+                                {"key": "note", "value": "We are open 24/7"},
+                            ]
+                        }
+                    }
+                },
+            }
+        },
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(
+        description="Update the footer metadata of the merchant with multiple key-value pairs.",
+        request={
+            "application/json": {
+                "example": {
+                    "metadata": [
+                        {"key": "phone", "value": "3103987654"},
+                        {"key": "address", "value": "ghulshan usman"},
+                        {"key": "note", "value": "We are open 24/7"},
+                    ]
+                }
+            }
+        },
+        responses={
+            200: {
+                "description": "Metadata updated successfully",
+                "content": {
+                    "application/json": {
+                        "example": {
+                            "metadata": [
+                                {"key": "phone", "value": "3103987654"},
+                                {"key": "address", "value": "ghulshan usman"},
+                                {"key": "note", "value": "We are open 24/7"},
+                            ]
+                        }
+                    }
+                },
+            }
+        },
+    )
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
