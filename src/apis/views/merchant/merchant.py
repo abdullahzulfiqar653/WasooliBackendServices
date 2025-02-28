@@ -232,7 +232,7 @@ class MerchantFooterRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = MerchantFooterSerializer
 
     def get_queryset(self):
-        return Merchant.objects.filter(id=self.kwargs['pk']) 
+        return Merchant.objects.filter(id=self.kwargs["pk"])
 
     @extend_schema(
         description="Retrieve the footer metadata of the merchant.",
@@ -243,11 +243,9 @@ class MerchantFooterRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
                     "application/json": {
                         "example": {
                             "metadata": {
-                                "footer": {
-                                    "phone": "3103987654",
-                                    "address": "Gulshan Usman",
-                                    "note": "We are open 24/7",
-                                }
+                                "phone": "3103987654",
+                                "address": "Gulshan Usman",
+                                "note": "We are open 24/7",
                             }
                         }
                     }
@@ -264,11 +262,9 @@ class MerchantFooterRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
             "application/json": {
                 "example": {
                     "metadata": {
-                        "footer": {
-                            "phone": "3103987654",
-                            "address": "Gulshan Usman",
-                            "note": "We are open 24/7",
-                        }
+                        "phone": "3103987654",
+                        "address": "Gulshan Usman",
+                        "note": "We are open 24/7",
                     }
                 }
             }
