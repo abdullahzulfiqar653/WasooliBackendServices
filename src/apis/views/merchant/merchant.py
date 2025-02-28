@@ -14,6 +14,7 @@ from django.db.models import (
 
 from apis.models.member_role import RoleChoices
 from apis.models.merchant_member import MerchantMember
+from apis.models.merchant import Merchant
 from apis.models.transaction_history import TransactionHistory
 
 from apis.permissions import IsMerchantOrStaff
@@ -230,8 +231,8 @@ class MerchantFooterRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsMerchantOrStaff]
     serializer_class = MerchantFooterSerializer
 
-    def get_object(self):
-        return self.request.merchant
+    def get_queryset(self):
+        return Merchant.objects.filter(id=self.kwargs['pk']) 
 
     @extend_schema(
         description="Retrieve the footer metadata of the merchant.",

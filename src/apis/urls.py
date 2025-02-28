@@ -56,7 +56,7 @@ urlpatterns = [
         name="merchant-member-retrieve",
     ),
     path(
-        "merchants/<str:merchant_id>/footer/",
+        "merchants/<str:pk>/footer/",
         MerchantFooterRetrieveUpdateAPIView.as_view(),
         name="merchant-footer-update",
     ),
