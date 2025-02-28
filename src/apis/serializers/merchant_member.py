@@ -3,6 +3,7 @@ import secrets
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
+from apis.models.otp import OTP
 from apis.models.merchant_member import MerchantMember
 from apis.models.member_role import MemberRole, RoleChoices
 from apis.models.merchant_membership import MerchantMembership
@@ -20,12 +21,14 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=True)
     primary_phone = serializers.CharField(validators=[])
     roles = MemberRoleSerializer(required=True, write_only=True)
+    otp = serializers.SerializerMethodField()
     balance = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = MerchantMember
         fields = [
             "id",
+            "otp",
             "user",
             "cnic",
             "code",
@@ -73,6 +76,9 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         if request.method == "POST":
             if role == RoleChoices.STAFF:
                 self.fields[membership].required = False
+
+    def get_otp(self, obj):
+        return getattr(obj.otp, "code", None) if hasattr(obj, "otp") else None
 
     def get_merchant_memberships(self, obj) -> dict:
         request = self.context.get("request")
@@ -124,6 +130,7 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
         if queryset.exists():
             member = queryset.first()
             if roles_data["role"] == RoleChoices.STAFF:
+                OTP.objects.get_or_create(member=member)
                 member.merchant = merchant
                 member.save()
         else:
@@ -135,6 +142,8 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
             if roles_data["role"] == RoleChoices.STAFF:
                 validated_data["merchant"] = merchant
             member = MerchantMember.objects.create(user=user, **validated_data)
+            if roles_data["role"] == RoleChoices.STAFF:
+                OTP.objects.get_or_create(member=member)
 
         roles = MemberRole.objects.filter(member=member, role=roles_data["role"])
         if not roles.exists():
