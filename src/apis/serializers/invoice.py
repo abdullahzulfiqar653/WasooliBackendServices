@@ -161,10 +161,23 @@ class InvoiceSerializer(serializers.ModelSerializer):
         if instance.status == Invoice.STATUS.PAID:
             raise serializers.ValidationError({"detail": "Invoice is already paid."})
 
+        previous_invoice_state = []
+
         if mark_paid:
+            previous_invoice_state.append(
+                {
+                    "id": instance.id,
+                    "status": instance.status,
+                    "due_amount": str(instance.due_amount),
+                }
+            )
+
             TransactionHistory.objects.create(
                 invoice=instance,
-                metadata={"invoices": [instance.code]},
+                metadata={
+                    "invoices": [instance.code],
+                    "previous_invoice_state": previous_invoice_state,
+                },
                 merchant_membership=request.membership,
                 is_online=False,
                 credit=instance.due_amount,
