@@ -45,7 +45,9 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
 
         # Conditionally add the filter based on the role
         if role == RoleChoices.STAFF:
-            merchant_member_queryset = merchant.staff_members.exclude(
+            merchant_member_queryset = merchant.staff_members.select_related(
+                "otp"
+            ).exclude(
                 user=self.request.user
             )  # For STAFF, use `merchant=merchant`
         else:
