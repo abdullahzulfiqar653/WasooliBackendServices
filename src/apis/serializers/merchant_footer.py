@@ -13,16 +13,9 @@ class MerchantFooterSerializer(serializers.ModelSerializer):
         Update only the 'footer' attribute inside metadata while preserving existing footer fields.
         """
 
-        metadata = instance.metadata if isinstance(instance.metadata, dict) else {}
-
-        footer_data = metadata.get("footer", {})
         new_footer_data = validated_data.get("metadata", {}).get("footer", {})
 
-        if isinstance(footer_data, dict) and isinstance(new_footer_data, dict):
-            footer_data.update(new_footer_data)
+        if new_footer_data:
+            validated_data["metadata"]["footer"] = new_footer_data
 
-        metadata["footer"] = footer_data
-        instance.metadata = metadata
-        instance.save()
-
-        return instance
+        return super().update(instance, validated_data)
