@@ -14,10 +14,12 @@ from django.db.models import (
 
 from apis.models.member_role import RoleChoices
 from apis.models.merchant_member import MerchantMember
+from apis.models.merchant import Merchant
 from apis.models.transaction_history import TransactionHistory
 
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
+from apis.serializers.merchant_footer import MerchantFooterSerializer
 
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -220,3 +222,73 @@ class MemberRetrieveByPhoneAPIView(generics.RetrieveAPIView):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
+
+class MerchantFooterRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    """
+    This API allows merchants to retrieve and update their footer metadata.
+    The metadata is stored as a JSON field containing a list of key-value pairs.
+    """
+
+    permission_classes = [IsMerchantOrStaff]
+    serializer_class = MerchantFooterSerializer
+
+    def get_queryset(self):
+        return Merchant.objects.filter(id=self.kwargs["pk"])
+
+    @extend_schema(
+        description="Retrieve the footer metadata of the merchant.",
+        responses={
+            200: {
+                "description": "Successful response",
+                "content": {
+                    "application/json": {
+                        "example": {
+                            "metadata": {
+                                "phone": "3103987654",
+                                "address": "Gulshan Usman",
+                                "note": "We are open 24/7",
+                            }
+                        }
+                    }
+                },
+            }
+        },
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(
+        description="Update the footer metadata of the merchant with key-value pairs.",
+        request={
+            "application/json": {
+                "example": {
+                    "metadata": {
+                        "phone": "3103987654",
+                        "address": "Gulshan Usman",
+                        "note": "We are open 24/7",
+                    }
+                }
+            }
+        },
+        responses={
+            200: {
+                "description": "Metadata updated successfully",
+                "content": {
+                    "application/json": {
+                        "example": {
+                            "metadata": {
+                                "footer": {
+                                    "phone": "3103987654",
+                                    "address": "Gulshan Usman",
+                                    "note": "We are open 24/7",
+                                }
+                            }
+                        }
+                    }
+                },
+            }
+        },
+    )
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
