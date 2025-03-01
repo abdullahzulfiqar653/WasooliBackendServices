@@ -9,6 +9,7 @@ class RoleChoices(models.TextChoices):
 
 
 class MemberRole(BaseModel):
+    UID_PREFIX = 103
     member = models.ForeignKey(
         "apis.MerchantMember", on_delete=models.CASCADE, related_name="roles"
     )

@@ -6,6 +6,7 @@ from apis.models.abstract.base import BaseModel
 
 
 class MerchantMembership(BaseModel):
+    UID_PREFIX = 107
     member = models.ForeignKey(
         "apis.MerchantMember",
         on_delete=models.CASCADE,

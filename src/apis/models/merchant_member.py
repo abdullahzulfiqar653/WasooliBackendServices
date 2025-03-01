@@ -4,6 +4,7 @@ from apis.models.abstract.base import BaseModel
 
 
 class MerchantMember(BaseModel):
+    UID_PREFIX = 105
     user = models.OneToOneField(
         "auth.User", on_delete=models.CASCADE, related_name="profile"
     )
