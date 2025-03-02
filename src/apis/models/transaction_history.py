@@ -65,7 +65,7 @@ class TransactionHistory(BaseModel):
         total_credit = totals.get("total_credit", 0)
         # Include the current transaction's debit or credit
         total_debit += self.debit or 0
-        total_credit += self.credit or 0
+        total_credit += Decimal(self.credit) or Decimal(0)
 
         # Update the balance
         self.balance = total_credit - total_debit
@@ -86,8 +86,8 @@ class TransactionHistory(BaseModel):
             commission_rate = Decimal(
                 self.get_commission_rate(merchant, self.is_online)
             )
-
-        return self.credit * commission_rate / Decimal(100)
+        credit_decimal = Decimal(self.credit)
+        return credit_decimal * commission_rate / Decimal(100)
 
     def get_commission_rate(self, merchant, is_online):
         """
