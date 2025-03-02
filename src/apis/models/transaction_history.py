@@ -39,8 +39,7 @@ class TransactionHistory(BaseModel):
     metadata = models.JSONField(null=True, blank=True)
     is_commission_paid = models.BooleanField(default=False)
     is_online = models.BooleanField(null=True, default=None)
-    debit = models.DecimalField(max_digits=9, decimal_places=2, default=0)
-    credit = models.DecimalField(max_digits=9, decimal_places=2, default=0)
+    value = models.DecimalField(max_digits=9, decimal_places=2, default=0)
     balance = models.DecimalField(max_digits=9, decimal_places=2, default=0)
     commission = models.DecimalField(max_digits=9, decimal_places=2, default=0)
     type = models.CharField(max_length=20, choices=TYPES.choices, default=TYPES.BILLING)
@@ -57,15 +56,30 @@ class TransactionHistory(BaseModel):
         The balance is calculated by subtracting total debit from total credit.
         """
         # Calculate total debit and credit for this merchant_membership
-        totals = self.merchant_membership.membership_transactions.aggregate(
-            total_debit=Sum("debit", default=0), total_credit=Sum("credit", default=0)
+        total_debit = (
+            self.merchant_membership.membership_transactions.filter(
+                transaction_type=self.TRANSACTION_TYPE.DEBIT
+            ).aggregate(total_debit=Sum("value", default=0))["total_debit"]
+            or 0
         )
 
-        total_debit = totals.get("total_debit", 0)
-        total_credit = totals.get("total_credit", 0)
+        # Calculate total credit for this merchant_membership
+        total_credit = (
+            self.merchant_membership.membership_transactions.filter(
+                transaction_type=self.TRANSACTION_TYPE.CREDIT
+            ).aggregate(total_credit=Sum("value", default=0))["total_credit"]
+            or 0
+        )
+
         # Include the current transaction's debit or credit
-        total_debit += self.debit or 0
-        total_credit += self.credit or 0
+        credit = debit = 0
+        if self.transaction_type == self.TRANSACTION_TYPE.CREDIT:
+            credit = self.value
+        if self.transaction_type == self.TRANSACTION_TYPE.DEBIT:
+            debit = self.value
+
+        total_debit += debit
+        total_credit += credit
 
         # Update the balance
         self.balance = total_credit - total_debit
@@ -87,7 +101,7 @@ class TransactionHistory(BaseModel):
                 self.get_commission_rate(merchant, self.is_online)
             )
 
-        return self.credit * commission_rate / Decimal(100)
+        return self.value * commission_rate / Decimal(100)
 
     def get_commission_rate(self, merchant, is_online):
         """
@@ -101,17 +115,18 @@ class TransactionHistory(BaseModel):
 
         # Find the tier based on credit amount
         for tier in tiers:
-            if self.credit <= tier["max_credit"]:
+            if self.value <= tier["max_credit"]:
                 return tier["commission"]
         return 0
 
-    def apply_payment(self, payment_amount, created_by):
+    def apply_payment(self, created_by):
         # Get all unpaid invoices, ordered by created at date (oldest first)
+
         merchant_membership = self.merchant_membership
         invoices = merchant_membership.member.invoices.filter(status="unpaid").order_by(
             "created_at"
         )
-        remaining_payment = payment_amount
+        remaining_payment = self.value
         paid_invoices = []
         previous_invoice_state = []
         # Save the previous state of the invoices
@@ -191,10 +206,10 @@ class TransactionHistory(BaseModel):
 
     def save(self, *args, **kwargs):
         billing = self.type == self.TYPES.BILLING
-        credit = self.transaction_type == self.TRANSACTION_TYPE.CREDIT
+        is_credit = self.transaction_type == self.TRANSACTION_TYPE.CREDIT
         # Only calculate commission if the type is Billing and it's a credit transaction
         if self._state.adding:
-            if billing and credit:
+            if billing and is_credit:
                 self.commission = self.calculate_commission()
             self.adjust_credit_debit_balance()
         super().save(*args, **kwargs)

@@ -6,8 +6,7 @@ from apis.models import TransactionHistory
 class TransactionHistoryAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "debit",
-        "credit",
+        "value",
         "balance",
         "commission",
         "created_at",
@@ -37,8 +36,7 @@ class TransactionHistoryAdmin(admin.ModelAdmin):
                     "invoice",
                     "type",
                     "transaction_type",
-                    "debit",
-                    "credit",
+                    "value",
                     "balance",
                     "commission",
                     "metadata",

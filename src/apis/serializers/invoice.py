@@ -146,7 +146,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             metadata={"invoices": [invoice.code]},
             merchant_membership=merchant_membership,
             is_online=False,
-            debit=invoice.total_amount,
+            value=invoice.total_amount,
             type=TransactionHistory.TYPES.BILLING,
             transaction_type=TransactionHistory.TRANSACTION_TYPE.DEBIT,
         )
@@ -178,7 +178,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
                 },
                 merchant_membership=request.membership,
                 is_online=False,
-                credit=instance.due_amount,
+                value=instance.due_amount,
                 type=TransactionHistory.TYPES.BILLING,
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
             )
@@ -194,7 +194,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
                 metadata={"invoices": [instance.code]},
                 merchant_membership=request.membership,
                 is_online=False,
-                credit=instance.due_amount,
+                value=instance.due_amount,
                 type=TransactionHistory.TYPES.BILLING,
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
             )
@@ -213,7 +213,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
                     metadata={"invoices": [instance.code], "invoice_info": metadata},
                     merchant_membership=request.membership,
                     is_online=False,
-                    credit=remaining_amount,
+                    value=remaining_amount,
                     type=TransactionHistory.TYPES.BILLING,
                     transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
                 )

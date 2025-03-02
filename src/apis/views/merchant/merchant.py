@@ -83,18 +83,27 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                         Case(
                             When(
                                 transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
-                                then=F("credit"),
+                                then=F("value"),
                             ),
                             default=Value(0),
                             output_field=DecimalField(),
                         )
                     ),
-                    total_debit=Sum("debit", default=0),
+                    total_debit=Sum(
+                        Case(
+                            When(
+                                transaction_type=TransactionHistory.TRANSACTION_TYPE.DEBIT,
+                                then=F("value"),
+                            ),
+                            default=Value(0),
+                            output_field=DecimalField(),
+                        )
+                    ),
                     total_adjustment=Sum(
                         Case(
                             When(
                                 transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
-                                then=F("credit"),
+                                then=F("value"),
                             ),
                             default=Value(0),
                             output_field=DecimalField(),

@@ -47,32 +47,36 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
             type=TransactionHistory.TYPES.BILLING,
         )
 
-        # Aggregate the sums for the specified merchant
-        merchant_transaction_sums = transaction_summary.aggregate(
-            total_credit=Sum("credit"),
-            total_debit=Sum("debit"),
-            total_credit_adjustment=Sum(
-                "credit",
-                filter=Q(
-                    transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT
-                ),
-            ),
+        # total_debit = (
+        #     self.merchant_membership.membership_transactions.filter(
+        #         transaction_type=self.TRANSACTION_TYPE.DEBIT
+        #     ).aggregate(total_debit=Sum("value", default=0))["total_debit"]
+        #     or 0
+        # )
+
+        # Calculate total credit for this merchant_membership
+        total_credit = (
+            transaction_summary.filter(
+                transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT
+            ).aggregate(total_credit=Sum("value", default=0))["total_credit"]
+            or 0
         )
 
-        # Calculate the adjusted total debit
         total_credit_adjustment = (
-            merchant_transaction_sums["total_credit_adjustment"] or 0
+            transaction_summary.filter(
+                transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT
+            ).aggregate(total_credit=Sum("value", default=0))["total_credit"]
+            or 0
         )
-        total_credit = (
-            merchant_transaction_sums["total_credit"] or 0
-        ) - total_credit_adjustment
+
+        total_credit = total_credit - total_credit_adjustment
 
         # Get credit amount for today
         credit_today = (
             transaction_summary.filter(
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
                 created_at__date=today,
-            ).aggregate(total_credit_today=Sum("credit"))["total_credit_today"]
+            ).aggregate(total_credit_today=Sum("value"))["total_credit_today"]
             or 0
         )
 
@@ -81,9 +85,7 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
             transaction_summary.filter(
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
                 created_at__gte=first_of_this_month,  # Filter from the first day of this month
-            ).aggregate(total_credit_this_month=Sum("credit"))[
-                "total_credit_this_month"
-            ]
+            ).aggregate(total_credit_this_month=Sum("value"))["total_credit_this_month"]
             or 0
         )
 
@@ -92,7 +94,7 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
             transaction_summary.filter(
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.DEBIT,
                 created_at__gte=first_of_this_month,  # Filter from the first day of this month
-            ).aggregate(total_debit_this_month=Sum("debit"))["total_debit_this_month"]
+            ).aggregate(total_debit_this_month=Sum("value"))["total_debit_this_month"]
             or 0
         )
 
@@ -101,7 +103,7 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
             transaction_summary.filter(
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
                 created_at__gte=first_of_this_month,  # Filter from the first day of this month
-            ).aggregate(total_credit_adjustment_this_month=Sum("credit"))[
+            ).aggregate(total_credit_adjustment_this_month=Sum("value"))[
                 "total_credit_adjustment_this_month"
             ]
             or 0

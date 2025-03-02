@@ -17,20 +17,18 @@ def get_customer_stats(membership):
     # Calculate total credit amount for transactions of type 'credit'
     total_credit = transaction_summary.filter(
         transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT
-    ).aggregate(total_credit=Sum("credit", default=Decimal(0)))["total_credit"]
+    ).aggregate(total_credit=Sum("value", default=Decimal(0)))["total_credit"]
 
     credit_adjustment = transaction_summary.filter(
         transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT
-    ).aggregate(credit_adjustment=Sum("credit", default=Decimal(0)))[
-        "credit_adjustment"
-    ]
+    ).aggregate(credit_adjustment=Sum("value", default=Decimal(0)))["credit_adjustment"]
 
     # Calculate total debit amount
     total_debit = (
-        transaction_summary.aggregate(total_debit=Sum("debit", default=Decimal(0)))[
-            "total_debit"
-        ]
-        - credit_adjustment
+        transaction_summary.filter(
+            transaction_type=TransactionHistory.TRANSACTION_TYPE.DEBIT
+        ).aggregate(total_debit=Sum("value", default=0))["total_debit"]
+        or 0
     )
 
     # Calculate the remaining debit amount (total debit - total credit)

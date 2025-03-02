@@ -3,6 +3,7 @@ from django.db.models import Sum
 from django.utils import timezone
 from apis.models.merchant import Merchant
 from apis.models.abstract.base import BaseModel
+from apis.models.transaction_history import TransactionHistory
 
 
 class MerchantMembership(BaseModel):
@@ -69,16 +70,18 @@ class MerchantMembership(BaseModel):
     @property
     def total_credit(self):
         return (
-            self.transactions.filter(type="credit").aggregate(Sum("credit"))[
-                "credit__sum"
-            ]
+            self.transactions.filter(
+                type=TransactionHistory.TRANSACTION_TYPE.CREDIT
+            ).aggregate(Sum("value"))["value__sum"]
             or 0
         )
 
     @property
     def total_debit(self):
         total_debit = (
-            self.transactions.filter(type="debit").aggregate(Sum("debit"))["debit__sum"]
+            self.transactions.filter(
+                type=TransactionHistory.TRANSACTION_TYPE.DEBIT
+            ).aggregate(Sum("value"))["value__sum"]
             or 0
         )
         return total_debit
