@@ -3,6 +3,7 @@ from django.db.models import Sum
 from django.utils import timezone
 from apis.models.merchant import Merchant
 from apis.models.abstract.base import BaseModel
+from apis.models.transaction_history import TransactionHistory
 
 
 class MerchantMembership(BaseModel):
@@ -18,7 +19,7 @@ class MerchantMembership(BaseModel):
     area = models.CharField(max_length=128)
     city = models.CharField(max_length=128)
     is_active = models.BooleanField(default=True)
-    picture = models.CharField(max_length=1000, blank=True, null=True)
+    picture = models.CharField(max_length=256, blank=True, null=True)
     secondary_phone = models.CharField(max_length=10, null=True, blank=True)
     # Financial fields
     is_monthly = models.BooleanField(default=True)
@@ -26,15 +27,20 @@ class MerchantMembership(BaseModel):
     actual_price = models.DecimalField(max_digits=10, decimal_places=2)
     account = models.CharField(max_length=6, unique=True, editable=False)
     discounted_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_saved = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     class Meta:
         unique_together = ["member", "merchant"]
         indexes = [
+            models.Index(fields=["account"]),
+            models.Index(fields=["is_active"]),
+            models.Index(fields=["is_monthly"]),
+            models.Index(fields=["-created_at"]),
             models.Index(fields=["member", "merchant", "is_active"]),
         ]
 
     def __str__(self):
-        return f"{self.user.first_name} of {self.merchant.name}."
+        return f"{self.member.user.first_name} of {self.merchant.name}."
 
     def save(self, *args, **kwargs):
         if not self.account:
@@ -64,16 +70,18 @@ class MerchantMembership(BaseModel):
     @property
     def total_credit(self):
         return (
-            self.transactions.filter(type="credit").aggregate(Sum("credit"))[
-                "credit__sum"
-            ]
+            self.transactions.filter(
+                type=TransactionHistory.TRANSACTION_TYPE.CREDIT
+            ).aggregate(Sum("value"))["value__sum"]
             or 0
         )
 
     @property
     def total_debit(self):
         total_debit = (
-            self.transactions.filter(type="debit").aggregate(Sum("debit"))["debit__sum"]
+            self.transactions.filter(
+                type=TransactionHistory.TRANSACTION_TYPE.DEBIT
+            ).aggregate(Sum("value"))["value__sum"]
             or 0
         )
         return total_debit

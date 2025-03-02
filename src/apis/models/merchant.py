@@ -35,7 +35,11 @@ class Merchant(BaseModel):
     owner = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="merchant"
     )
+    area = models.CharField(max_length=50)
+    city = models.CharField(max_length=128, default="rahim yar khan")
+    is_advance_payment = models.BooleanField(default=False)
     code = models.CharField(max_length=6, unique=True, editable=False)
+    metadata = models.JSONField(null=True, blank=True)
     commission_structure = models.JSONField(
         default=get_default_commission_structure,
         help_text="""Stores commission tiers for cash and online transactions. Example: 
@@ -55,10 +59,45 @@ class Merchant(BaseModel):
     )
 
     def __str__(self):
-        return f"{self.name} ({self.code}) with id: {self.id}"
+        owner = getattr(self, "owner", None)
+        return f"{self.owner.first_name}-{self.name}" if owner else ""
 
     def save(self, *args, **kwargs):
         if not self.code:
             last_code = Merchant.objects.aggregate(models.Max("code"))["code__max"]
             self.code = str(int(last_code) + 1) if last_code else "1000"
         super().save(*args, **kwargs)
+
+    @property
+    def is_fixed_fee_merchant(self):
+        return self.type not in [self.MerchantType.WATER, self.MerchantType.MILK]
+
+    @property
+    def is_water_supply(self):
+        return self.type == self.MerchantType.WATER
+
+    @property
+    def unit(self):
+        units = {
+            "month": (
+                self.MerchantType.TV,
+                self.MerchantType.GYM,
+                self.MerchantType.HOSTEl,
+                self.MerchantType.MADRSA,
+                self.MerchantType.ACADEMY,
+                self.MerchantType.INTERNET,
+                self.MerchantType.INSTALLMENT,
+            ),
+            "liter": (self.MerchantType.MILK,),
+            "bottle": (self.MerchantType.WATER,),
+        }
+        for unit, types in units.items():
+            if self.type in types:
+                return unit
+        return "month"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["-created_at"]),
+        ]
+        ordering = ["-created_at"]

@@ -1,18 +1,25 @@
+import re
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, ValidationError
 
 from apis.models.lookup import Lookup
 from apis.models.merchant_membership import MerchantMembership
 
+from services.s3 import S3Service
+
+s3_client = S3Service()
+
 
 class MerchantMembershipSerializer(ModelSerializer):
-    secondary_image = serializers.ImageField(required=False)
+    meta_data = serializers.JSONField(required=False, allow_null=True)
+    unit = serializers.SerializerMethodField()
 
     class Meta:
         model = MerchantMembership
         fields = [
             "area",
             "city",
+            "unit",
             "picture",
             "address",
             "merchant",
@@ -20,22 +27,24 @@ class MerchantMembershipSerializer(ModelSerializer):
             "meta_data",
             "is_monthly",
             "actual_price",
-            "secondary_image",
             "secondary_phone",
             "discounted_price",
         ]
-        read_only_fields = ["account", "merchant", "picture"]
+        read_only_fields = ["account", "merchant"]
         extra_kwargs = {
             "is_active": {"required": True},
             "is_monthly": {"required": True},
         }
 
+    def get_unit(self, obj):
+        return obj.merchant.unit
+
     def validate(self, data):
         if "actual_price" in data and "discounted_price" in data:
-            if data["discounted_price"] < data["actual_price"]:
+            if data["discounted_price"] > data["actual_price"]:
                 raise ValidationError(
                     {
-                        "discounted_price": "Discounted price cannot be smaller than the actual price."
+                        "discounted_price": "Discounted price cannot be larger than the actual price."
                     }
                 )
         city = data.get("city", "").strip().lower()
@@ -45,6 +54,12 @@ class MerchantMembershipSerializer(ModelSerializer):
             raise ValidationError({"city": "City is required"})
         if not area:
             raise ValidationError({"area": "Area is required"})
+
+        if city.replace(" ", "").isdigit():
+            raise ValidationError({"city": "City cannot be a number."})
+
+        if area.replace(" ", "").isdigit():
+            raise ValidationError({"area": "Area cannot be a number."})
 
         # 'city' is the type name for cities
         type = Lookup.objects.get(name="city")  # Ensure this exists as a city type
@@ -68,4 +83,14 @@ class MerchantMembershipSerializer(ModelSerializer):
         """Ensure that the discounted price is not negative."""
         if value < 0:
             raise ValidationError("Discounted price cannot be negative.")
+        return value
+
+    def validate_secondary_phone(self, value):
+        if value:
+            if not re.match(r"^\d{10}$", value):
+                raise serializers.ValidationError(
+                    "Primary phone must be exactly 10 digits long and numeric."
+                )
+            if value.strip().startswith("0"):
+                raise ValidationError("Contact number cannot start with '0'.")
         return value

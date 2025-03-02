@@ -19,6 +19,11 @@ gunicorn = "^23.0.0"
 ipython = "^8.27.0"
 pillow = "^11.0.0"
 pyjwt = "^2.10.1"
+boto3 = "^1.36.1"
+requests = "^2.32.3"
+django-filter = "^24.3"
+psycopg2 = "^2.9.10"
+django-auditlog = "^3.0.0"
 
 
 [tool.poetry.group.dev.dependencies]

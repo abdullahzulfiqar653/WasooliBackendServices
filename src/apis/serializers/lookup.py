@@ -1,3 +1,4 @@
+from typing import List
 from apis.models.lookup import Lookup
 from rest_framework import serializers
 
@@ -23,5 +24,5 @@ class LookupSerializer(serializers.ModelSerializer):
             "sub_types",
         ]
 
-    def get_sub_types(self, obj):
+    def get_sub_types(self, obj) -> List[str]:
         return LookupNestedSerializer(obj.sub_types.all(), many=True).data

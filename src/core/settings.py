@@ -1,24 +1,43 @@
 import os
+import boto3
 import environ
 from pathlib import Path
 from datetime import timedelta
 
 
 env = environ.Env(
+    ENV=(str, "LOCAL"),
     DEBUG=(bool, False),
     SECRET_KEY=(str, "False"),
     ALLOWED_HOSTS=(list, ["localhost"]),
     CORS_ORIGIN_ALLOW_ALL=(bool, False),
     CORS_ALLOW_CREDENTIALS=(bool, False),
 )
-
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
+PROJECT_NAME = os.getenv("PROJECT_NAME")
+
+ENV = env("ENV")
 DEBUG = env("DEBUG")
 SECRET_KEY = env("SECRET_KEY")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 CORS_ORIGIN_ALLOW_ALL = env("CORS_ORIGIN_ALLOW_ALL")
 CORS_ALLOW_CREDENTIALS = env("CORS_ALLOW_CREDENTIALS")
+
+AWS_S3_REGION_NAME = "nyc3"
+AWS_STORAGE_BUCKET_NAME = "testing-projects"
+OBJECT_STORAGE_URL = os.getenv("OBJECT_STORAGE_URL")
+OBJECT_STORAGE_ACCESS_KEY = os.getenv("OBJECT_STORAGE_ACCESS_KEY")
+OBJECT_STORAGE_SECRET_KEY = os.getenv("OBJECT_STORAGE_SECRET_KEY")
+
+S3_CLIENT = boto3.client(
+    "s3",
+    region_name=AWS_S3_REGION_NAME,
+    endpoint_url=OBJECT_STORAGE_URL,
+    aws_access_key_id=OBJECT_STORAGE_ACCESS_KEY,
+    aws_secret_access_key=OBJECT_STORAGE_SECRET_KEY,
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -30,6 +49,8 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "rest_framework_simplejwt",
     "rest_framework",
+    "django_filters",
+    "auditlog",
     "apis",
 ]
 
@@ -51,7 +72,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            BASE_DIR / "api" / "templates",
+            BASE_DIR / "src" / "templates",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -69,7 +90,10 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Wasooli.Online",
-    "DESCRIPTION": "",
+    "DESCRIPTION": """ 
+- All secure endpoints, except public ones, can only be accessed by staff and merchants.  
+- Customers do not have access to these endpoints.  
+    """,
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": "/api/",
@@ -104,7 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 USE_TZ = True
 USE_I18N = True
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Karachi"
 LANGUAGE_CODE = "en-us"
 
 
@@ -126,11 +150,13 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PAGINATION_CLASS": "core.pagination.CustomPagination",
+    "PAGE_SIZE": 10,
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(weeks=50),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=52),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=2),
+    "REFRESH_TOKEN_LIFETIME": timedelta(weeks=40),
 }
 
 if DEBUG:
@@ -143,3 +169,11 @@ if DEBUG:
     INTERNAL_IPS = [
         "127.0.0.1",
     ]
+
+
+DEFAULT_EMAIL_PORT = 587
+DEFAULT_EMAIL_TLS = True
+DEFAULT_EMAIL_SSL = False
+DEFAULT_EMAIL_HOST = env("DEFAULT_EMAIL_HOST")
+DEFAULT_EMAIL_USER = env("DEFAULT_EMAIL_USER")
+DEFAULT_EMAIL_PASSWORD = env("DEFAULT_EMAIL_PASSWORD")
