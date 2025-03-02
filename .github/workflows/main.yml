@@ -39,5 +39,5 @@ jobs:
             sudo /home/admin/.pyenv/shims/poetry --no-root install && \
             sudo /home/admin/.pyenv/shims/poetry run python manage.py migrate && \
             sudo /home/admin/.pyenv/shims/poetry run python manage.py update_permissions && \
-            sudo supervisorctl restart api.panel.wasooli.online && \
-            sudo systemctl reload nginx"
+            echo '${{ secrets.LIVE_SSH_PASSWORD }}' | sudo -S supervisorctl restart api.panel.wasooli.online && \
+            echo '${{ secrets.LIVE_SSH_PASSWORD }}' | sudo -S systemctl reload nginx"
