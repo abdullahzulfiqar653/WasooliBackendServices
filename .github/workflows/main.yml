@@ -36,8 +36,8 @@ jobs:
           ssh target "\
             cd /home/admin/backend/WasooliBackendServices/src && \
             git pull && \
-            sudo /root/.pyenv/shims/poetry install && \
-            sudo /root/.pyenv/shims/poetry run python manage.py migrate && \
-            sudo /root/.pyenv/shims/poetry run python manage.py update_permissions && \
+            sudo /home/admin/.pyenv/shims/poetry install && \
+            sudo /home/admin/.pyenv/shims/poetry run python manage.py migrate && \
+            sudo /home/admin/.pyenv/shims/poetry run python manage.py update_permissions && \
             sudo supervisorctl restart api.panel.wasooli.online && \
             sudo systemctl reload nginx"
