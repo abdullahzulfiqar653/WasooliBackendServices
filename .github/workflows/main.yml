@@ -2,7 +2,7 @@ name: CI/CD > Wasooli.Online PROD Environemnt Deployment
 on:
   push:
     branches:
-      - dev
+      - main
 
 concurrency:
   group: main
