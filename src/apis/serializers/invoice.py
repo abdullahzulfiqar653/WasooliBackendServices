@@ -189,7 +189,6 @@ class InvoiceSerializer(serializers.ModelSerializer):
             return instance
 
         if is_cancel and instance.due_amount > 0:
-            TransactionHistory.objects.filter(invoice=instance).delete()
             instance.status = Invoice.STATUS.CANCELLED
             instance.due_amount = Decimal(0)
             TransactionHistory.objects.create(
@@ -201,6 +200,10 @@ class InvoiceSerializer(serializers.ModelSerializer):
                 type=TransactionHistory.TYPES.BILLING,
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
             )
+            TransactionHistory.objects.filter(
+                invoice=instance,
+                transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
+            ).delete()
 
             instance.save()
             return instance
