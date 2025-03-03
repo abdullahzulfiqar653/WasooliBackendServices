@@ -1,0 +1,43 @@
+name: CI/CD > Wasooli.Online PROD Environemnt Deployment
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: main
+  cancel-in-progress: true
+
+jobs:
+  publish-images:
+    name: Connecting to server for deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_USER: ${{ secrets.LIVE_SSH_USER }}
+          SSH_HOST: ${{ secrets.LIVE_SSH_HOST }}
+          SSH_PRIVATE_KEY: ${{ secrets.LIVE_SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/github
+          chmod 600 ~/.ssh/github
+          cat >>~/.ssh/config <<END
+          Host target
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/github
+            LogLevel ERROR
+            StrictHostKeyChecking no
+          END
+
+      - name: Run Deploy
+        run: |
+          ssh target "\
+            cd /home/admin/backend/WasooliBackendServices/src && \
+            git pull && \
+            /root/.pyenv/shims/poetry install && \
+            /root/.pyenv/shims/poetry run python manage.py migrate && \
+            /root/.pyenv/shims/poetry run python manage.py update_permissions && \
+            supervisorctl restart api.panel.wasooli.online && \
+            systemctl reload nginx"

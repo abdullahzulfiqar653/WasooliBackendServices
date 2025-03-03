@@ -9,9 +9,8 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
         model = TransactionHistory
         fields = [
             "id",
-            "debit",
             "amount",
-            "credit",
+            "value",
             "balance",
             "metadata",
             "is_online",
@@ -21,8 +20,7 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
-            "debit",
-            "credit",
+            "value",
             "balance",
             "metadata",
             "is_online",
@@ -40,13 +38,13 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
         amount = validated_data.pop("amount")
         request = self.context.get("request")
 
-        validated_data["credit"] = amount
+        validated_data["value"] = amount
         validated_data["is_online"] = False
         validated_data["merchant_membership"] = request.membership
         validated_data["type"] = TransactionHistory.TYPES.BILLING
         validated_data["transaction_type"] = TransactionHistory.TRANSACTION_TYPE.CREDIT
         transaction = super().create(validated_data)
-        transaction.apply_payment(amount, request.user.first_name)
+        transaction.apply_payment(request.user.first_name)
         return transaction
 
     def update(self, instance, validated_data):
