@@ -200,11 +200,6 @@ class InvoiceSerializer(serializers.ModelSerializer):
                 type=TransactionHistory.TYPES.BILLING,
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
             )
-            # TransactionHistory.objects.filter(
-            #     invoice=instance,
-            #     transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
-            # ).delete()
-
             instance.save()
             return instance
 
