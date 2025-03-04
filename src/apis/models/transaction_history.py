@@ -140,10 +140,6 @@ class TransactionHistory(BaseModel):
             )
 
         for invoice in invoices:
-            if invoice.status == Invoice.STATUS.CANCELLED:
-                continue
-
-        for invoice in invoices:
             if remaining_payment >= invoice.due_amount:
                 remaining_payment -= invoice.due_amount
                 # Fully pay this invoice
