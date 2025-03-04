@@ -191,7 +191,11 @@ class TransactionHistory(BaseModel):
 
         # Collect the invoices based on their ids
         invoice_ids = [invoice["id"] for invoice in previous_invoice_state]
-        invoices = Invoice.objects.filter(id__in=invoice_ids).order_by("created_at")
+        invoices = (
+            Invoice.objects.filter(id__in=invoice_ids)
+            .exclude(status=Invoice.STATUS.CANCELLED)
+            .order_by("created_at")
+        )
 
         # Iterate through the invoices and update the status and due_amount
         for invoice, invoice_data in zip(invoices, previous_invoice_state):
