@@ -72,6 +72,10 @@ class TransactionHistory(BaseModel):
         )
 
         # Include the current transaction's debit or credit
+
+        total_debit += self.debit or 0
+        total_credit += Decimal(self.credit) or Decimal(0)
+
         credit = debit = 0
         if self.transaction_type == self.TRANSACTION_TYPE.CREDIT:
             credit = self.value
@@ -80,6 +84,7 @@ class TransactionHistory(BaseModel):
 
         total_debit += debit
         total_credit += credit
+
 
         # Update the balance
         self.balance = total_credit - total_debit
@@ -101,7 +106,9 @@ class TransactionHistory(BaseModel):
                 self.get_commission_rate(merchant, self.is_online)
             )
 
-        return self.value * commission_rate / Decimal(100)
+        credit_decimal = Decimal(self.credit)
+        return credit_decimal * commission_rate / Decimal(100)
+
 
     def get_commission_rate(self, merchant, is_online):
         """

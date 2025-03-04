@@ -194,7 +194,11 @@ class InvoiceSerializer(serializers.ModelSerializer):
                 metadata={"invoices": [instance.code]},
                 merchant_membership=request.membership,
                 is_online=False,
+
+                credit=instance.due_amount,
+
                 value=instance.due_amount,
+                
                 type=TransactionHistory.TYPES.BILLING,
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
             )
