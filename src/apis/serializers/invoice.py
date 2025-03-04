@@ -226,7 +226,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
                     metadata={"invoices": [instance.code], "invoice_info": metadata},
                     merchant_membership=request.membership,
                     is_online=False,
-                    debit=difference,
+                    value=difference,
                     type=TransactionHistory.TYPES.BILLING,
                     transaction_type=TransactionHistory.TRANSACTION_TYPE.DEBIT,
                 )
