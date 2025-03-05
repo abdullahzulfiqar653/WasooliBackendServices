@@ -189,17 +189,17 @@ class InvoiceSerializer(serializers.ModelSerializer):
             return instance
 
         if is_cancel and instance.due_amount > 0:
+            instance.status = Invoice.STATUS.CANCELLED
+            instance.due_amount = Decimal(0)
             TransactionHistory.objects.create(
                 invoice=instance,
                 metadata={"invoices": [instance.code]},
                 merchant_membership=request.membership,
                 is_online=False,
-                value=instance.due_amount,
+                value=instance.total_amount,
                 type=TransactionHistory.TYPES.BILLING,
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
             )
-            instance.status = Invoice.STATUS.CANCELLED
-            instance.due_amount = Decimal(0)
             instance.save()
             return instance
 
@@ -226,7 +226,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
                     metadata={"invoices": [instance.code], "invoice_info": metadata},
                     merchant_membership=request.membership,
                     is_online=False,
-                    debit=difference,
+                    value=difference,
                     type=TransactionHistory.TYPES.BILLING,
                     transaction_type=TransactionHistory.TRANSACTION_TYPE.DEBIT,
                 )
