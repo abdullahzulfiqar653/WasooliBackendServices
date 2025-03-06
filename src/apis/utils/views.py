@@ -19,7 +19,7 @@ def get_customer_stats(membership):
         transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT
     ).aggregate(total_credit=Sum("value", default=Decimal(0)))["total_credit"]
 
-    credit_adjustment = transaction_summary.filter(
+    total_adjustment = transaction_summary.filter(
         transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT
     ).aggregate(credit_adjustment=Sum("value", default=Decimal(0)))["credit_adjustment"]
 
@@ -32,7 +32,7 @@ def get_customer_stats(membership):
     )
 
     # Calculate the remaining debit amount (total debit - total credit)
-    user_amounts_balance = total_credit - total_debit
+    user_amounts_balance = total_credit - (total_debit - total_adjustment)
     response = {
         "total_spend": {"value": total_credit, "name": "Total Spend"},
         "user_amounts_balance": {"value": user_amounts_balance, "name": "Balance"},
