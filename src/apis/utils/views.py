@@ -19,6 +19,7 @@ def get_customer_stats(membership):
         transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT
     ).aggregate(total_credit=Sum("value", default=Decimal(0)))["total_credit"]
 
+    # Calculate total adjustment amount for transactions of type 'adjustment'
     credit_adjustment = transaction_summary.filter(
         transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT
     ).aggregate(credit_adjustment=Sum("value", default=Decimal(0)))["credit_adjustment"]
@@ -31,13 +32,15 @@ def get_customer_stats(membership):
         or 0
     )
 
-    # Calculate the remaining debit amount (total debit - total credit)
-    user_amounts_balance = total_credit - total_debit
+    # Include adjustment in balance calculation
+    user_amounts_balance = (total_credit + credit_adjustment) - total_debit
+
     response = {
         "total_spend": {"value": total_credit, "name": "Total Spend"},
         "user_amounts_balance": {"value": user_amounts_balance, "name": "Balance"},
         "total_saved": {"value": membership.total_saved, "name": "Total Saved"},
     }
+
     if not membership.merchant.is_fixed_fee_merchant:
         if not membership.is_monthly:
             supply_totals = SupplyRecord.objects.filter(
@@ -59,4 +62,5 @@ def get_customer_stats(membership):
             }
             if membership.merchant.is_water_supply:
                 response["supply_balance"]["name"] = "Bottles Balance"
+
     return response
