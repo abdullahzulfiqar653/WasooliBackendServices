@@ -71,18 +71,30 @@ class TransactionHistory(BaseModel):
             or 0
         )
 
-        # Include the current transaction's debit or credit
-        credit = debit = 0
+        total_adjustment = (
+            self.merchant_membership.membership_transactions.filter(
+                transaction_type=self.TRANSACTION_TYPE.ADJUSTMENT
+            ).aggregate(total_adjustment=Sum("value", default=0))["total_adjustment"]
+            or 0
+        )
+
+        # Include the current transaction's debit, credit, or adjustment
+        credit = debit = adjustment = 0
+
         if self.transaction_type == self.TRANSACTION_TYPE.CREDIT:
             credit = self.value
-        if self.transaction_type == self.TRANSACTION_TYPE.DEBIT:
+        elif self.transaction_type == self.TRANSACTION_TYPE.DEBIT:
             debit = self.value
+        elif self.transaction_type == self.TRANSACTION_TYPE.ADJUSTMENT:
+            adjustment = self.value
 
+        # Update totals
         total_debit += debit
         total_credit += credit
+        total_adjustment += adjustment
 
-        # Update the balance
-        self.balance = total_credit - total_debit
+        # Update the balance ((credit + adjustments) - debit)
+        self.balance = (total_credit + total_adjustment) - total_debit
 
     def calculate_commission(self):
         """
@@ -187,11 +199,7 @@ class TransactionHistory(BaseModel):
 
         # Collect the invoices based on their ids
         invoice_ids = [invoice["id"] for invoice in previous_invoice_state]
-        invoices = (
-            Invoice.objects.filter(id__in=invoice_ids)
-            .exclude(status=Invoice.STATUS.CANCELLED)
-            .order_by("created_at")
-        )
+        invoices = Invoice.objects.filter(id__in=invoice_ids).order_by("created_at")
 
         # Iterate through the invoices and update the status and due_amount
         for invoice, invoice_data in zip(invoices, previous_invoice_state):
