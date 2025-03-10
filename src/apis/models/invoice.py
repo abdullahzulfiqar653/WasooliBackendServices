@@ -7,14 +7,14 @@ from apis.models.abstract.base import BaseModel
 
 class Invoice(BaseModel):
     class STATUS(models.TextChoices):
-        CANCELLED = "cancel", "Cancel"
         PAID = "paid", "Paid"
         UNPAID = "unpaid", "Unpaid"
+        CANCELLED = "cancel", "Cancel"
 
     class Type(models.TextChoices):
+        OTHER = "other", "Other"
         MONTHLY = "monthly", "Monthly"
         ONE_TIME = "one_time", "One Time"
-        OTHER = "other", "Other"
         MISCILLANEOUS = "miscellaneous", "Miscellaneous"
 
     status = models.CharField(
@@ -39,6 +39,12 @@ class Invoice(BaseModel):
     )
     member = models.ForeignKey(
         "apis.MerchantMember",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="invoices",
+    )
+    membership = models.ForeignKey(
+        "apis.MerchantMembership",
         null=True,
         on_delete=models.SET_NULL,
         related_name="invoices",
