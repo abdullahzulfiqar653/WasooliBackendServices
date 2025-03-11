@@ -58,7 +58,7 @@ class MerchantMembership(BaseModel):
     @property
     def total_supply_given_this_month(self):
         total = self.supply_records.filter(
-            date__year=timezone.now().year, date__month=timezone.now().month
+            created_at__year=timezone.now().year, created_at__month=timezone.now().month
         ).aggregate(given=Sum("given"))
         return total["given"] or 0
 

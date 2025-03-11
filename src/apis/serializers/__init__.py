@@ -15,6 +15,8 @@ from apis.serializers.transaction_history import TransactionHistorySerializer
 from apis.serializers.fake_invoice_serializer import FakeInvoiceSerializer
 from apis.serializers.membership_status_change import MembershipStatusChangeSerializer
 from apis.serializers.merchant_footer import MerchantFooterSerializer
+from apis.serializers.generate_invoice import GenerateInvoicesSerializer
+
 
 __all__ = [
     "UserSerializer",
@@ -34,4 +36,5 @@ __all__ = [
     "FakeInvoiceSerializer",
     "MembershipStatusChangeSerializer",
     "MerchantFooterSerializer",
+    "GenerateInvoicesSerializer",
 ]

@@ -4,6 +4,7 @@ from apis.views import (
     OTPView,
     LookupListAPIView,
     RefreshTokenAPIView,
+    GenerateInvoicesAPIView,
     AccessInfoRetrieveAPIView,
     PreSignedUrlCreateAPIView,
     MemberRetrieveByPhoneAPIView,
@@ -59,6 +60,11 @@ urlpatterns = [
         "merchants/<str:pk>/footer/",
         MerchantFooterRetrieveUpdateAPIView.as_view(),
         name="merchant-footer-update",
+    ),
+    path(
+        "merchants/<str:pk>/generate-invoices/",
+        GenerateInvoicesAPIView.as_view(),
+        name="generate-invoices",
     ),
     # =====================================================
     # MerchantMember

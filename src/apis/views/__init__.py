@@ -6,6 +6,7 @@ from apis.views.merchant import (
     MerchantMemberListCreateAPIView,
     MerchantDashboardRetrieveAPIView,
     MerchantFooterRetrieveUpdateAPIView,
+    GenerateInvoicesAPIView,
 )
 
 from apis.views.member import (
@@ -52,4 +53,5 @@ __all__ = [
     "PublicCustomerProfileRetrieveAPIView",
     "MemberTransactionHistoryListCreateAPIView",
     "MerchantFooterRetrieveUpdateAPIView",
+    "GenerateInvoicesAPIView",
 ]

@@ -1,6 +1,7 @@
 from django.utils import timezone
 from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
+from rest_framework.response import Response
 from django.db.models import (
     F,
     Sum,
@@ -12,17 +13,18 @@ from django.db.models import (
     DecimalField,
 )
 
+from apis.models.merchant import Merchant
 from apis.models.member_role import RoleChoices
 from apis.models.merchant_member import MerchantMember
-from apis.models.merchant import Merchant
 from apis.models.transaction_history import TransactionHistory
 
 from apis.permissions import IsMerchantOrStaff
 from apis.serializers.merchant_member import MerchantMemberSerializer
 from apis.serializers.merchant_footer import MerchantFooterSerializer
+from apis.serializers.generate_invoice import GenerateInvoicesSerializer
 
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
 
 
 class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
@@ -301,3 +303,33 @@ class MerchantFooterRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     )
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)
+
+
+class GenerateInvoicesAPIView(generics.CreateAPIView):
+    serializer_class = GenerateInvoicesSerializer
+    permission_classes = [IsMerchantOrStaff]
+
+    @extend_schema(
+        description="""
+        ### Generate Invoices:
+        - This API allows merchants to generate invoices for all members.
+        - Invoices are created based on the member's billing type (monthly or supply-based).
+        - The response includes the generated invoices with their details.
+        """,
+        request=GenerateInvoicesSerializer,
+        responses={
+            201: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description="Invoices created successfully",
+            ),
+            400: OpenApiResponse(description="Bad Request - Invalid data"),
+        },
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        data = serializer.save()
+
+        return Response(data, status=201)
