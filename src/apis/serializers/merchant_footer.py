@@ -20,7 +20,7 @@ class MerchantFooterSerializer(serializers.ModelSerializer):
         metadata = instance.metadata or {}
         # Update footer fields while preserving existing data
         metadata["footer"] = validated_data["metadata"]
-        
+
         # Ensure validated_data contains the updated metadata
         validated_data["metadata"] = metadata
 

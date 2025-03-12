@@ -62,14 +62,12 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
             or 0
         )
 
-        total_credit_adjustment = (
-            transaction_summary.filter(
-                transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT
-            ).aggregate(total_credit=Sum("value", default=0))["total_credit"]
-            or 0
-        )
-
-        total_credit = total_credit - total_credit_adjustment
+        # total_credit_adjustment = (
+        #     transaction_summary.filter(
+        #         transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT
+        #     ).aggregate(total_credit=Sum("value", default=0))["total_credit"]
+        #     or 0
+        # )
 
         # Get credit amount for today
         credit_today = (

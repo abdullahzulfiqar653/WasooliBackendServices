@@ -71,18 +71,28 @@ class TransactionHistory(BaseModel):
             or 0
         )
 
+        total_adjustment = (
+            self.merchant_membership.membership_transactions.filter(
+                transaction_type=self.TRANSACTION_TYPE.ADJUSTMENT
+            ).aggregate(total_adjustmnet=Sum("value", default=0))["total_adjustmnet"]
+            or 0
+        )
+
         # Include the current transaction's debit or credit
-        credit = debit = 0
+        credit = debit = adjustment = 0
         if self.transaction_type == self.TRANSACTION_TYPE.CREDIT:
             credit = self.value
         if self.transaction_type == self.TRANSACTION_TYPE.DEBIT:
             debit = self.value
+        if self.transaction_type == self.TRANSACTION_TYPE.ADJUSTMENT:
+            adjustment = self.value
 
         total_debit += debit
         total_credit += credit
+        total_adjustment += adjustment
 
         # Update the balance
-        self.balance = total_credit - total_debit
+        self.balance = total_credit - (total_debit - total_adjustment)
 
     def calculate_commission(self):
         """
