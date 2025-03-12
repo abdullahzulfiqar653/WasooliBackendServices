@@ -35,6 +35,7 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
                 id = secrets.token_hex(6)
                 invoice = Invoice(
                     code=last_code,
+                    membership=membership,
                     member=merchant_member,
                     due_amount=amount_to_pay,
                     created_at=timezone.now(),
