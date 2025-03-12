@@ -137,10 +137,6 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
                     "value": total_credit,
                     "name": "Collection this year",
                 },
-                "total_remaining_collections": {
-                    "value": total_credit,
-                    "name": "Remaining collection this year",
-                },
                 "total_customers": {
                     "value": total_customers,
                     "name": "Total Customers",
