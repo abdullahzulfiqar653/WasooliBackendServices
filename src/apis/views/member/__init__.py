@@ -10,9 +10,9 @@ from apis.views.member.transaction_history import (
 )
 
 __all__ = [
-    "MembershipToggleUpdateApiView",
     "MemberProfileRetrieveAPIView",
     "MembershipStatusUpdateApiView",
+    "MembershipToggleUpdateApiView",
     "MemberInvoiceListCreateAPIView",
     "MemberRetrieveUpdateDestroyAPIView",
     "MemberSupplyRecordListCreateAPIView",

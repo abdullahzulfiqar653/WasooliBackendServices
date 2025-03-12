@@ -6,6 +6,8 @@ from apis.models.abstract.base import BaseModel
 
 
 class Invoice(BaseModel):
+    UID_PREFIX = 101
+
     class STATUS(models.TextChoices):
         PAID = "paid", "Paid"
         UNPAID = "unpaid", "Unpaid"

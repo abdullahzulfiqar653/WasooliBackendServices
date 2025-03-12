@@ -3,7 +3,9 @@ from apis.serializers.monthly_membership_invoice import (
     MonthlyMembershipInvoiceSerializer,
 )
 
+from apis.permissions import IsMerchantOrStaff
 
-class MonthlyMembershipInvoiceCreateAPIView(CreateAPIView):
+
+class MerchantMonthlyMembershipInvoiceCreateAPIView(CreateAPIView):
     serializer_class = MonthlyMembershipInvoiceSerializer
-    permission_classes = []
+    permission_classes = [IsMerchantOrStaff]
