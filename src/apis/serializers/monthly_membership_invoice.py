@@ -2,6 +2,7 @@ import secrets
 from django.db.models import Max
 from django.utils import timezone
 from rest_framework import serializers
+from django.db.models import OuterRef, Exists
 
 from apis.models.invoice import Invoice
 from apis.models.transaction_history import TransactionHistory
@@ -12,25 +13,33 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
     def create(self, validated_data):
         request = self.context["request"]
         merchant = request.merchant
-        memberships = merchant.members.all()
+        now = timezone.now()
+        current_year = now.year
+        current_month = now.month
 
-        invoices = transactions = []
+        # Subquery: Check if an invoice exists for the current month for a given membership
+        invoice_exists_subquery = Invoice.objects.filter(
+            membership=OuterRef("id"),
+            created_at__year=current_year,
+            created_at__month=current_month,
+        )
+        memberships = merchant.members.annotate(
+            has_invoice=Exists(invoice_exists_subquery)
+        ).filter(has_invoice=False)
+        invoices = []
+        transactions = []
+        invoice = (
+            Invoice.objects.filter(membership__merchant=merchant)
+            .order_by("-code")
+            .first()
+        )
 
-        last_code = Invoice.objects.aggregate(Max("code"))["code__max"]
         try:
             for membership in memberships:
-                last_code = str(int(last_code) + 1) if last_code else "10000000"
+                last_code = (
+                    str(int(invoice.code) + 1) if invoice else f"{merchant.code}100000"
+                )
                 merchant_member = membership.member
-
-                existing_invoice = Invoice.objects.filter(
-                    membership=membership,
-                    created_at__year=timezone.now().year,
-                    created_at__month=timezone.now().month,
-                ).exists()
-
-                if existing_invoice:
-                    continue
-
                 amount_to_pay = membership.calculate_invoice()
                 id = secrets.token_hex(6)
                 invoice = Invoice(
@@ -44,7 +53,6 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
                     id=f"{Invoice.UID_PREFIX}{id}",
                 )
                 invoices.append(invoice)
-
                 transactions.append(
                     TransactionHistory(
                         invoice=invoice,

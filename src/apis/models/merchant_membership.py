@@ -91,9 +91,6 @@ class MerchantMembership(BaseModel):
         return self.total_credit - self.total_debit
 
     def calculate_invoice(self):
-        if self.merchant.is_fixed_fee_merchant:
-            return self.discounted_price
-
-        if self.is_monthly:
+        if self.merchant.is_fixed_fee_merchant or self.is_monthly:
             return self.discounted_price
         return self.total_supply_given_this_month * self.discounted_price

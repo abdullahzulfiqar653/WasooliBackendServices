@@ -32,7 +32,7 @@ class Invoice(BaseModel):
     )
 
     # New column to store the invoice code, starting from 10000000
-    code = models.CharField(max_length=10, unique=True, editable=False)
+    code = models.CharField(max_length=14, unique=True, editable=False)
     handled_by = models.ForeignKey(
         "apis.MerchantMember",
         null=True,
@@ -58,8 +58,16 @@ class Invoice(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.code:
-            last_code = Invoice.objects.aggregate(Max("code"))["code__max"]
-            self.code = str(int(last_code) + 1) if last_code else "10000000"
+            invoice = (
+                Invoice.objects.filter(membership__merchant=self.membership.merchant)
+                .order_by("-code")
+                .first()
+            )
+            self.code = (
+                str(int(invoice.code) + 1)
+                if invoice
+                else f"{self.membership.merchant.code}100000"
+            )
         if self._state.adding:
             if not (self.status == "paid" or self.due_amount):
                 self.due_amount = self.total_amount
