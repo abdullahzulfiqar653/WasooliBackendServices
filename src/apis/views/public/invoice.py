@@ -3,6 +3,7 @@ from rest_framework import generics
 from django_filters.rest_framework import DjangoFilterBackend
 
 from apis.permissions import IsCustomer
+from apis.models.invoice import Invoice
 from apis.filters.invoice import InvoiceFilter
 from apis.serializers.invoice import InvoiceSerializer
 
@@ -18,6 +19,8 @@ class PublicMemberInvoiceListAPIView(generics.ListAPIView):
     filterset_class = InvoiceFilter
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Invoice.objects.none()
         return self.request.member.invoices.order_by("-created_at").all()
 
     @extend_schema(

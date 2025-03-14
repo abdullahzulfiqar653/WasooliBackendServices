@@ -13,6 +13,7 @@ from apis.serializers.member_role import MemberRoleSerializer
 from apis.serializers.merchant_membership import MerchantMembershipSerializer
 
 from services.s3 import S3Service
+from drf_spectacular.utils import extend_schema_field
 
 s3_client = S3Service()
 
@@ -77,6 +78,7 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
             if role == RoleChoices.STAFF:
                 self.fields[membership].required = False
 
+    @extend_schema_field(serializers.CharField())
     def get_otp(self, obj):
         return getattr(obj.otp, "code", None) if hasattr(obj, "otp") else None
 

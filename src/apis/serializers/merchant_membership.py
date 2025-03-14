@@ -6,6 +6,7 @@ from apis.models.lookup import Lookup
 from apis.models.merchant_membership import MerchantMembership
 
 from services.s3 import S3Service
+from drf_spectacular.utils import extend_schema_field
 
 s3_client = S3Service()
 
@@ -36,6 +37,7 @@ class MerchantMembershipSerializer(ModelSerializer):
             "is_monthly": {"required": True},
         }
 
+    @extend_schema_field(serializers.CharField())
     def get_unit(self, obj):
         return obj.merchant.unit
 

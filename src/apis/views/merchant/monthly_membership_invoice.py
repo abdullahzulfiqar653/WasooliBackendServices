@@ -7,5 +7,9 @@ from apis.permissions import IsMerchantOrStaff
 
 
 class MerchantMonthlyMembershipInvoiceCreateAPIView(CreateAPIView):
+    """
+    Just provide the merchant id in URL and for all customers of the merchant monthly invoices will be created
+    """
+
     serializer_class = MonthlyMembershipInvoiceSerializer
     permission_classes = [IsMerchantOrStaff]
