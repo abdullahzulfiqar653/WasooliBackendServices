@@ -8,6 +8,8 @@ from apis.models.abstract.base import BaseModel
 
 
 class TransactionHistory(BaseModel):
+    UID_PREFIX = 106
+
     class TYPES(models.TextChoices):
         COMMISSION = "commission", "Commission"
         BILLING = "billing", "Billing"

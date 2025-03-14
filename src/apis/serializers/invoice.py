@@ -92,8 +92,9 @@ class InvoiceSerializer(serializers.ModelSerializer):
         except:
             pass
 
-        validated_data["member"] = request.member
         validated_data["is_monthly"] = False
+        validated_data["member"] = request.member
+        validated_data["membership"] = merchant_membership
         validated_data["type"] = Invoice.Type.MISCILLANEOUS
         invoice = super().create(validated_data)
 

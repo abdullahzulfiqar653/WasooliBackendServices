@@ -58,7 +58,7 @@ class MerchantMembership(BaseModel):
     @property
     def total_supply_given_this_month(self):
         total = self.supply_records.filter(
-            date__year=timezone.now().year, date__month=timezone.now().month
+            created_at__year=timezone.now().year, created_at__month=timezone.now().month
         ).aggregate(given=Sum("given"))
         return total["given"] or 0
 
@@ -91,6 +91,6 @@ class MerchantMembership(BaseModel):
         return self.total_credit - self.total_debit
 
     def calculate_invoice(self):
-        if self.merchant.type == Merchant.MerchantType.WATER and not self.is_monthly:
-            return self.total_supply_given_this_month * self.discounted_price
-        return self.discounted_price
+        if self.merchant.is_fixed_fee_merchant or self.is_monthly:
+            return self.discounted_price
+        return self.total_supply_given_this_month * self.discounted_price
