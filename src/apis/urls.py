@@ -17,10 +17,11 @@ from apis.views import (
     MerchantDashboardRetrieveAPIView,
     MemberRetrieveUpdateDestroyAPIView,
     MemberSupplyRecordListCreateAPIView,
+    MerchantFooterRetrieveUpdateAPIView,
     PublicMembershipMerchantsListAPIView,
     PublicCustomerProfileRetrieveAPIView,
     MemberTransactionHistoryListCreateAPIView,
-    MerchantFooterRetrieveUpdateAPIView,
+    MerchantMonthlyMembershipInvoiceCreateAPIView,
 )
 
 
@@ -44,6 +45,11 @@ urlpatterns = [
         "merchants/<str:merchant_id>/dashboard/",
         MerchantDashboardRetrieveAPIView.as_view(),
         name="merchant-dashboard-retrieve",
+    ),
+    path(
+        "merchants/<str:merchant_id>/monthly-invoices/",
+        MerchantMonthlyMembershipInvoiceCreateAPIView.as_view(),
+        name="merchant-monthly-invoices",
     ),
     path(
         "merchants/<str:merchant_id>/members/",

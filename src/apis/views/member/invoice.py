@@ -2,6 +2,7 @@ from datetime import datetime
 from rest_framework import generics, filters
 from django_filters.rest_framework import DjangoFilterBackend
 
+from apis.models.invoice import Invoice
 from apis.permissions import IsMerchantOrStaff
 from apis.filters.invoice import InvoiceFilter
 from apis.serializers.invoice import InvoiceSerializer
@@ -12,14 +13,16 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class MemberInvoiceListCreateAPIView(generics.ListCreateAPIView):
+    pagination_class = None
+    filterset_class = InvoiceFilter
     serializer_class = InvoiceSerializer
     permission_classes = [IsMerchantOrStaff]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    filterset_class = InvoiceFilter
-    pagination_class = None
 
     def get_queryset(self):
-        return self.request.member.invoices.all().order_by("-created_at")
+        if getattr(self, "swagger_fake_view", False):
+            return Invoice.objects.none()
+        return self.request.membership.invoices.all().order_by("-created_at")
 
     @extend_schema(
         description="""
