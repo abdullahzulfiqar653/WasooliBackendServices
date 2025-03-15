@@ -1,0 +1,6 @@
+first_name,last_name,email,primary_phone,area,city,actual_price,discounted_price
+Ali1,Khan,ali@example.com,3072868200,Gulshan-e-Iqbal,Karachi,1000,900
+Sara1,Ahmed,sara@example.com,3072868300,DHA,Lahore,2000,1800
+Usman1,Bashir,usman@example.com,3072868400,Johar Town,Lahore,1500,1300
+Ayesha1,Malik,ayesha@example.com,3072868500,Clifton,Karachi,2500,2200
+Zain1,Sheikh,zain@example.com,3072868600,F-10,Islamabad,1800,1600
