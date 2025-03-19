@@ -3,7 +3,9 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apis.models.otp import OTP
+from django.conf import settings
 from apis.factories import OTPSenderFactory
+
 
 
 class OTPSerializer(serializers.Serializer):
@@ -20,6 +22,10 @@ class OTPSerializer(serializers.Serializer):
         request = self.context.get("request")
         otp_code = validated_data.get("otp")
         platform = validated_data.get("platform", "email")
+
+        if settings.ENV == "DEV":
+            if not request.member.id in ["105fBHTSGRRM38d", "105LevvX8Q7gziD", "105jfY4tyo8vXqc"]:
+                platform = "email"
 
         if otp_code:
             try:
