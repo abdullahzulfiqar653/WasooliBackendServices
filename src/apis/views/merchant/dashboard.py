@@ -1,9 +1,11 @@
 from django.utils import timezone
+from django.utils.timezone import now
 from django.db.models import Sum, Q, Count
 
 from rest_framework import generics
 from rest_framework.response import Response
 
+from apis.models.invoice import Invoice
 from apis.permissions import IsMerchantOrStaff
 from apis.models.transaction_history import TransactionHistory
 from apis.serializers.merchant_dashboard import MerchantDashboardSerializer
@@ -41,18 +43,23 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         today = timezone.now().date()
+        current_year = now().year
+        current_month = now().month
         first_of_this_month = today.replace(day=1)
         transaction_summary = TransactionHistory.objects.filter(
             merchant_membership__merchant_id=request.merchant.id,  # Filter by merchant ID
             type=TransactionHistory.TYPES.BILLING,
         )
 
-        # total_debit = (
-        #     self.merchant_membership.membership_transactions.filter(
-        #         transaction_type=self.TRANSACTION_TYPE.DEBIT
-        #     ).aggregate(total_debit=Sum("value", default=0))["total_debit"]
-        #     or 0
-        # )
+        totals = Invoice.objects.filter(
+            membership__merchant=request.merchant,  # Filter invoices related to this merchant
+            created_at__year=current_year,
+            created_at__month=current_month,
+        ).aggregate(total_due=Sum("due_amount"), total_amount=Sum("total_amount"))
+        total_due = totals["total_due"] or 0
+        total_amount = totals["total_amount"] or 0
+        collected_amount_current_month = total_amount - total_due
+
 
         # Calculate total credit for this merchant_membership
         total_credit = (
@@ -61,13 +68,6 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
             ).aggregate(total_credit=Sum("value", default=0))["total_credit"]
             or 0
         )
-
-        # total_credit_adjustment = (
-        #     transaction_summary.filter(
-        #         transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT
-        #     ).aggregate(total_credit=Sum("value", default=0))["total_credit"]
-        #     or 0
-        # )
 
         # Get credit amount for today
         credit_today = (
@@ -106,7 +106,7 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
             ]
             or 0
         )
-        remaining_debit_this_month = (
+        total_remaining_collection = (
             debit_this_month - credit_adjustment_this_month - credit_this_month
         )
 
@@ -130,12 +130,16 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
                     "name": "Collection this month",
                 },
                 "total_remaining_collections_this_month": {
-                    "value": remaining_debit_this_month,
+                    "value": collected_amount_current_month,
                     "name": "Remaining collection this month",
                 },
                 "total_collections": {
                     "value": total_credit,
                     "name": "Collection this year",
+                },
+                "total_remaining_collections": {
+                    "value": total_remaining_collection,
+                    "name": "Total Remaining collection",
                 },
                 "total_customers": {
                     "value": total_customers,
