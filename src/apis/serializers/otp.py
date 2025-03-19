@@ -1,6 +1,10 @@
+from datetime import timedelta
+from django.utils.timezone import now
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
+
 
 from apis.models.otp import OTP
 from django.conf import settings
@@ -13,6 +17,8 @@ class OTPSerializer(serializers.Serializer):
     refresh = serializers.CharField(read_only=True)
     access = serializers.CharField(read_only=True)
     message = serializers.CharField(read_only=True)
+    remaining_time = serializers.CharField(read_only=True)
+
     platform = serializers.CharField(default="email", write_only=True)
     otp = serializers.CharField(
         max_length=6, required=False, write_only=True, allow_null=True
@@ -48,7 +54,11 @@ class OTPSerializer(serializers.Serializer):
             }
 
         else:
-            otp_record, _ = OTP.objects.get_or_create(member=request.member)
+            otp_record, created = OTP.objects.get_or_create(member=request.member)
+            if not created and otp_record.updated_at >= now() - timedelta(minutes=2):
+                remaining_time = 120 - (now() - otp_record.updated_at).seconds
+                return {"message": "Please wait 2 minutes before trying again.", "remaining_time": remaining_time}
+
             otp = otp_record.generate_otp()
             sender = OTPSenderFactory.get_sender(platform)
             sender.send_otp(request.member, otp)
