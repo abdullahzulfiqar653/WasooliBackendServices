@@ -24,6 +24,7 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
     roles = MemberRoleSerializer(required=True, write_only=True)
     otp = serializers.SerializerMethodField()
     balance = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    supply_balance = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = MerchantMember
@@ -37,6 +38,7 @@ class MerchantMemberSerializer(serializers.ModelSerializer):
             "picture",
             "balance",
             "primary_phone",
+            "supply_balance",
             "merchant_memberships",
         ]
         extra_kwargs = {

@@ -9,12 +9,14 @@ from django.db.models import (
     Value,
     Subquery,
     OuterRef,
+    IntegerField,
     DecimalField,
 )
 
-from apis.models.member_role import RoleChoices
-from apis.models.merchant_member import MerchantMember
 from apis.models.merchant import Merchant
+from apis.models.member_role import RoleChoices
+from apis.models.supply_record import SupplyRecord
+from apis.models.merchant_member import MerchantMember
 from apis.models.transaction_history import TransactionHistory
 
 from apis.permissions import IsMerchantOrStaff
@@ -72,6 +74,23 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
 
             # Now annotate balances directly on the membership
             # For each membership, calculate balance by summing debits, credits, and adjustments
+
+            # Subquery to calculate total given and total taken separately
+            membership_supply_balances = (
+                SupplyRecord.objects.filter(
+                    merchant_membership=OuterRef("memberships__id")
+                )
+                .values("merchant_membership")
+                .annotate(
+                    total_given=Sum("given"),
+                    total_taken=Sum("taken"),
+                )
+                .annotate(
+                    total_supply_balance=F("total_given") - F("total_taken"),
+                )
+                .values("total_supply_balance")
+            )
+
             membership_balance_subquery = (
                 TransactionHistory.objects.filter(
                     merchant_membership=OuterRef("memberships__id"),
@@ -116,7 +135,12 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                 )
                 .values("balance")
             )
-
+            
+            merchant_member_queryset = merchant_member_queryset.annotate(
+                supply_balance=Subquery(
+                    membership_supply_balances, output_field=IntegerField()
+                )
+            )
             merchant_member_queryset = merchant_member_queryset.annotate(
                 balance=Subquery(
                     membership_balance_subquery, output_field=DecimalField()

@@ -23,6 +23,7 @@ class MerchantMembershipSerializer(ModelSerializer):
             "unit",
             "picture",
             "address",
+            "account",
             "merchant",
             "is_active",
             "meta_data",
@@ -31,7 +32,7 @@ class MerchantMembershipSerializer(ModelSerializer):
             "secondary_phone",
             "discounted_price",
         ]
-        read_only_fields = ["account", "merchant"]
+        read_only_fields = ["account", "merchant", "account",]
         extra_kwargs = {
             "is_active": {"required": True},
             "is_monthly": {"required": True},
