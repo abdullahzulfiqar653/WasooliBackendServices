@@ -22,7 +22,7 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
             membership=OuterRef("id"),
             created_at__year=current_year,
             created_at__month=current_month,
-        )
+        ).exclude(status=Invoice.STATUS.CANCELLED)
         memberships = merchant.members.annotate(
             has_invoice=Exists(invoice_exists_subquery)
         ).filter(has_invoice=False)
