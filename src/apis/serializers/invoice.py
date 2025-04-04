@@ -95,7 +95,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         validated_data["is_monthly"] = False
         validated_data["member"] = request.member
         validated_data["membership"] = merchant_membership
-        validated_data["type"] = Invoice.Type.MISCILLANEOUS
+        validated_data["type"] = Invoice.Type.OTHER
         invoice = super().create(validated_data)
 
         try:
