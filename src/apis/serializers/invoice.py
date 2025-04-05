@@ -171,6 +171,9 @@ class InvoiceSerializer(serializers.ModelSerializer):
                 }
             ]
             instance.metadata['mark_as_paid_by'] = request.user.first_name
+            instance.status = Invoice.STATUS.PAID
+            instance.due_amount = Decimal(0)
+            instance.handled_by = request.membership.member
             TransactionHistory.objects.create(
                 invoice=instance,
                 metadata={
@@ -193,9 +196,6 @@ class InvoiceSerializer(serializers.ModelSerializer):
                 type=TransactionHistory.TYPES.BILLING,
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
             )
-            instance.status = Invoice.STATUS.PAID
-            instance.due_amount = Decimal(0)
-            instance.handled_by = request.membership.member
             instance.save()
             return instance
 
