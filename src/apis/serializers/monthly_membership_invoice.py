@@ -15,17 +15,41 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
         merchant = request.merchant
         now = timezone.now()
         current_year = now.year
-        current_month = now.month
+        current_month = validated_data.get("month", now.month)
 
         # Subquery: Check if an invoice exists for the current month for a given membership
+        unpaid_invoices = Invoice.objects.filter(
+            type=Invoice.Type.MONTHLY,
+            status=Invoice.STATUS.UNPAID,
+            created_at__year=current_year,
+            membership__merchant=merchant,
+            created_at__month=current_month,
+        )
+        unpaid_invoices.update(status=Invoice.STATUS.CANCELLED)
+        # Step 3: Create transaction history entries
+        TransactionHistory.objects.bulk_create([
+            TransactionHistory(
+                invoice=invoice,
+                is_online=False,
+                value=invoice.total_amount,
+                type=TransactionHistory.TYPES.BILLING,
+                metadata={"invoices": [invoice.code]},
+                merchant_membership=invoice.membership,
+                transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
+            )
+            for invoice in unpaid_invoices
+        ])
+
         invoice_exists_subquery = Invoice.objects.filter(
             membership=OuterRef("id"),
             created_at__year=current_year,
             created_at__month=current_month,
+            status=Invoice.Type.MONTHLY
         ).exclude(status=Invoice.STATUS.CANCELLED)
         memberships = merchant.members.annotate(
             has_invoice=Exists(invoice_exists_subquery)
         ).filter(has_invoice=False)
+
         invoices = []
         transactions = []
         invoice = (
@@ -36,6 +60,7 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
 
         try:
             for membership in memberships:
+                membership._supply_month = current_month
                 last_code = (
                     str(int(invoice.code) + 1) if invoice else f"{merchant.code}100000"
                 )
