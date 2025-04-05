@@ -1,3 +1,11 @@
+from django.db.models import (
+    F,
+    Sum,
+    Subquery,
+    OuterRef,
+    IntegerField,
+)
+from apis.models.supply_record import SupplyRecord
 from rest_framework import generics
 
 from apis.models.member_role import RoleChoices
@@ -37,6 +45,26 @@ class MemberRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
             queryset = queryset.filter(
                 memberships__merchant=merchant
             )  # For CUSTOMER, use `memberships__merchant=merchant`
+            # Subquery to calculate total given and total taken separately
+            membership_supply_balances = (
+                SupplyRecord.objects.filter(
+                    merchant_membership=OuterRef("memberships__id")
+                )
+                .values("merchant_membership")
+                .annotate(
+                    total_given=Sum("given"),
+                    total_taken=Sum("taken"),
+                )
+                .annotate(
+                    total_supply_balance=F("total_given") - F("total_taken"),
+                )
+                .values("total_supply_balance")
+            )
+            queryset = queryset.annotate(
+                supply_balance=Subquery(
+                    membership_supply_balances, output_field=IntegerField()
+                )
+            )
         queryset = queryset.distinct()
 
         return queryset
