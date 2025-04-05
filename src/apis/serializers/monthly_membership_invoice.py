@@ -87,7 +87,9 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
                 amount_to_pay = membership.calculate_invoice()
                 id = secrets.token_hex(6)
                 invoice = Invoice(
-                    metadata={},
+                    metadata={
+                        "created_by": request.user.first_name
+                    },
                     code=last_code,
                     membership=membership,
                     member=merchant_member,
@@ -95,6 +97,7 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
                     total_amount=amount_to_pay,
                     status=Invoice.STATUS.UNPAID,
                     id=f"{Invoice.UID_PREFIX}{id}",
+                    handled_by=request.user.profile,
                     created_at=get_safe_date(current_month),
                 )
                 invoices.append(invoice)

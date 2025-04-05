@@ -170,11 +170,21 @@ class InvoiceSerializer(serializers.ModelSerializer):
                     "due_amount": str(instance.due_amount),
                 }
             ]
-
+            instance.metadata['mark_as_paid_by'] = request.user.first_name
             TransactionHistory.objects.create(
                 invoice=instance,
                 metadata={
-                    "invoices": [instance.code],
+                    "invoices": [
+                        {
+                            "id": instance.id,
+                            "code": instance.code,
+                            "status": instance.status,
+                            "metadata": instance.metadata,
+                            "due_amount": str(instance.due_amount),
+                            "total_amount": str(instance.total_amount),
+                            "created_at": instance.created_at.isoformat(),
+                        }
+                    ],
                     "previous_invoice_state": previous_invoice_state,
                 },
                 merchant_membership=request.membership,
