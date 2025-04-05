@@ -39,7 +39,7 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
         is_paid = self.request.query_params.get("is_paid", None)
         balance = self.request.query_params.get("balance", None)
         supply_balance = self.request.query_params.get("supply_balance", None)
-
+        order_by_field = "-code"
         is_paid_today = self.request.query_params.get("is_paid_today", None)
         merchant = self.request.merchant
 
@@ -167,17 +167,12 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                     memberships__membership_transactions__in=transaction_history_queryset_today
                 )
 
-            if balance == "true":
-                return merchant_member_queryset.order_by("balance")
-            elif balance == "false": # means invoices_balance=False
-                return merchant_member_queryset.order_by("-balance")
-            if supply_balance == "true":
-                return merchant_member_queryset.order_by("supply_balance")
-            elif supply_balance == "false": # means supply_balance=False
-                return merchant_member_queryset.order_by("-supply_balance")
+            if balance is not None:
+                order_by_field = "balance" if balance else "-balance"
+            elif supply_balance is not None:
+                order_by_field = "supply_balance" if supply_balance else "-supply_balance"
 
-
-        return merchant_member_queryset.order_by("-code")
+        return merchant_member_queryset.order_by(order_by_field)
 
     @extend_schema(
         parameters=[
