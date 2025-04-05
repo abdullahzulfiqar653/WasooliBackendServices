@@ -71,6 +71,7 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
                 amount_to_pay = membership.calculate_invoice()
                 id = secrets.token_hex(6)
                 invoice = Invoice(
+                    metadata={},
                     code=last_code,
                     membership=membership,
                     member=merchant_member,

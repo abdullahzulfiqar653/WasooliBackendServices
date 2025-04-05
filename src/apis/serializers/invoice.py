@@ -204,7 +204,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             instance.save()
             return instance
 
-        if new_amount and not instance.total_amount == new_amount:
+        if new_amount and instance.total_amount != new_amount:
             metadata = validated_data.get("metadata", {})
             if self.instance.total_amount > new_amount:
                 # if new amount is less then previous amount
@@ -235,8 +235,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             instance.total_amount = new_amount
             old_remarks = instance.metadata.get("remarks", "")
             new_remarks = metadata.get("remarks", "")
-            new_remarks = f"{old_remarks}{new_remarks}. "
-            instance.metadata["remarks"] = new_remarks
+            instance.metadata["remarks"] = f"{old_remarks}{new_remarks}. "
             instance.save()
             return instance
         return instance
