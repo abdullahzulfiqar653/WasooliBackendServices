@@ -37,6 +37,9 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
     def get_queryset(self):
         role = self.request.query_params.get("role", RoleChoices.CUSTOMER)
         is_paid = self.request.query_params.get("is_paid", None)
+        balance = self.request.query_params.get("balance", None)
+        supply_balance = self.request.query_params.get("supply_balance", None)
+
         is_paid_today = self.request.query_params.get("is_paid_today", None)
         merchant = self.request.merchant
 
@@ -164,6 +167,16 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                     memberships__membership_transactions__in=transaction_history_queryset_today
                 )
 
+            if balance == "true":
+                return merchant_member_queryset.order_by("balance")
+            elif balance == "false": # means invoices_balance=False
+                return merchant_member_queryset.order_by("-balance")
+            if supply_balance == "true":
+                return merchant_member_queryset.order_by("supply_balance")
+            elif supply_balance == "false": # means supply_balance=False
+                return merchant_member_queryset.order_by("-supply_balance")
+
+
         return merchant_member_queryset.order_by("-code")
 
     @extend_schema(
@@ -188,6 +201,20 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                 required=False,
                 type=OpenApiTypes.STR,
                 enum=["true"],
+            ),
+            OpenApiParameter(
+                name="balance",
+                description="Order by customer balance.",
+                required=False,
+                type=OpenApiTypes.BOOL,
+                enum=[True, False],
+            ),
+            OpenApiParameter(
+                name="supply_balance",
+                description="Order by customer supply balance.",
+                required=False,
+                type=OpenApiTypes.BOOL,
+                enum=[True, False],
             ),
         ],
         description="""
