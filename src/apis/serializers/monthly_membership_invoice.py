@@ -1,11 +1,27 @@
 import secrets
-from django.db.models import Max
+from datetime import datetime
+from calendar import monthrange
+
 from django.utils import timezone
 from rest_framework import serializers
 from django.db.models import OuterRef, Exists
 
 from apis.models.invoice import Invoice
 from apis.models.transaction_history import TransactionHistory
+
+
+def get_safe_date(month: int) -> datetime:
+    now = timezone.now()
+    current_year = now.year
+
+    # Get the max valid day in the given month
+    _, last_day = monthrange(current_year, month)
+
+    # Ensure current day fits in the target month
+    safe_day = min(now.day, last_day)
+
+    # Return datetime with same time but updated month and safe day
+    return now.replace(month=month, day=safe_day)
 
 
 class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
@@ -76,10 +92,10 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
                     membership=membership,
                     member=merchant_member,
                     due_amount=amount_to_pay,
-                    created_at=timezone.now(),
                     total_amount=amount_to_pay,
                     status=Invoice.STATUS.UNPAID,
                     id=f"{Invoice.UID_PREFIX}{id}",
+                    created_at=get_safe_date(current_month),
                 )
                 invoices.append(invoice)
                 transactions.append(
