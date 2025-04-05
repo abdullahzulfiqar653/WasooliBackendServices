@@ -25,26 +25,29 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
             membership__merchant=merchant,
             created_at__month=current_month,
         )
-        unpaid_invoices.update(status=Invoice.STATUS.CANCELLED)
-        # Step 3: Create transaction history entries
-        TransactionHistory.objects.bulk_create([
-            TransactionHistory(
-                invoice=invoice,
-                is_online=False,
-                value=invoice.total_amount,
-                type=TransactionHistory.TYPES.BILLING,
-                metadata={"invoices": [invoice.code]},
-                merchant_membership=invoice.membership,
-                transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
+        adjustments = []
+        for invoice in unpaid_invoices:
+            id = secrets.token_hex(6)
+            adjustments.append(
+                TransactionHistory(
+                    invoice=invoice,
+                    is_online=False,
+                    value=invoice.total_amount,
+                    type=TransactionHistory.TYPES.BILLING,
+                    metadata={"invoices": [invoice.code]},
+                    merchant_membership=invoice.membership,
+                    id=f"{TransactionHistory.UID_PREFIX}{id}",
+                    transaction_type=TransactionHistory.TRANSACTION_TYPE.ADJUSTMENT,
+                )
             )
-            for invoice in unpaid_invoices
-        ])
+        TransactionHistory.objects.bulk_create(adjustments)
+        unpaid_invoices.update(status=Invoice.STATUS.CANCELLED)
 
         invoice_exists_subquery = Invoice.objects.filter(
             membership=OuterRef("id"),
             created_at__year=current_year,
             created_at__month=current_month,
-            status=Invoice.Type.MONTHLY
+            status=Invoice.Type.MONTHLY,
         ).exclude(status=Invoice.STATUS.CANCELLED)
         memberships = merchant.members.annotate(
             has_invoice=Exists(invoice_exists_subquery)
