@@ -1,10 +1,12 @@
 from django.db.models import (
     F,
     Sum,
-    Subquery,
+    Value,
     OuterRef,
+    Subquery,
     IntegerField,
 )
+from django.db.models.functions import Coalesce
 from apis.models.supply_record import SupplyRecord
 from rest_framework import generics
 
@@ -61,8 +63,9 @@ class MemberRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
                 .values("total_supply_balance")
             )
             queryset = queryset.annotate(
-                supply_balance=Subquery(
-                    membership_supply_balances, output_field=IntegerField()
+                supply_balance=Coalesce(
+                    Subquery(membership_supply_balances, output_field=IntegerField()),
+                    Value(0),
                 )
             )
         queryset = queryset.distinct()

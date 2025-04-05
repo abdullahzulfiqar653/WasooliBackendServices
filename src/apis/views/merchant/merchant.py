@@ -1,6 +1,7 @@
 from django.utils import timezone
 from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
+from django.db.models.functions import Coalesce
 from django.db.models import (
     F,
     Sum,
@@ -135,10 +136,11 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                 )
                 .values("balance")
             )
-            
+
             merchant_member_queryset = merchant_member_queryset.annotate(
-                supply_balance=Subquery(
-                    membership_supply_balances, output_field=IntegerField()
+                supply_balance=Coalesce(
+                    Subquery(membership_supply_balances, output_field=IntegerField()),
+                    Value(0),
                 )
             )
             merchant_member_queryset = merchant_member_queryset.annotate(
