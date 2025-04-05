@@ -168,9 +168,9 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                 )
 
             if balance is not None:
-                order_by_field = "balance" if balance else "-balance"
+                order_by_field = "balance" if balance == "true" else "-balance"
             elif supply_balance is not None:
-                order_by_field = "supply_balance" if supply_balance else "-supply_balance"
+                order_by_field = "supply_balance" if supply_balance == "true" else "-supply_balance"
 
         return merchant_member_queryset.order_by(order_by_field)
 
