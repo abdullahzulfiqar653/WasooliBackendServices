@@ -166,6 +166,7 @@ class TransactionHistory(BaseModel):
                         "total_amount": str(invoice.total_amount),
                         "created_at": invoice.created_at.isoformat(),
                         "updated_at": invoice.updated_at.isoformat(),
+                        "metadata": invoice.metadata
                     }
                 )
             else:
@@ -180,6 +181,7 @@ class TransactionHistory(BaseModel):
                         "total_amount": str(invoice.total_amount),
                         "created_at": invoice.created_at.isoformat(),
                         "updated_at": invoice.updated_at.isoformat(),
+                        "metadata": invoice.metadata
                     }
                 )
                 break
