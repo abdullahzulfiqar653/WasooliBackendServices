@@ -25,6 +25,7 @@ def get_safe_date(month: int) -> datetime:
 
 
 class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
+    month = serializers.IntegerField(write_only=True)
 
     def create(self, validated_data):
         request = self.context["request"]
@@ -76,7 +77,6 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
             .order_by("-code")
             .first()
         )
-
         try:
             for membership in memberships:
                 membership._supply_month = current_month
