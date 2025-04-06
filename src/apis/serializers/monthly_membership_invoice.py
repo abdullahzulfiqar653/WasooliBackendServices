@@ -85,37 +85,38 @@ class MonthlyMembershipInvoiceSerializer(serializers.Serializer):
                 )
                 merchant_member = membership.member
                 amount_to_pay = membership.calculate_invoice()
-                id = secrets.token_hex(6)
-                invoice = Invoice(
-                    metadata={
-                        "created_by": request.user.first_name
-                    },
-                    code=last_code,
-                    membership=membership,
-                    member=merchant_member,
-                    due_amount=amount_to_pay,
-                    total_amount=amount_to_pay,
-                    status=Invoice.STATUS.UNPAID,
-                    id=f"{Invoice.UID_PREFIX}{id}",
-                    handled_by=request.user.profile,
-                    created_at=get_safe_date(current_month),
-                )
-                invoices.append(invoice)
-                transactions.append(
-                    TransactionHistory(
-                        invoice=invoice,
-                        value=invoice.total_amount,
-                        merchant_membership=membership,
-                        type=TransactionHistory.TYPES.BILLING,
-                        id=f"{TransactionHistory.UID_PREFIX}{id}",
-                        transaction_type=TransactionHistory.TRANSACTION_TYPE.DEBIT,
+                if amount_to_pay > 0:
+                    id = secrets.token_hex(6)
+                    invoice = Invoice(
+                        metadata={
+                            "created_by": request.user.first_name
+                        },
+                        code=last_code,
+                        membership=membership,
+                        member=merchant_member,
+                        due_amount=amount_to_pay,
+                        total_amount=amount_to_pay,
+                        status=Invoice.STATUS.UNPAID,
+                        id=f"{Invoice.UID_PREFIX}{id}",
+                        handled_by=request.user.profile,
+                        created_at=get_safe_date(current_month),
                     )
-                )
+                    invoices.append(invoice)
+                    transactions.append(
+                        TransactionHistory(
+                            invoice=invoice,
+                            value=invoice.total_amount,
+                            merchant_membership=membership,
+                            type=TransactionHistory.TYPES.BILLING,
+                            id=f"{TransactionHistory.UID_PREFIX}{id}",
+                            transaction_type=TransactionHistory.TRANSACTION_TYPE.DEBIT,
+                        )
+                    )
 
             Invoice.objects.bulk_create(invoices)
             TransactionHistory.objects.bulk_create(transactions)
             return {}
         except Exception as e:
             raise serializers.ValidationError(
-                {"detail": "Please try again", "error": str(e)}
+                {"detail": ["Please try again"], "error": str(e)}
             )
