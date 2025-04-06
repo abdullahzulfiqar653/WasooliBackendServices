@@ -58,7 +58,7 @@ class MemberRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
                     total_taken=Sum("taken"),
                 )
                 .annotate(
-                    total_supply_balance=F("total_given") - F("total_taken"),
+                    total_supply_balance=F("total_taken") - F("total_given"),
                 )
                 .values("total_supply_balance")
             )
