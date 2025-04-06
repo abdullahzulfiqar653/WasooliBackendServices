@@ -155,8 +155,8 @@ class TransactionHistory(BaseModel):
             if remaining_payment >= invoice.due_amount:
                 remaining_payment -= invoice.due_amount
                 invoice.due_amount = 0
-                invoice.status = Invoice.STATUS.PAID,
-                invoice.handled_by=self._merchant_member,
+                invoice.status = Invoice.STATUS.PAID
+                invoice.handled_by=self._merchant_member
                 invoice.metadata['mark_as_paid_by'] = self._created_by
                 invoice.save()
                 paid_invoices.append(
