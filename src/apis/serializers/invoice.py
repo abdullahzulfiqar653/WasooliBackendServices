@@ -81,16 +81,18 @@ class InvoiceSerializer(serializers.ModelSerializer):
         ).first()
         try:
             latest_transaction = merchant_membership.membership_transactions.latest()
-            if latest_transaction.balance > 0:
-                if validated_data.get("total_amount") <= latest_transaction.balance:
-                    validated_data["status"] = Invoice.STATUS.PAID
-                    validated_data["due_amount"] = 0
-                else:
-                    validated_data["due_amount"] = (
-                        validated_data.get("total_amount") - latest_transaction.balance
-                    )
-        except:
-            pass
+            latest_transaction_balance = latest_transaction.balance
+        except TransactionHistory.DoesNotExist:
+            latest_transaction_balance = 0
+
+        if latest_transaction_balance > 0:
+            if validated_data.get("total_amount") <= latest_transaction_balance:
+                validated_data["status"] = Invoice.STATUS.PAID
+                validated_data["due_amount"] = 0
+            else:
+                validated_data["due_amount"] = (
+                    validated_data.get("total_amount") - latest_transaction_balance
+                )
 
         validated_data["is_monthly"] = False
         validated_data["member"] = request.member
@@ -98,7 +100,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         validated_data["type"] = Invoice.Type.OTHER
         invoice = super().create(validated_data)
 
-        if latest_transaction.balance > 0:
+        if latest_transaction_balance > 0:
             try:
                 latest_credit_transaction = (
                     merchant_membership.membership_transactions.filter(
