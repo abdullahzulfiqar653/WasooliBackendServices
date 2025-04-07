@@ -19,17 +19,10 @@ class PublicCustomerProfileRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = MemberProfileSerializer
 
     def retrieve(self, request, *args, **kwargs):
-        merchant_id = self.kwargs.get("merchant_id")
-
-        # Now fetch the MerchantMembership
-        membership = MerchantMembership.objects.filter(
-            member=request.member, merchant__id=merchant_id
-        ).first()
-
-        if not membership:
+        if not request.membership:
             raise NotFound({"detail": ["Customer Membership not found."]})
 
-        response = get_customer_stats(membership)
+        response = get_customer_stats(request.membership)
         return Response(response)
 
     @extend_schema(

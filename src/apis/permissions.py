@@ -5,6 +5,7 @@ from rest_framework import permissions
 
 from apis.models.member_role import RoleChoices
 from apis.models.merchant_member import MerchantMember
+from apis.models.merchant_membership import MerchantMembership
 
 
 class IsAllowedToLogin(permissions.BasePermission):
@@ -184,6 +185,7 @@ class IsCustomer(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
+        merchant_id = view.kwargs.get("merchant_id")
         customer_code = view.kwargs.get("customer_code")
 
         # Retrieve the MerchantMember based on the provided customer code
@@ -195,5 +197,9 @@ class IsCustomer(permissions.BasePermission):
         if not member.roles.filter(role=RoleChoices.CUSTOMER).exists():
             raise exceptions.NotFound({"detail": ["Member is not a Customer."]})
 
+        membership = MerchantMembership.objects.filter(
+            member=member, merchant__id=merchant_id
+        ).first()
         request.member = member
+        request.membership = membership
         return True

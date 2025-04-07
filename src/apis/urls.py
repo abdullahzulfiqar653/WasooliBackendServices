@@ -18,6 +18,7 @@ from apis.views import (
     MemberRetrieveUpdateDestroyAPIView,
     MemberSupplyRecordListCreateAPIView,
     MerchantFooterRetrieveUpdateAPIView,
+    PublicMemberSupplyRecordListAPIView,
     PublicMembershipMerchantsListAPIView,
     PublicCustomerProfileRetrieveAPIView,
     MemberTransactionHistoryListCreateAPIView,
@@ -116,7 +117,7 @@ urlpatterns = [
         name="transaction-history-update",
     ),
     # =====================================================
-    # Public
+    # Public 
     # =====================================================
     path(
         "public/customer/<str:customer_code>/profile/<str:merchant_id>/",
@@ -129,9 +130,14 @@ urlpatterns = [
         name="public-membership-merchants-list",
     ),
     path(
-        "public/customer/<str:customer_code>/invoices/",
+        "public/customer/<str:customer_code>/invoices/<str:merchant_id>/",
         PublicMemberInvoiceListAPIView.as_view(),
         name="public-customer-invoice-list",
+    ),
+    path(
+        "public/customer/<str:customer_code>/supply_record/<str:merchant_id>/",
+        PublicMemberSupplyRecordListAPIView.as_view(),
+        name="public-customer-supply-record-list",
     ),
     # =====================================================
     # Lookups

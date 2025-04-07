@@ -26,6 +26,7 @@ from apis.views.invoice import InvoiceRetrieveUpdateAPIView
 
 from apis.views.public import (
     PublicMemberInvoiceListAPIView,
+    PublicMemberSupplyRecordListAPIView,
     PublicMembershipMerchantsListAPIView,
     PublicCustomerProfileRetrieveAPIView,
 )
@@ -50,6 +51,7 @@ __all__ = [
     "MemberRetrieveUpdateDestroyAPIView",
     "MemberSupplyRecordListCreateAPIView",
     "MerchantFooterRetrieveUpdateAPIView",
+    "PublicMemberSupplyRecordListAPIView",
     "PublicMembershipMerchantsListAPIView",
     "PublicCustomerProfileRetrieveAPIView",
     "MemberTransactionHistoryListCreateAPIView",
