@@ -22,7 +22,7 @@ class MemberInvoiceListCreateAPIView(generics.ListCreateAPIView):
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return Invoice.objects.none()
-        return self.request.membership.invoices.all().order_by("-created_at")
+        return self.request.membership.invoices.exclude(status=Invoice.STATUS.CANCELLED).order_by("-created_at")
 
     @extend_schema(
         description="""

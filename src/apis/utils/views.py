@@ -52,7 +52,7 @@ def get_customer_stats(membership):
             total_taken = supply_totals.get("total_taken", 0)
 
             # Calculate the balance
-            supply_balance = total_given - total_taken
+            supply_balance = total_taken - total_given
             response["supply_balance"] = {
                 "value": supply_balance,
                 "name": "Supply Balance",

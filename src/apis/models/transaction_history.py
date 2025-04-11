@@ -131,7 +131,7 @@ class TransactionHistory(BaseModel):
                 return tier["commission"]
         return 0
 
-    def apply_payment(self, created_by):
+    def apply_payment(self):
         # Get all unpaid invoices, ordered by created at date (oldest first)
 
         merchant_membership = self.merchant_membership
@@ -154,9 +154,10 @@ class TransactionHistory(BaseModel):
         for invoice in invoices:
             if remaining_payment >= invoice.due_amount:
                 remaining_payment -= invoice.due_amount
-                # Fully pay this invoice
                 invoice.due_amount = 0
                 invoice.status = Invoice.STATUS.PAID
+                invoice.handled_by=self._merchant_member
+                invoice.metadata['mark_as_paid_by'] = self._created_by
                 invoice.save()
                 paid_invoices.append(
                     {
@@ -166,11 +167,15 @@ class TransactionHistory(BaseModel):
                         "total_amount": str(invoice.total_amount),
                         "created_at": invoice.created_at.isoformat(),
                         "updated_at": invoice.updated_at.isoformat(),
+                        "metadata": invoice.metadata
                     }
                 )
             else:
                 invoice.due_amount -= remaining_payment
                 invoice.status = Invoice.STATUS.UNPAID
+                invoice.handled_by=self._merchant_member
+                invoice.metadata = invoice.metadata or {}
+                invoice.metadata['mark_as_paid_by'] = self._created_by
                 invoice.save()
                 paid_invoices.append(
                     {
@@ -180,11 +185,12 @@ class TransactionHistory(BaseModel):
                         "total_amount": str(invoice.total_amount),
                         "created_at": invoice.created_at.isoformat(),
                         "updated_at": invoice.updated_at.isoformat(),
+                        "metadata": invoice.metadata
                     }
                 )
                 break
         self.metadata = {
-            "created_by": created_by,
+            "created_by": self._created_by,
             "invoices": paid_invoices,
             "previous_invoice_state": previous_invoice_state,
         }

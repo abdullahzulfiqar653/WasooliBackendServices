@@ -21,7 +21,7 @@ class PublicMemberInvoiceListAPIView(generics.ListAPIView):
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return Invoice.objects.none()
-        return self.request.member.invoices.order_by("-created_at").all()
+        return self.request.membership.invoices.exclude(status=Invoice.STATUS.CANCELLED).order_by("-created_at")
 
     @extend_schema(
         parameters=[
@@ -32,20 +32,6 @@ class PublicMemberInvoiceListAPIView(generics.ListAPIView):
                 type=OpenApiTypes.STR,
                 enum=["2024", "2025", "2026", "2027", "2028", "2029", "2030"],
                 default=str(datetime.now().year),
-            ),
-            OpenApiParameter(
-                name="type",
-                description="type of the invoice.",
-                required=False,
-                type=OpenApiTypes.STR,
-                enum=["monthly", "miscellaneous"],
-            ),
-            OpenApiParameter(
-                name="status",
-                description="status of the invoice.",
-                required=False,
-                type=OpenApiTypes.STR,
-                enum=["paid", "unpaid"],
             ),
         ],
         description="""

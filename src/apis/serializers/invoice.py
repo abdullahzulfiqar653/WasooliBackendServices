@@ -81,66 +81,68 @@ class InvoiceSerializer(serializers.ModelSerializer):
         ).first()
         try:
             latest_transaction = merchant_membership.membership_transactions.latest()
-            if latest_transaction.balance > 0:
-                if validated_data.get("total_amount") <= latest_transaction.balance:
-                    validated_data["status"] = Invoice.STATUS.PAID
-                    validated_data["due_amount"] = 0
-                else:
-                    validated_data["due_amount"] = (
-                        validated_data.get("total_amount") - latest_transaction.balance
-                    )
-        except:
-            pass
+            latest_transaction_balance = latest_transaction.balance
+        except TransactionHistory.DoesNotExist:
+            latest_transaction_balance = 0
+
+        if latest_transaction_balance > 0:
+            if validated_data.get("total_amount") <= latest_transaction_balance:
+                validated_data["status"] = Invoice.STATUS.PAID
+                validated_data["due_amount"] = 0
+            else:
+                validated_data["due_amount"] = (
+                    validated_data.get("total_amount") - latest_transaction_balance
+                )
 
         validated_data["is_monthly"] = False
         validated_data["member"] = request.member
         validated_data["membership"] = merchant_membership
-        validated_data["type"] = Invoice.Type.MISCILLANEOUS
+        validated_data["type"] = Invoice.Type.OTHER
         invoice = super().create(validated_data)
 
-        try:
-            latest_credit_transaction = (
-                merchant_membership.membership_transactions.filter(
-                    transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT
-                ).latest()
-            )
-            # Get the latest metadata and append the new invoice to the "invoices" list
-            metadata = latest_credit_transaction.metadata or {
-                "invoices": [],
-                "previous_invoice_state": [],
-            }
-
-            invoices = metadata.get("invoices", [])
-            invoices.append(
-                {
-                    "id": invoice.id,
-                    "code": invoice.code,
-                    "status": invoice.status,
-                    "due_amount": str(invoice.due_amount),
-                    "total_amount": str(invoice.total_amount),
-                    "created_at": invoice.created_at.isoformat(),
+        if latest_transaction_balance > 0:
+            try:
+                latest_credit_transaction = (
+                    merchant_membership.membership_transactions.filter(
+                        transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT
+                    ).latest()
+                )
+                # Get the latest metadata and append the new invoice to the "invoices" list
+                metadata = latest_credit_transaction.metadata or {
+                    "invoices": [],
+                    "previous_invoice_state": [],
                 }
-            )
-            metadata["invoices"] = invoices
+                invoices = metadata.get("invoices", [])
+                invoices.append(
+                    {
+                        "id": invoice.id,
+                        "code": invoice.code,
+                        "status": invoice.status,
+                        "due_amount": str(invoice.due_amount),
+                        "total_amount": str(invoice.total_amount),
+                        "created_at": invoice.created_at.isoformat(),
+                    }
+                )
+                metadata["invoices"] = invoices
 
-            # Append the unpaid version of the invoice to the "previous_invoice_state"
-            previous_invoice_state = metadata.get("previous_invoice_state", [])
-            previous_invoice_state.append(
-                {
-                    "id": invoice.id,
-                    "status": Invoice.STATUS.UNPAID,
-                    "due_amount": str(invoice.total_amount),
-                }
-            )
+                # Append the unpaid version of the invoice to the "previous_invoice_state"
+                previous_invoice_state = metadata.get("previous_invoice_state", [])
+                previous_invoice_state.append(
+                    {
+                        "id": invoice.id,
+                        "status": Invoice.STATUS.UNPAID,
+                        "due_amount": str(invoice.total_amount),
+                    }
+                )
 
-            # Update the metadata with both "invoices" and "previous_invoice_state"
-            metadata["previous_invoice_state"] = previous_invoice_state
+                # Update the metadata with both "invoices" and "previous_invoice_state"
+                metadata["previous_invoice_state"] = previous_invoice_state
 
-            # Update and save the latest credit transaction with the updated metadata
-            latest_credit_transaction.metadata = metadata
-            latest_credit_transaction.save()
-        except:
-            pass
+                # Update and save the latest credit transaction with the updated metadata
+                latest_credit_transaction.metadata = metadata
+                latest_credit_transaction.save()
+            except:
+                pass
 
         TransactionHistory.objects.create(
             invoice=invoice,
@@ -170,11 +172,23 @@ class InvoiceSerializer(serializers.ModelSerializer):
                     "due_amount": str(instance.due_amount),
                 }
             ]
-
+            instance.metadata['mark_as_paid_by'] = request.user.first_name
+            instance.status = Invoice.STATUS.PAID
+            instance.handled_by = request.membership.member
             TransactionHistory.objects.create(
                 invoice=instance,
                 metadata={
-                    "invoices": [instance.code],
+                    "invoices": [
+                        {
+                            "id": instance.id,
+                            "code": instance.code,
+                            "status": instance.status,
+                            "metadata": instance.metadata,
+                            "due_amount": str(instance.due_amount),
+                            "total_amount": str(instance.total_amount),
+                            "created_at": instance.created_at.isoformat(),
+                        }
+                    ],
                     "previous_invoice_state": previous_invoice_state,
                 },
                 merchant_membership=request.membership,
@@ -183,9 +197,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
                 type=TransactionHistory.TYPES.BILLING,
                 transaction_type=TransactionHistory.TRANSACTION_TYPE.CREDIT,
             )
-            instance.status = Invoice.STATUS.PAID
             instance.due_amount = Decimal(0)
-            instance.handled_by = request.membership.member
             instance.save()
             return instance
 
@@ -204,7 +216,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             instance.save()
             return instance
 
-        if new_amount and not instance.total_amount == new_amount:
+        if new_amount and instance.total_amount != new_amount:
             metadata = validated_data.get("metadata", {})
             if self.instance.total_amount > new_amount:
                 # if new amount is less then previous amount
@@ -235,8 +247,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             instance.total_amount = new_amount
             old_remarks = instance.metadata.get("remarks", "")
             new_remarks = metadata.get("remarks", "")
-            new_remarks = f"{old_remarks}{new_remarks}. "
-            instance.metadata["remarks"] = new_remarks
+            instance.metadata["remarks"] = f"{old_remarks}{new_remarks}. "
             instance.save()
             return instance
         return instance

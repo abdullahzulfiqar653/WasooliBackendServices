@@ -130,7 +130,7 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
                     "name": "Collection this month",
                 },
                 "total_remaining_collections_this_month": {
-                    "value": collected_amount_current_month,
+                    "value": total_due,
                     "name": "Remaining collection this month",
                 },
                 "total_collections": {

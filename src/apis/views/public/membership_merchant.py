@@ -15,7 +15,6 @@ class PublicMembershipMerchantsListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         member = self.request.member
-
         merchant_ids = MerchantMembership.objects.filter(member=member).values_list(
             "merchant", flat=True
         )

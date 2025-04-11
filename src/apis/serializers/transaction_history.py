@@ -44,7 +44,9 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
         validated_data["type"] = TransactionHistory.TYPES.BILLING
         validated_data["transaction_type"] = TransactionHistory.TRANSACTION_TYPE.CREDIT
         transaction = super().create(validated_data)
-        transaction.apply_payment(request.user.first_name)
+        transaction._created_by = request.user.first_name
+        transaction._merchant_member = request.user.profile
+        transaction.apply_payment()
         return transaction
 
     def update(self, instance, validated_data):

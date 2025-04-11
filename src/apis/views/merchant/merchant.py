@@ -1,6 +1,7 @@
 from django.utils import timezone
 from rest_framework import generics, filters
 from rest_framework.exceptions import NotFound
+from django.db.models.functions import Coalesce
 from django.db.models import (
     F,
     Sum,
@@ -9,12 +10,14 @@ from django.db.models import (
     Value,
     Subquery,
     OuterRef,
+    IntegerField,
     DecimalField,
 )
 
-from apis.models.member_role import RoleChoices
-from apis.models.merchant_member import MerchantMember
 from apis.models.merchant import Merchant
+from apis.models.member_role import RoleChoices
+from apis.models.supply_record import SupplyRecord
+from apis.models.merchant_member import MerchantMember
 from apis.models.transaction_history import TransactionHistory
 
 from apis.permissions import IsMerchantOrStaff
@@ -34,6 +37,9 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
     def get_queryset(self):
         role = self.request.query_params.get("role", RoleChoices.CUSTOMER)
         is_paid = self.request.query_params.get("is_paid", None)
+        balance = self.request.query_params.get("balance", None)
+        supply_balance = self.request.query_params.get("supply_balance", None)
+        order_by_field = "-code"
         is_paid_today = self.request.query_params.get("is_paid_today", None)
         merchant = self.request.merchant
 
@@ -72,6 +78,23 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
 
             # Now annotate balances directly on the membership
             # For each membership, calculate balance by summing debits, credits, and adjustments
+
+            # Subquery to calculate total given and total taken separately
+            membership_supply_balances = (
+                SupplyRecord.objects.filter(
+                    merchant_membership=OuterRef("memberships__id")
+                )
+                .values("merchant_membership")
+                .annotate(
+                    total_given=Sum("given"),
+                    total_taken=Sum("taken"),
+                )
+                .annotate(
+                    total_supply_balance=F("total_taken") - F("total_given"),
+                )
+                .values("total_supply_balance")
+            )
+
             membership_balance_subquery = (
                 TransactionHistory.objects.filter(
                     merchant_membership=OuterRef("memberships__id"),
@@ -118,6 +141,12 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
             )
 
             merchant_member_queryset = merchant_member_queryset.annotate(
+                supply_balance=Coalesce(
+                    Subquery(membership_supply_balances, output_field=IntegerField()),
+                    Value(0),
+                )
+            )
+            merchant_member_queryset = merchant_member_queryset.annotate(
                 balance=Subquery(
                     membership_balance_subquery, output_field=DecimalField()
                 )
@@ -138,7 +167,12 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                     memberships__membership_transactions__in=transaction_history_queryset_today
                 )
 
-        return merchant_member_queryset.order_by("-code")
+            if balance is not None:
+                order_by_field = "balance" if balance == "true" else "-balance"
+            elif supply_balance is not None:
+                order_by_field = "supply_balance" if supply_balance == "true" else "-supply_balance"
+
+        return merchant_member_queryset.order_by(order_by_field)
 
     @extend_schema(
         parameters=[
@@ -162,6 +196,20 @@ class MerchantMemberListCreateAPIView(generics.ListCreateAPIView):
                 required=False,
                 type=OpenApiTypes.STR,
                 enum=["true"],
+            ),
+            OpenApiParameter(
+                name="balance",
+                description="Order by customer balance.",
+                required=False,
+                type=OpenApiTypes.BOOL,
+                enum=[True, False],
+            ),
+            OpenApiParameter(
+                name="supply_balance",
+                description="Order by customer supply balance.",
+                required=False,
+                type=OpenApiTypes.BOOL,
+                enum=[True, False],
             ),
         ],
         description="""
