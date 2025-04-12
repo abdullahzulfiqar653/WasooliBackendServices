@@ -42,6 +42,7 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = MerchantDashboardSerializer
 
     def retrieve(self, request, *args, **kwargs):
+        invoices = Invoice.objects.exclude(status=Invoice.STATUS.CANCELLED)
         today = timezone.now().date()
         current_year = now().year
         current_month = now().month
@@ -50,15 +51,21 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
             merchant_membership__merchant_id=request.merchant.id,  # Filter by merchant ID
             type=TransactionHistory.TYPES.BILLING,
         )
-
-        totals = Invoice.objects.filter(
+        all_invoices = invoices.filter(
+            membership__merchant=request.merchant,  # Filter invoices related to this merchant
+        )
+        this_month_invoices = invoices.filter(
             membership__merchant=request.merchant,  # Filter invoices related to this merchant
             created_at__year=current_year,
             created_at__month=current_month,
-        ).aggregate(total_due=Sum("due_amount"), total_amount=Sum("total_amount"))
-        total_due = totals["total_due"] or 0
-        total_amount = totals["total_amount"] or 0
-        collected_amount_current_month = total_amount - total_due
+        )
+        
+        total_this_month = this_month_invoices.aggregate(total_due=Sum("due_amount"), total_amount=Sum("total_amount"))
+        total_all_time = all_invoices.aggregate(total_due=Sum("due_amount"), total_amount=Sum("total_amount"))
+
+        total_due_this_month = total_this_month["total_due"] or 0
+        total_amount_this_month = total_this_month["total_amount"] or 0
+        total_due_all_time = total_all_time["total_due"] or 0
 
 
         # Calculate total credit for this merchant_membership
@@ -130,7 +137,7 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
                     "name": "Collection this month",
                 },
                 "total_remaining_collections_this_month": {
-                    "value": total_due,
+                    "value": total_due_this_month,
                     "name": "Remaining collection this month",
                 },
                 "total_collections": {
@@ -138,7 +145,7 @@ class MerchantDashboardRetrieveAPIView(generics.RetrieveAPIView):
                     "name": "Collection this year",
                 },
                 "total_remaining_collections": {
-                    "value": total_remaining_collection,
+                    "value": total_due_all_time,
                     "name": "Total Remaining collection",
                 },
                 "total_customers": {
